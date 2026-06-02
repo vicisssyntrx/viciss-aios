@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/contexts/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
@@ -308,10 +309,10 @@ export default function AccountCenter({ onClose }: Props) {
     null;
   const initial = currentDisplayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-3 sm:p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
       {resetting && <div className="fixed inset-0 z-[110]"><LoadingScreen message="Wiping account..." /></div>}
-      <div className="glass rounded-2xl p-4 sm:p-5 w-full max-w-sm max-h-[92vh] overflow-y-auto z-10">
+      <div className="glass w-full sm:max-w-sm max-h-[92vh] overflow-y-auto z-10 rounded-t-3xl sm:rounded-2xl p-4 sm:p-5">
         <div className="relative mb-3">
           <button onClick={onClose} disabled={resetting} className="popup-close absolute right-0 top-0"><X className="h-4 w-4" /></button>
           <h1 className="text-2xl font-bold text-foreground text-center">Vicissometer</h1>

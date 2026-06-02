@@ -77,8 +77,8 @@ export default function PowerUpOverlay({ onClose }: Props) {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-      <div className="glass rounded-2xl p-6 w-full max-w-md max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
+      <div className="glass w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-6 max-h-[88vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-foreground">⚡ Power-Ups</h2>
           <button onClick={onClose} className="popup-close"><X className="h-4 w-4" /></button>

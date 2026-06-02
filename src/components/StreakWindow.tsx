@@ -38,8 +38,8 @@ export default function StreakWindow({ onClose }: Props) {
   const displayStreak = stats?.streak || 0;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-      <div className="glass rounded-2xl p-3 sm:p-4 w-full max-w-[95vw] sm:max-w-lg max-h-[88vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
+      <div className="glass w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-3 sm:p-4 max-h-[88vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-bold text-foreground">🔥 Streak Calendar</h2>
           <button onClick={onClose} className="popup-close"><X className="h-4 w-4" /></button>
