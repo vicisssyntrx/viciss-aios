@@ -263,58 +263,64 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Floating Liquid Glass Tab Bar for Mobile — matches top Navbar style */}
-      <div className="sm:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[440px]">
+      {/* Floating Liquid Glass Tab Bar for Mobile — pill shape with animated sliding indicator */}
+      <div className="sm:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 w-[88%] max-w-[420px]">
         <div
-          className="relative flex items-center justify-around py-2.5 px-4 rounded-[1.35rem]"
+          className="bottom-nav-bar relative flex items-center p-1.5 rounded-full"
           style={{
-            background: "transparent",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(255, 255, 255, 0.18)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.28), inset 1px 1px 0px rgba(255,255,255,0.38), inset -1px -1px 0px rgba(0,0,0,0.18)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            background: "rgba(0,0,0,0.08)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.22), inset 1px 1px 0px rgba(255,255,255,0.35), inset -1px -1px 0px rgba(0,0,0,0.12)",
           }}
         >
+          {/* Animated sliding glass pill indicator */}
+          <div
+            className="bottom-nav-pill absolute top-1.5 bottom-1.5 rounded-full pointer-events-none"
+            style={{
+              left: activeTab === "dash" ? "6px" : activeTab === "agent" ? "calc(33.33% + 3px)" : "calc(66.66% + 3px)",
+              width: "calc(33.33% - 6px)",
+              background: "rgba(255,255,255,0.55)",
+              border: "1px solid rgba(255,255,255,0.5)",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.7)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              transition: "left 300ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+          />
+
           {/* Tab 1: Dash */}
           <button
             onClick={() => setActiveTab("dash")}
-            className={`flex-1 flex flex-col items-center justify-center py-1 rounded-2xl transition-all duration-300 select-none ${
-              activeTab === "dash"
-                ? "text-primary"
-                : "text-muted-foreground"
+            className={`flex-1 flex flex-col items-center justify-center py-2 rounded-full relative z-10 transition-all duration-300 select-none ${
+              activeTab === "dash" ? "text-primary" : "text-muted-foreground"
             }`}
-            style={activeTab === "dash" ? { filter: "drop-shadow(0 0 8px hsl(var(--primary) / 0.55))" } : {}}
           >
-            <LayoutDashboard className={`w-5 h-5 transition-all ${activeTab === "dash" ? "scale-110" : ""}`} />
-            <span className={`text-[10px] tracking-wide mt-1 font-bold transition-all ${activeTab === "dash" ? "opacity-100" : "opacity-60"}`}>Dash</span>
+            <LayoutDashboard className={`w-5 h-5 transition-all duration-300 ${activeTab === "dash" ? "scale-110" : "scale-100"}`} />
+            <span className={`text-[10px] tracking-wide mt-0.5 font-bold transition-all duration-300 ${activeTab === "dash" ? "opacity-100" : "opacity-50"}`}>Dash</span>
           </button>
 
           {/* Tab 2: Agents */}
           <button
             onClick={() => setActiveTab("agent")}
-            className={`flex-1 flex flex-col items-center justify-center py-1 rounded-2xl transition-all duration-300 select-none ${
-              activeTab === "agent"
-                ? "text-primary"
-                : "text-muted-foreground"
+            className={`flex-1 flex flex-col items-center justify-center py-2 rounded-full relative z-10 transition-all duration-300 select-none ${
+              activeTab === "agent" ? "text-primary" : "text-muted-foreground"
             }`}
-            style={activeTab === "agent" ? { filter: "drop-shadow(0 0 8px hsl(var(--primary) / 0.55))" } : {}}
           >
-            <Bot className={`w-5 h-5 transition-all ${activeTab === "agent" ? "scale-110" : ""}`} />
-            <span className={`text-[10px] tracking-wide mt-1 font-bold transition-all ${activeTab === "agent" ? "opacity-100" : "opacity-60"}`}>Agents</span>
+            <Bot className={`w-5 h-5 transition-all duration-300 ${activeTab === "agent" ? "scale-110" : "scale-100"}`} />
+            <span className={`text-[10px] tracking-wide mt-0.5 font-bold transition-all duration-300 ${activeTab === "agent" ? "opacity-100" : "opacity-50"}`}>Agents</span>
           </button>
 
           {/* Tab 3: Apps */}
           <button
             onClick={() => setActiveTab("apps")}
-            className={`flex-1 flex flex-col items-center justify-center py-1 rounded-2xl transition-all duration-300 select-none ${
-              activeTab === "apps"
-                ? "text-primary"
-                : "text-muted-foreground"
+            className={`flex-1 flex flex-col items-center justify-center py-2 rounded-full relative z-10 transition-all duration-300 select-none ${
+              activeTab === "apps" ? "text-primary" : "text-muted-foreground"
             }`}
-            style={activeTab === "apps" ? { filter: "drop-shadow(0 0 8px hsl(var(--primary) / 0.55))" } : {}}
           >
-            <Grid className={`w-5 h-5 transition-all ${activeTab === "apps" ? "scale-110" : ""}`} />
-            <span className={`text-[10px] tracking-wide mt-1 font-bold transition-all ${activeTab === "apps" ? "opacity-100" : "opacity-60"}`}>Apps</span>
+            <Grid className={`w-5 h-5 transition-all duration-300 ${activeTab === "apps" ? "scale-110" : "scale-100"}`} />
+            <span className={`text-[10px] tracking-wide mt-0.5 font-bold transition-all duration-300 ${activeTab === "apps" ? "opacity-100" : "opacity-50"}`}>Apps</span>
           </button>
         </div>
       </div>
