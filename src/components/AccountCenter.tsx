@@ -314,10 +314,10 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
   const content = (
     <>
-      <div className="relative w-full max-w-sm flex flex-col items-center pt-20 sm:pt-24 select-none mx-auto mt-8 sm:mt-0">
+      <div className="relative w-full max-w-sm flex flex-col items-center pt-[13rem] sm:pt-[15rem] select-none mx-auto mt-8 sm:mt-0">
         {/* Large Centered Avatar */}
         <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.36)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
+          className="absolute top-6 left-1/2 -translate-x-1/2 z-20 w-36 h-36 sm:w-40 sm:h-40 shrink-0 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.36)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
           onClick={() => {
             if (!editingProfile) {
               setDisplayName(currentDisplayName);
@@ -339,7 +339,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
         {/* Settings Card */}
         <div className={cn(
-          "glass w-full overflow-y-auto z-10 p-4 sm:p-5 pt-16 sm:pt-20 flex flex-col relative",
+          "glass w-full overflow-y-auto z-10 p-4 sm:p-5 pt-[5.5rem] sm:pt-[6.5rem] flex flex-col relative",
           isEmbedded ? "rounded-2xl" : "max-h-[82vh] rounded-t-3xl sm:rounded-2xl"
         )}>
           {/* Close Button (for desktop popup) */}

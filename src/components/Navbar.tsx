@@ -38,13 +38,15 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── Mobile: floating stat bubbles top-right ── */}
-      <div className="md:hidden fixed top-0 right-0 z-40 flex flex-row items-center gap-2 pt-3 pr-3 pointer-events-none">
-        {/* Coins bubble */}
+      {/* ── Mobile: coins pill — top LEFT ── */}
+      <div className="md:hidden fixed top-0 left-0 z-40 pt-3 pl-3 pointer-events-none">
         <span className="pointer-events-auto glass rounded-full px-3.5 py-1.5 text-sm font-semibold text-foreground whitespace-nowrap shadow-lg">
           🪙 {stats?.coins ?? 0}
         </span>
-        {/* Streak bubble — tappable */}
+      </div>
+
+      {/* ── Mobile: streak pill — top RIGHT ── */}
+      <div className="md:hidden fixed top-0 right-0 z-40 pt-3 pr-3 pointer-events-none">
         <button
           type="button"
           onClick={() => setShowStreak(true)}
