@@ -507,13 +507,25 @@
   color: hsl(var(--primary));
 }
 
-/* Dark mode: floating pill uses same glass as top navbar */
+/* Premium iOS-style Liquid Glass Tab Bar */
+.floating-nav-pill {
+  background: rgba(255, 255, 255, 0.38) !important;
+  backdrop-filter: blur(28px) saturate(210%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(210%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
 .dark .floating-nav-pill {
-  background: rgba(10, 10, 10, 0.78) !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.45),
-              inset 1px 1px 0px rgba(255,255,255,0.22),
-              inset -1px -1px 0px rgba(255,255,255,0.08) !important;
+  background: rgba(15, 15, 15, 0.35) !important;
+  backdrop-filter: blur(28px) saturate(210%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(210%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.36),
+              0 2px 8px rgba(0, 0, 0, 0.18),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Subtle drop-shadow on all glass cards (light + dark) */

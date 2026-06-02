@@ -330,7 +330,7 @@ export default function Dashboard() {
           </div>
 
           {/* Footer — pushed above bottom nav with enough margin */}
-          <div className="mt-10 mb-28 md:mb-6 flex flex-col items-center justify-center opacity-60 transition-opacity hover:opacity-100">
+          <div className="mt-3 mb-24 md:mb-2 flex flex-col items-center justify-center opacity-60 transition-opacity hover:opacity-100">
             <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
               Made with <span className="text-red-500 hover:scale-110 transition-transform duration-300">❤️</span> by{" "}
               <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
@@ -346,16 +346,7 @@ export default function Dashboard() {
 
       {/* ── Floating Mobile Tab Bar ─────────────────────────────────────────── */}
       <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[400px]">
-        <div
-          className="flex items-stretch rounded-[22px] overflow-hidden"
-          style={{
-            background: "rgba(255,255,255,0.78)",
-            backdropFilter: "blur(24px) saturate(180%)",
-            WebkitBackdropFilter: "blur(24px) saturate(180%)",
-            border: "1px solid rgba(255,255,255,0.6)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9)",
-          }}
-        >
+        <div className="flex items-stretch rounded-[22px] overflow-hidden floating-nav-pill w-full">
           {/* Tab 1: Dash */}
           <button
             onClick={() => setMobileTab("dash")}

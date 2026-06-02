@@ -339,7 +339,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
         {/* Settings Card */}
         <div className={cn(
-          "glass w-full overflow-y-auto z-10 p-4 sm:p-5 pt-14 sm:pt-16 flex flex-col relative",
+          "glass w-full overflow-y-auto z-10 p-4 sm:p-5 pt-16 sm:pt-20 flex flex-col relative",
           isEmbedded ? "rounded-2xl" : "max-h-[82vh] rounded-t-3xl sm:rounded-2xl"
         )}>
           {/* Close Button (for desktop popup) */}
@@ -354,7 +354,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
           )}
 
           {/* Title */}
-          <div className="text-center mb-5 mt-2">
+          <div className="text-center mb-5 mt-4 sm:mt-6">
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground select-none">
               Vicissometer
             </h1>
