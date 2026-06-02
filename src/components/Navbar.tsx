@@ -8,12 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserStats } from "@/hooks/useUserStats";
 import { Home, ClipboardList } from "lucide-react";
 
-interface NavbarProps {
-  desktopTab?: "dash" | "tasks";
-  onDesktopTabChange?: (tab: "dash" | "tasks") => void;
-}
-
-export default function Navbar({ desktopTab, onDesktopTabChange }: NavbarProps) {
+export default function Navbar() {
   const { user } = useAuth();
   const { data: stats } = useUserStats();
   const [showAccount, setShowAccount] = useState(false);
@@ -40,11 +35,6 @@ export default function Navbar({ desktopTab, onDesktopTabChange }: NavbarProps) 
     null;
   const initial = displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
   const displayStreak = stats?.streak || 0;
-
-  const tabs: { key: "dash" | "tasks"; label: string; icon: React.ReactNode }[] = [
-    { key: "dash", label: "Dash", icon: <Home className="w-4 h-4" /> },
-    { key: "tasks", label: "Tasks", icon: <ClipboardList className="w-4 h-4" /> },
-  ];
 
   return (
     <>
@@ -87,31 +77,6 @@ export default function Navbar({ desktopTab, onDesktopTabChange }: NavbarProps) 
                 </button>
               </div>
             </div>
-
-            {/* Centre: Dash / Tasks tabs */}
-            {onDesktopTabChange && (
-              <div className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-                <div className="flex items-center gap-0.5 p-1 glass rounded-full">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.key}
-                      onClick={() => onDesktopTabChange(tab.key)}
-                      className={`
-                        relative flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold
-                        transition-all duration-300 ease-out select-none
-                        ${desktopTab === tab.key
-                          ? "bg-foreground text-background shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                        }
-                      `}
-                    >
-                      {tab.icon}
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Right: Avatar */}
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">

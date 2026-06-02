@@ -16,6 +16,7 @@ import PowerUpOverlay from "@/components/PowerUpOverlay";
 import LoadingScreen from "@/components/LoadingScreen";
 import AccountCenter from "@/components/AccountCenter";
 import AchievementToast, { AchievementType } from "@/components/AchievementToast";
+import MobileBoostCards from "@/components/MobileBoostCards";
 import { Home, ClipboardList } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
@@ -65,7 +66,6 @@ export function useMidnightInvalidation() {
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "account">("dash");
-  const [desktopTab, setDesktopTab] = useState<"dash" | "tasks">("dash");
 
   // Achievement animation queue
   const [achievementQueue, setAchievementQueue] = useState<AchievementType[]>([]);
@@ -237,10 +237,17 @@ export default function Dashboard() {
       )}
 
       <div className="relative z-10 flex flex-col min-h-screen pt-4 md:pt-24">
-        <Navbar desktopTab={desktopTab} onDesktopTabChange={setDesktopTab} />
+        <Navbar />
 
-        {/* ── Greeting: only on Dash tab ── */}
-        {(isDash || desktopTab === "dash") && <Greeting />}
+        {/* ── Greeting ── */}
+        <div className="hidden md:block">
+          <Greeting />
+        </div>
+        {isDash && (
+          <div className="md:hidden">
+            <Greeting />
+          </div>
+        )}
 
         <div className="flex-1 px-4 sm:px-6 pb-4 md:pb-6 mt-2">
           <div className="mx-auto w-full max-w-[860px] md:grid md:grid-cols-2 md:gap-4">
@@ -304,40 +311,21 @@ export default function Dashboard() {
             {/* ══════════ DESKTOP ══════════ */}
             {/* Left column */}
             <div className="hidden md:block space-y-2">
-              {desktopTab === "tasks" ? (
-                <>
-                  <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
-                  <BottomActionBar
-                    onSave={handleSave}
-                    onReset={handleReset}
-                    disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                    hasHabits={!!habits?.length}
-                  />
-                </>
-              ) : (
-                <>
-                  <GrowthGraph />
-                  <JourneyInsights />
-                </>
-              )}
+              <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
+              <BottomActionBar
+                onSave={handleSave}
+                onReset={handleReset}
+                disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
+                hasHabits={!!habits?.length}
+              />
+              <MobileBoostCards />
             </div>
 
             {/* Right column */}
             <div className="hidden md:block space-y-2">
-              {desktopTab === "tasks" ? (
-                <OutcomeCards />
-              ) : (
-                <>
-                  <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
-                  <BottomActionBar
-                    onSave={handleSave}
-                    onReset={handleReset}
-                    disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                    hasHabits={!!habits?.length}
-                  />
-                  <OutcomeCards />
-                </>
-              )}
+              <GrowthGraph />
+              <JourneyInsights />
+              <OutcomeCards />
             </div>
           </div>
 

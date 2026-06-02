@@ -314,28 +314,62 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
   const content = (
     <>
-      <div className={cn(
-        "glass w-full overflow-y-auto z-10 p-4 sm:p-5",
-        isEmbedded ? "rounded-2xl" : "sm:max-w-sm max-h-[92vh] rounded-t-3xl sm:rounded-2xl"
-      )}>
-        <div className="relative mb-3">
-          {!isEmbedded && onClose && (
-            <button onClick={onClose} disabled={resetting} className="popup-close absolute right-0 top-0"><X className="h-4 w-4" /></button>
-          )}
-          <h1 className="text-2xl font-bold text-foreground text-center">Vicissometer</h1>
-          <h2 className="text-xl font-bold text-foreground text-center">Account Centre</h2>
+      <div className="relative w-full max-w-sm flex flex-col items-center pt-12 sm:pt-14 select-none mx-auto">
+        {/* Large Centered Avatar */}
+        <div 
+          className="absolute top-0 z-20 w-24 h-24 sm:w-28 h-28 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.36)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
+          onClick={() => {
+            if (!editingProfile) {
+              setDisplayName(currentDisplayName);
+              setAvatarUrl(currentAvatar || "");
+              setEditingProfile(true);
+            }
+          }}
+        >
+          <Avatar className="h-full w-full">
+            {currentAvatar ? <AvatarImage src={currentAvatar} alt="Profile" /> : null}
+            <AvatarFallback className="text-primary text-3xl font-black bg-primary/10 flex items-center justify-center">{initial}</AvatarFallback>
+          </Avatar>
+          
+          {/* Cam overlay on hover */}
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <User className="h-6 w-6 text-white" />
+          </div>
         </div>
 
-        {/* Profile */}
-        <div className="flex items-center gap-3 mb-3">
-          <Avatar className="h-12 w-12 border border-primary/40 bg-primary/20">
-            {currentAvatar ? <AvatarImage src={currentAvatar} alt="Profile" /> : null}
-            <AvatarFallback className="text-primary text-xl font-bold">{initial}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
+        {/* Settings Card */}
+        <div className={cn(
+          "glass w-full overflow-y-auto z-10 p-4 sm:p-5 pt-14 sm:pt-16 flex flex-col relative",
+          isEmbedded ? "rounded-2xl" : "max-h-[82vh] rounded-t-3xl sm:rounded-2xl"
+        )}>
+          {/* Close Button (for desktop popup) */}
+          {!isEmbedded && onClose && (
+            <button 
+              onClick={onClose} 
+              disabled={resetting} 
+              className="popup-close absolute right-4 top-4 hover:bg-secondary/60 p-1.5 rounded-full transition-colors z-30 animate-fade-in"
+            >
+              <X className="h-4 w-4 text-foreground/80" />
+            </button>
+          )}
+
+          {/* Title */}
+          <div className="text-center mb-5 mt-2">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground select-none">
+              Vicissometer
+            </h1>
+          </div>
+
+          {/* Centered Profile Details Section */}
+          <div className="text-center mb-4 border-b border-border/40 pb-4">
             {editingProfile ? (
-              <div className="space-y-2">
-                <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="bg-secondary border-border h-10 text-base" placeholder="Display Name" />
+              <div className="space-y-3 max-w-[260px] mx-auto">
+                <Input 
+                  value={displayName} 
+                  onChange={(e) => setDisplayName(e.target.value)} 
+                  className="bg-secondary/50 border-border/60 h-10 text-center text-base" 
+                  placeholder="Display Name" 
+                />
                 <input
                   ref={avatarInputRef}
                   type="file"
@@ -343,32 +377,44 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
                   className="hidden"
                   onChange={(e) => handleAvatarPicked(e.target.files?.[0])}
                 />
-                <Button type="button" variant="secondary" onClick={handleSelectAvatar} className="w-full h-10 text-sm">
-                  Select Image (max 5 MB)
+                <Button 
+                  type="button" 
+                  variant="secondary" 
+                  onClick={handleSelectAvatar} 
+                  className="w-full h-10 text-sm glass hover:bg-secondary/80 font-semibold"
+                >
+                  Upload Avatar Image
                 </Button>
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={handleUpdateProfile} className="bg-primary text-primary-foreground text-sm h-8">Save</Button>
-                  <Button size="sm" variant="ghost" onClick={() => setEditingProfile(false)} className="text-sm h-8">Cancel</Button>
+                <div className="flex gap-2 justify-center pt-1">
+                  <Button size="sm" onClick={handleUpdateProfile} className="bg-primary text-primary-foreground font-semibold px-4 h-8">
+                    Save
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setEditingProfile(false)} className="h-8 text-muted-foreground hover:text-foreground">
+                    Cancel
+                  </Button>
                 </div>
               </div>
             ) : (
-              <>
-                <p className="font-semibold text-foreground text-base truncate">{currentDisplayName}</p>
-                <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+              <div className="flex flex-col items-center">
+                <p className="font-extrabold text-foreground text-xl tracking-tight truncate max-w-[240px]">
+                  {currentDisplayName}
+                </p>
+                <p className="text-sm text-muted-foreground truncate max-w-[240px] mt-0.5">
+                  {user?.email}
+                </p>
                 <button
                   onClick={() => {
                     setDisplayName(currentDisplayName);
                     setAvatarUrl(currentAvatar || "");
                     setEditingProfile(true);
                   }}
-                  className="text-sm text-primary hover:underline mt-0.5"
+                  className="text-xs font-bold text-primary hover:underline mt-2.5 flex items-center gap-1.5 bg-primary/10 px-3.5 py-1.5 rounded-full active:scale-95 transition-all duration-300"
                 >
-                  <User className="h-3 w-3 inline mr-1" />Edit Profile
+                  <User className="h-3 w-3" /> Edit Profile
                 </button>
-              </>
+              </div>
             )}
           </div>
-        </div>
 
         <div className="space-y-0.5">
           <button onClick={() => setShowShields(true)} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary/40 transition-colors text-foreground text-base">
@@ -520,6 +566,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
           </Button>
         </div>
       </div>
+    </div>
       
       <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
         <AlertDialogContent className="glass border-destructive/30 max-w-sm">
