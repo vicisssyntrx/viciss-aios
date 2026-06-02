@@ -69,7 +69,7 @@
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 95%;
 
-    --border: 0 0% 26%;
+    --border: 0 0% 32%;
     --input: 0 0% 18%;
     --ring: 0 72% 51%;
 
@@ -107,18 +107,18 @@
     linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)) padding-box, 
     radial-gradient(
       circle 120px at var(--mouse-px, 50px) var(--mouse-py, 50px), 
-      rgba(255, 255, 255, 0.95) 0%, 
-      rgba(0, 0, 0, 0.03) 70%
+      rgba(255, 255, 255, 1.0) 0%, 
+      rgba(0, 0, 0, 0.18) 70%
     ) border-box;
   
-  border: 1px solid transparent !important;
+  border: 1.5px solid transparent !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 1.35rem;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.05),
-    inset 1px 1px 0px rgba(255, 255, 255, 0.5),
-    inset -1px -1px 0px rgba(0, 0, 0, 0.02);
+    0 8px 32px rgba(0, 0, 0, 0.07),
+    inset 1px 1px 0px rgba(255, 255, 255, 0.6),
+    inset -1px -1px 0px rgba(0, 0, 0, 0.04);
     
   /* Dynamic surface sheen overlay */
   background-image: radial-gradient(
@@ -143,14 +143,15 @@
     linear-gradient(rgba(10, 10, 10, 0.72), rgba(10, 10, 10, 0.72)) padding-box, 
     radial-gradient(
       circle 120px at var(--mouse-px, 50px) var(--mouse-py, 50px), 
-      rgba(255, 255, 255, 0.78) 0%, 
-      rgba(255, 255, 255, 0.35) 70%
+      rgba(255, 255, 255, 0.95) 0%, 
+      rgba(255, 255, 255, 0.55) 70%
     ) border-box;
     
+  border: 1.5px solid transparent !important;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.25),
-    inset 1px 1px 0px rgba(255, 255, 255, 0.15),
-    inset -1px -1px 0px rgba(0, 0, 0, 0.25);
+    0 8px 32px rgba(0, 0, 0, 0.32),
+    inset 1px 1px 0px rgba(255, 255, 255, 0.22),
+    inset -1px -1px 0px rgba(0, 0, 0, 0.28);
     
   background-image: radial-gradient(
     circle 160px at var(--mouse-px, 50px) var(--mouse-py, 50px),
@@ -380,7 +381,7 @@
 }
 .dark .bg-orbit-blue {
   background: radial-gradient(circle, rgba(59, 130, 246, 0.42) 0%, rgba(59, 130, 246, 0) 70%);
-}/* Mobile-specific Lift Effect (For touch-only viewports) */
+}/* Mobile-specific Lift Effect (For touch-only viewports, excluding top navbar and its items) */
 @media (hover: none) {
   .glass:active, .glass-strong:active {
     transform: translateY(-2px) scale3d(0.99, 0.99, 1) !important;
@@ -388,5 +389,10 @@
       0 12px 28px rgba(0, 0, 0, 0.22),
       inset 1px 1px 0px rgba(255, 255, 255, 0.2) !important;
     transition: transform 100ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 100ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  
+  nav .glass:active, nav .glass-strong:active, nav:active {
+    transform: none !important;
+    box-shadow: none !important;
   }
 }
