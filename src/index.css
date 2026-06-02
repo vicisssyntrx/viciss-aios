@@ -108,7 +108,7 @@
     radial-gradient(
       circle 120px at var(--mouse-px, 50px) var(--mouse-py, 50px), 
       rgba(255, 255, 255, 0.95) 0%, 
-      rgba(0, 0, 0, 0.12) 65%
+      rgba(0, 0, 0, 0.03) 70%
     ) border-box;
   
   border: 1px solid transparent;
@@ -143,8 +143,8 @@
     linear-gradient(rgba(10, 10, 10, 0.72), rgba(10, 10, 10, 0.72)) padding-box, 
     radial-gradient(
       circle 120px at var(--mouse-px, 50px) var(--mouse-py, 50px), 
-      rgba(255, 255, 255, 0.38) 0%, 
-      rgba(255, 255, 255, 0.06) 65%
+      rgba(255, 255, 255, 0.55) 0%, 
+      rgba(255, 255, 255, 0.18) 70%
     ) border-box;
     
   box-shadow:
@@ -193,7 +193,7 @@
     radial-gradient(
       circle 120px at var(--mouse-px, 50px) var(--mouse-py, 50px), 
       rgba(255, 255, 255, 0.98) 0%, 
-      rgba(0, 0, 0, 0.12) 65%
+      rgba(0, 0, 0, 0.03) 70%
     ) border-box;
     
   border: 1px solid transparent;
@@ -222,8 +222,8 @@
     linear-gradient(rgba(10, 10, 10, 0.88), rgba(10, 10, 10, 0.88)) padding-box, 
     radial-gradient(
       circle 120px at var(--mouse-px, 50px) var(--mouse-py, 50px), 
-      rgba(255, 255, 255, 0.42) 0%, 
-      rgba(255, 255, 255, 0.06) 65%
+      rgba(255, 255, 255, 0.6) 0%, 
+      rgba(255, 255, 255, 0.20) 70%
     ) border-box;
     
   box-shadow: 0 8px 24px hsla(0, 0%, 0%, 0.4), inset 0 1px 0 hsla(0, 0%, 100%, 0.1);

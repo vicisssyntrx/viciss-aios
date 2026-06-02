@@ -3,6 +3,7 @@ import { useEffect } from "react";
 export function useLiquidPhysics() {
   useEffect(() => {
     let activeCard: HTMLElement | null = null;
+    let cachedRect: DOMRect | null = null;
 
     const handleMouseMove = (e: MouseEvent) => {
       // Find the closest parent glass card
@@ -15,12 +16,17 @@ export function useLiquidPhysics() {
           resetCard(activeCard);
         }
         activeCard = card;
+        if (card) {
+          cachedRect = card.getBoundingClientRect(); // Query ONCE when mouse enters the card!
+        } else {
+          cachedRect = null;
+        }
       }
 
-      if (!card) return;
+      if (!card || !cachedRect) return;
 
-      // Get bounds of the card
-      const rect = card.getBoundingClientRect();
+      // Use cached bounds - completely prevents layout thrashing on mousemove!
+      const rect = cachedRect;
 
       // 1. Calculate local coordinates relative to top-left of the card
       const x = e.clientX - rect.left;
@@ -62,6 +68,7 @@ export function useLiquidPhysics() {
       if (activeCard) {
         resetCard(activeCard);
         activeCard = null;
+        cachedRect = null;
       }
     };
 

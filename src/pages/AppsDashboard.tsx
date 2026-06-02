@@ -286,7 +286,7 @@ export default function AppsDashboard() {
               <div className={`absolute inset-0 bg-gradient-to-br ${app.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10`} />
 
               {/* Action Buttons for Custom shortcuts */}
-              <div className="absolute top-2.5 right-2.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute top-2.5 right-2.5 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -322,7 +322,7 @@ export default function AppsDashboard() {
               </div>
 
               {/* Launch Link Indicator at bottom */}
-              <div className="mt-4 flex items-center gap-1 text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0">
+              <div className="mt-4 flex items-center gap-1 text-[10px] font-bold text-primary opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 transform translate-y-0 sm:translate-y-1 sm:group-hover:translate-y-0">
                 <span>Launch</span>
                 <ExternalLink className="w-2.5 h-2.5" />
               </div>
