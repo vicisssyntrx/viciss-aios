@@ -67,6 +67,8 @@ export default function AccountCenter({ onClose }: Props) {
 
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const currentStartDate = startDate || (stats?.start_date ? new Date(stats.start_date + "T00:00:00") : undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const currentEndDate = endDate || (stats?.end_date ? new Date(stats.end_date + "T00:00:00") : undefined);
 
   const handleSignOut = async () => {
     await signOut();
@@ -153,11 +155,41 @@ export default function AccountCenter({ onClose }: Props) {
     if (!date || !user) return;
     setStartDate(date);
     const dateStr = format(date, "yyyy-MM-dd");
-    const update: TablesUpdate<"user_stats"> = { start_date: dateStr };
+    
+    // Default end date is start date + 365 days
+    const defaultEndDate = new Date(date.getTime() + 365 * 24 * 60 * 60 * 1000);
+    const endDateStr = format(defaultEndDate, "yyyy-MM-dd");
+    setEndDate(defaultEndDate);
+
+    const update: TablesUpdate<"user_stats"> = { 
+      start_date: dateStr,
+      end_date: endDateStr 
+    };
     const { error } = await supabase.from("user_stats").update(update).eq("user_id", user.id);
     if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["user_stats"] });
-    toast.success(`Program starts ${format(date, "MMM d, yyyy")} → ends ${format(new Date(date.getFullYear() + 1, date.getMonth(), date.getDate()), "MMM d, yyyy")}`);
+    toast.success(`Program start set to ${format(date, "MMM d, yyyy")} (Default End: ${format(defaultEndDate, "MMM d, yyyy")})`);
+  };
+
+  const handleSetEndDate = async (date: Date | undefined) => {
+    if (!date || !user) return;
+
+    if (currentStartDate && date <= currentStartDate) {
+      toast.error("End Date must be after Start Date");
+      return;
+    }
+
+    setEndDate(date);
+    const dateStr = format(date, "yyyy-MM-dd");
+    const update: TablesUpdate<"user_stats"> = { end_date: dateStr };
+    const { error } = await supabase.from("user_stats").update(update).eq("user_id", user.id);
+    if (error) { toast.error(error.message); return; }
+    qc.invalidateQueries({ queryKey: ["user_stats"] });
+
+    const durationDays = currentStartDate 
+      ? Math.round((date.getTime() - currentStartDate.getTime()) / (1000 * 60 * 60 * 24)) 
+      : 365;
+    toast.success(`Program timeframe customized to ${durationDays} days! (Ends ${format(date, "MMM d, yyyy")})`);
   };
 
   const handleResetDefaults = () => {
@@ -329,6 +361,26 @@ export default function AccountCenter({ onClose }: Props) {
                   mode="single"
                   selected={currentStartDate}
                   onSelect={handleSetStartDate}
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* End Date */}
+          <div className="w-full flex items-center justify-between p-3 rounded-xl text-foreground text-base">
+            <span className="flex items-center gap-3"><Calendar className="h-5 w-5 text-primary" /> End Date</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="text-sm text-primary hover:underline">
+                  {currentEndDate ? format(currentEndDate, "MMM d, yyyy") : "Set date"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 z-[60]" align="end">
+                <CalendarPicker
+                  mode="single"
+                  selected={currentEndDate}
+                  onSelect={handleSetEndDate}
                   className={cn("p-3 pointer-events-auto")}
                 />
               </PopoverContent>

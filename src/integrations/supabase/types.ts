@@ -123,6 +123,7 @@ export type Database = {
         Row: {
           coins: number
           current_growth: number
+          end_date: string | null
           id: string
           power_ups: number
           shields: number
@@ -134,6 +135,7 @@ export type Database = {
         Insert: {
           coins?: number
           current_growth?: number
+          end_date?: string | null
           id?: string
           power_ups?: number
           shields?: number
@@ -145,6 +147,7 @@ export type Database = {
         Update: {
           coins?: number
           current_growth?: number
+          end_date?: string | null
           id?: string
           power_ups?: number
           shields?: number

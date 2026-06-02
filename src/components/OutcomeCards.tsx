@@ -25,13 +25,21 @@ export default function OutcomeCards() {
 
   const overallRatio = useMemo(() => {
     const denseLogs = getDenseLogs(logs, stats?.start_date);
-    const totalDays = denseLogs.length || 0;
+    
+    let totalProgramDays = 365;
+    if (stats?.start_date && stats?.end_date) {
+      const start = parseISO(stats.start_date);
+      const end = parseISO(stats.end_date);
+      const diff = differenceInDays(end, start);
+      if (diff > 0) totalProgramDays = diff;
+    }
+
     const completedDays = denseLogs.filter(
       (l) => (l.completed_count === l.total_count && l.total_count > 0) || (l as any).is_recovered
     ).length || 0;
     
-    return totalDays > 0 ? Math.round((completedDays / totalDays) * 100) : 0;
-  }, [logs, stats?.start_date]);
+    return totalProgramDays > 0 ? Math.min(100, Math.round((completedDays / totalProgramDays) * 100)) : 0;
+  }, [logs, stats?.start_date, stats?.end_date]);
 
   if (!safeHabits.length) return null;
 

@@ -12,6 +12,7 @@ export interface UserStats {
   current_growth: number;
   updated_at: string;
   start_date: string;
+  end_date: string | null;
 }
 
 export function useUserStats() {
@@ -45,7 +46,8 @@ export function useUserStats() {
           current_growth: 1.0,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          start_date: new Date().toISOString().split('T')[0]
+          start_date: new Date().toISOString().split('T')[0],
+          end_date: null
         } as unknown as UserStats;
       }
 

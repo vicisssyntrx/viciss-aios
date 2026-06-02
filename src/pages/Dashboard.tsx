@@ -221,7 +221,7 @@ export default function Dashboard() {
               Made with <span className="text-red-500 opacity-100 hover:scale-110 transition-transform duration-300">❤️</span> by <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">Viciss Syntrx</a>
             </p>
             <p className="text-[10px] text-muted-foreground/60 mt-1 tracking-widest font-mono uppercase">
-              Vicissometer v0.0.2.6_5.10
+              Vicissometer v0.0.2.6_6.2
             </p>
           </div>
         </div>

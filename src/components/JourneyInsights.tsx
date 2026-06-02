@@ -1,6 +1,8 @@
 import { useDailyLogs, getDenseLogs } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 import { todayYmdLocal } from "@/lib/date";
+import { useMemo } from "react";
+import { parseISO, differenceInDays } from "date-fns";
 
 export default function JourneyInsights() {
   const { data: logs } = useDailyLogs();
@@ -17,11 +19,23 @@ export default function JourneyInsights() {
   const today = todayYmdLocal();
   const missedDays = denseLogs.filter((l) => l.completed_count === 0 && !l.shield_used && !(l as any).is_recovered && l.date !== today).length || 0;
   const completedDays = denseLogs.filter((l) => (l.completed_count === l.total_count && l.total_count > 0) || (l as any).is_recovered).length || 0;
-  const completionRate = totalDays > 0 ? Math.round((completedDays / totalDays) * 100) : 0;
+  
+  // Customizable timeframe calculation
+  const totalProgramDays = useMemo(() => {
+    if (stats?.start_date && stats?.end_date) {
+      const start = parseISO(stats.start_date);
+      const end = parseISO(stats.end_date);
+      const diff = differenceInDays(end, start);
+      return diff > 0 ? diff : 365;
+    }
+    return 365;
+  }, [stats?.start_date, stats?.end_date]);
+
+  const completionRate = totalProgramDays > 0 ? Math.round((completedDays / totalProgramDays) * 100) : 0;
 
   const items = [
     { label: "Growth", value: formatGrowth(stats?.current_growth), colorClass: "text-[#fbbf24] drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" },
-    { label: "Completed", value: <><span className="text-[#4ade80]">{completedDays}</span><span className="text-foreground text-sm md:text-base ml-1 font-medium">/ {totalDays}</span></>, colorClass: "" },
+    { label: "Completed", value: <><span className="text-[#4ade80]">{completedDays}</span><span className="text-foreground text-sm md:text-base ml-1 font-medium">/ {totalProgramDays}</span></>, colorClass: "" },
     { label: "Missed", value: missedDays, colorClass: "text-[#f87171]" },
     { label: "Completion", value: `${completionRate}%`, colorClass: "text-foreground" },
   ];
