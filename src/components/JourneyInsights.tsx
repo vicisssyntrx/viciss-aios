@@ -41,15 +41,17 @@ export default function JourneyInsights() {
   ];
 
   return (
-    <div className="glass rounded-2xl p-4 md:p-5 min-h-[96px] flex flex-col justify-center">
-      <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Journey Insights</h3>
-      <div className="grid grid-cols-4 gap-3 md:gap-4">
+    <div className="space-y-2">
+      <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Journey Insights</h3>
+      <div className="glass rounded-2xl p-4 md:p-5 min-h-[96px] flex flex-col justify-center">
+        <div className="grid grid-cols-4 gap-3 md:gap-4">
         {items.map((item) => (
           <div key={item.label} className="text-center">
             <p className={`text-xl md:text-2xl font-bold ${item.colorClass}`}>{item.value}</p>
             <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-wider leading-tight mt-1">{item.label}</p>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

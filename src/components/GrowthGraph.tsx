@@ -101,10 +101,12 @@ export default function GrowthGraph() {
 
   if (!safeLogs.length) {
     return (
-      <div className="glass rounded-2xl p-4">
-        <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3">Growth</h3>
-        <div className="h-36 flex items-center justify-center text-muted-foreground text-base">
-          Save your first day to see growth
+      <div className="space-y-2">
+        <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Growth</h3>
+        <div className="glass rounded-2xl p-4">
+          <div className="h-36 flex items-center justify-center text-muted-foreground text-base">
+            Save your first day to see growth
+          </div>
         </div>
       </div>
     );
@@ -112,10 +114,11 @@ export default function GrowthGraph() {
 
 
   return (
+    <div className="space-y-2">
+      <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Growth</h3>
       <div className="glass rounded-2xl p-3 md:p-5">
-      <div className="flex items-center justify-between mb-2 flex-wrap gap-y-2">
-        <h3 className="text-sm uppercase tracking-wider text-muted-foreground">Growth</h3>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between mb-2 flex-wrap gap-y-2">
+          <div className="flex items-center gap-1">
           {(["week", "month", "all"] as const).map((r) => (
             <button
               key={r}
@@ -165,6 +168,7 @@ export default function GrowthGraph() {
         </LineChart>
       </ResponsiveContainer>
       )}
+      </div>
     </div>
   );
 }
