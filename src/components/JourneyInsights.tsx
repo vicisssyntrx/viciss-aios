@@ -37,6 +37,11 @@ export default function JourneyInsights() {
   const maxGrowth = formatGrowth(Math.pow(1.01, totalProgramDays));
   const progressPercent = Math.min(100, Math.max(0, (completedDays / totalProgramDays) * 100));
 
+  const nextGrowth = useMemo(() => {
+    const current = stats?.current_growth ?? 1.0;
+    return formatGrowth(current * 1.01);
+  }, [stats?.current_growth]);
+
   const items = [
     { label: "Growth", value: formatGrowth(stats?.current_growth), colorClass: "text-[#fbbf24] drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" },
     { label: "Completed", value: <><span className="text-[#4ade80]">{completedDays}</span><span className="text-foreground text-sm md:text-base ml-1 font-medium">/ {totalProgramDays}</span></>, colorClass: "" },
