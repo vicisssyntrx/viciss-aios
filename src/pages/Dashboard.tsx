@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/useAuth";
 import { Navigate } from "react-router-dom";
@@ -11,11 +11,11 @@ import OutcomeCards from "@/components/OutcomeCards";
 import GrowthGraph from "@/components/GrowthGraph";
 import JourneyInsights from "@/components/JourneyInsights";
 import BottomActionBar from "@/components/BottomActionBar";
-import MobileBoostCards from "@/components/MobileBoostCards";
 import ShieldShop from "@/components/ShieldShop";
 import PowerUpOverlay from "@/components/PowerUpOverlay";
 import LoadingScreen from "@/components/LoadingScreen";
 import AccountCenter from "@/components/AccountCenter";
+import AchievementToast, { AchievementType } from "@/components/AchievementToast";
 import { Home, ClipboardList } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
@@ -31,7 +31,6 @@ export function useMidnightInvalidation() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // 1. Run immediately on mount to process any missed days while the app was closed
     const initMissingDays = async () => {
       try {
         // @ts-ignore
@@ -44,7 +43,6 @@ export function useMidnightInvalidation() {
     };
     initMissingDays();
 
-    // 2. Setup midnight timer for the current session
     const now = new Date();
     const msUntilMidnight =
       new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0).getTime() -
@@ -69,6 +67,17 @@ export default function Dashboard() {
   const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "account">("dash");
   const [desktopTab, setDesktopTab] = useState<"dash" | "tasks">("dash");
 
+  // Achievement animation queue
+  const [achievementQueue, setAchievementQueue] = useState<AchievementType[]>([]);
+  const pushAchievement = (a: AchievementType) =>
+    setAchievementQueue((q) => [...q, a]);
+  const dismissAchievement = () =>
+    setAchievementQueue((q) => q.slice(1));
+
+  // Track previous streak to detect new streak increments
+  const prevStreakRef = useRef<number | null>(null);
+  const prevPowerUpsRef = useRef<number | null>(null);
+
   // Fetch profile for avatar in bottom nav
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -90,7 +99,6 @@ export default function Dashboard() {
     null;
   const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
   const initial = displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
-
 
   useLiquidPhysics();
   const { data: habits, isLoading: habitsLoading, isFetched: habitsFetched } = useHabits();
@@ -126,6 +134,32 @@ export default function Dashboard() {
     if (todayLog?.completed_habits) setCompletedIds(new Set(todayLog.completed_habits));
     else if (todayLog === null) setCompletedIds(new Set());
   }, [todayLog, hasLocalEdits]);
+
+  // ── Detect streak increase → queue celebration ─────────────────────────────
+  useEffect(() => {
+    if (!stats) return;
+    const currentStreak = stats.streak ?? 0;
+    const currentPowerUps = stats.power_ups ?? 0;
+
+    // Only fire when streak actually increases (not on first load)
+    if (prevStreakRef.current !== null && currentStreak > prevStreakRef.current) {
+      // Always show streak animation
+      pushAchievement({ kind: "streak", streak: currentStreak });
+
+      // If newly crossed a 7-day multiple AND power-ups increased → bonus animation
+      if (
+        currentStreak > 0 &&
+        currentStreak % 7 === 0 &&
+        prevPowerUpsRef.current !== null &&
+        currentPowerUps > prevPowerUpsRef.current
+      ) {
+        pushAchievement({ kind: "powerup_earned", powerUps: currentPowerUps });
+      }
+    }
+
+    prevStreakRef.current = currentStreak;
+    prevPowerUpsRef.current = currentPowerUps;
+  }, [stats?.streak, stats?.power_ups]);
 
   const toggleHabit = (id: string) => {
     setCompletedIds((prev) => {
@@ -176,190 +210,199 @@ export default function Dashboard() {
   if (isInitialLoad) return <LoadingScreen />;
   if (isResetting) return <LoadingScreen message="Resetting today's progress..." />;
 
+  const isDash = mobileTab === "dash";
+  const isTasks = mobileTab === "tasks";
+  const isAccount = mobileTab === "account";
+
   return (
     <div className="relative min-h-screen">
       <LightLeakBackground />
       <ParticleBackground />
+
+      {/* Achievement animations — always rendered on top */}
+      <AchievementToast queue={achievementQueue} onDismiss={dismissAchievement} />
+
+      {/* ShieldShop / PowerUpOverlay modals */}
+      {showShields && (
+        <ShieldShop
+          onClose={() => setShowShields(false)}
+          onPurchased={() => pushAchievement({ kind: "shield_purchased" })}
+        />
+      )}
+      {showPowerUps && (
+        <PowerUpOverlay
+          onClose={() => setShowPowerUps(false)}
+          onPurchased={() => pushAchievement({ kind: "powerup_purchased" })}
+        />
+      )}
+
       <div className="relative z-10 flex flex-col min-h-screen pt-4 md:pt-24">
         <Navbar desktopTab={desktopTab} onDesktopTabChange={setDesktopTab} />
 
-        <>
-          <Greeting />
+        {/* ── Greeting: only on Dash tab ── */}
+        {(isDash || desktopTab === "dash") && <Greeting />}
 
-          <div className="flex-1 px-5 sm:px-6 pb-4 md:pb-6 mt-2">
-            <div className="mx-auto w-full max-w-[860px] md:grid md:grid-cols-2 md:gap-4">
+        <div className="flex-1 px-4 sm:px-6 pb-4 md:pb-6 mt-2">
+          <div className="mx-auto w-full max-w-[860px] md:grid md:grid-cols-2 md:gap-4">
 
-              {/* ── Mobile flow ── */}
-              <div className="space-y-4 md:hidden pb-28">
-                {mobileTab === "dash" && (
-                  <>
-                    <GrowthGraph />
-                    <JourneyInsights />
-                    <div className="dashboard-rise rise-delay-3">
-                      <OutcomeCards />
-                    </div>
-                  </>
-                )}
+            {/* ══════════ MOBILE ══════════ */}
+            <div className="space-y-4 md:hidden pb-32">
 
-                {mobileTab === "tasks" && (
-                  <>
-                    {/* Compact Shields + Power-Ups row (Tasks header) */}
-                    <div className="grid grid-cols-2 gap-2 mb-1">
-                      <button
-                        type="button"
-                        onClick={() => setShowShields(true)}
-                        className="glass rounded-2xl p-3 flex items-center gap-3 relative transition-all active:scale-95"
-                      >
-                        <span className="text-3xl leading-none">🛡️</span>
-                        <div>
-                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Shields</p>
-                          <p className="text-xl font-black text-foreground">{stats?.shields ?? 0}</p>
-                        </div>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowPowerUps(true)}
-                        className="glass rounded-2xl p-3 flex items-center gap-3 relative transition-all active:scale-95"
-                      >
-                        <span className="text-3xl leading-none">⚡</span>
-                        <div>
-                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Power-Ups</p>
-                          <p className="text-xl font-black text-foreground">{stats?.power_ups ?? 0}</p>
-                        </div>
-                      </button>
-                    </div>
+              {/* Dash tab */}
+              {isDash && (
+                <>
+                  <GrowthGraph />
+                  <JourneyInsights />
+                  <OutcomeCards />
+                </>
+              )}
 
-                    <HabitList
-                      completedIds={completedIds}
-                      onToggle={toggleHabit}
-                      viewOnly={false}
-                    />
+              {/* Tasks tab */}
+              {isTasks && (
+                <>
+                  {/* Shield + Power-Up quick-access row */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowShields(true)}
+                      className="glass rounded-2xl p-3 flex items-center gap-3 active:scale-95 transition-all shadow-md"
+                    >
+                      <span className="text-3xl leading-none">🛡️</span>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Shields</p>
+                        <p className="text-xl font-black text-foreground">{stats?.shields ?? 0}</p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowPowerUps(true)}
+                      className="glass rounded-2xl p-3 flex items-center gap-3 active:scale-95 transition-all shadow-md"
+                    >
+                      <span className="text-3xl leading-none">⚡</span>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Power-Ups</p>
+                        <p className="text-xl font-black text-foreground">{stats?.power_ups ?? 0}</p>
+                      </div>
+                    </button>
+                  </div>
 
-                    <div className="dashboard-rise rise-delay-2">
-                      <BottomActionBar
-                        onSave={handleSave}
-                        onReset={handleReset}
-                        disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                        hasHabits={!!habits?.length}
-                      />
-                    </div>
-                    <div className="dashboard-rise rise-delay-4">
-                      <MobileBoostCards />
-                    </div>
-                  </>
-                )}
+                  <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
 
-                {mobileTab === "account" && (
-                  <AccountCenter isEmbedded={true} />
-                )}
-              </div>
+                  <BottomActionBar
+                    onSave={handleSave}
+                    onReset={handleReset}
+                    disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
+                    hasHabits={!!habits?.length}
+                  />
+                </>
+              )}
 
-              {/* ShieldShop + PowerUpOverlay modals */}
-              {showShields && <ShieldShop onClose={() => setShowShields(false)} />}
-              {showPowerUps && <PowerUpOverlay onClose={() => setShowPowerUps(false)} />}
-
-              {/* ── Desktop: Tab-gated left column ── */}
-              <div className="hidden md:block space-y-2">
-                {desktopTab === "tasks" ? (
-                  <>
-                    <HabitList
-                      completedIds={completedIds}
-                      onToggle={toggleHabit}
-                      viewOnly={false}
-                    />
-                    <BottomActionBar
-                      onSave={handleSave}
-                      onReset={handleReset}
-                      disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                      hasHabits={!!habits?.length}
-                    />
-                    <MobileBoostCards />
-                  </>
-                ) : (
-                  <>
-                    <GrowthGraph />
-                    <JourneyInsights />
-                  </>
-                )}
-              </div>
-
-              {/* ── Desktop: Tab-gated right column ── */}
-              <div className="hidden md:block space-y-2">
-                {desktopTab === "tasks" ? (
-                  <>
-                    <OutcomeCards />
-                  </>
-                ) : (
-                  <>
-                    <HabitList
-                      completedIds={completedIds}
-                      onToggle={toggleHabit}
-                      viewOnly={false}
-                    />
-                    <BottomActionBar
-                      onSave={handleSave}
-                      onReset={handleReset}
-                      disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                      hasHabits={!!habits?.length}
-                    />
-                    <OutcomeCards />
-                  </>
-                )}
-              </div>
+              {/* Account tab */}
+              {isAccount && <AccountCenter isEmbedded={true} />}
             </div>
 
-            <div className="mt-12 mb-8 flex flex-col items-center justify-center opacity-70 transition-opacity hover:opacity-100">
-              <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                Made with <span className="text-red-500 opacity-100 hover:scale-110 transition-transform duration-300">❤️</span> by <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">Viciss Syntrx</a>
-              </p>
-              <p className="text-[10px] text-muted-foreground/60 mt-1 tracking-widest font-mono uppercase">
-                Vicissometer v0.0.2.6_6.2
-              </p>
+            {/* ══════════ DESKTOP ══════════ */}
+            {/* Left column */}
+            <div className="hidden md:block space-y-2">
+              {desktopTab === "tasks" ? (
+                <>
+                  <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
+                  <BottomActionBar
+                    onSave={handleSave}
+                    onReset={handleReset}
+                    disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
+                    hasHabits={!!habits?.length}
+                  />
+                </>
+              ) : (
+                <>
+                  <GrowthGraph />
+                  <JourneyInsights />
+                </>
+              )}
+            </div>
+
+            {/* Right column */}
+            <div className="hidden md:block space-y-2">
+              {desktopTab === "tasks" ? (
+                <OutcomeCards />
+              ) : (
+                <>
+                  <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
+                  <BottomActionBar
+                    onSave={handleSave}
+                    onReset={handleReset}
+                    disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
+                    hasHabits={!!habits?.length}
+                  />
+                  <OutcomeCards />
+                </>
+              )}
             </div>
           </div>
-        </>
+
+          {/* Footer — pushed above bottom nav with enough margin */}
+          <div className="mt-10 mb-28 md:mb-6 flex flex-col items-center justify-center opacity-60 transition-opacity hover:opacity-100">
+            <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+              Made with <span className="text-red-500 hover:scale-110 transition-transform duration-300">❤️</span> by{" "}
+              <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+                Viciss Syntrx
+              </a>
+            </p>
+            <p className="text-[10px] text-muted-foreground/50 mt-1 tracking-widest font-mono uppercase">
+              Vicissometer v0.0.2.6_6.2
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Telegram-style Bottom Tab Bar — mobile only */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
-        <div className="tg-bottom-nav flex items-stretch">
-
+      {/* ── Floating Mobile Tab Bar ─────────────────────────────────────────── */}
+      <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[400px]">
+        <div
+          className="flex items-stretch rounded-[22px] overflow-hidden"
+          style={{
+            background: "rgba(255,255,255,0.78)",
+            backdropFilter: "blur(24px) saturate(180%)",
+            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+            border: "1px solid rgba(255,255,255,0.6)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9)",
+          }}
+        >
           {/* Tab 1: Dash */}
           <button
             onClick={() => setMobileTab("dash")}
-            className="tg-tab flex-1 select-none"
+            className="tg-tab flex-1 select-none py-2"
           >
-            <div className={`tg-tab-icon-wrap ${mobileTab === "dash" ? "tg-tab-active" : ""}`}>
+            <div className={`tg-tab-icon-wrap ${isDash ? "tg-tab-active" : ""}`}>
               <Home className="w-5 h-5" />
             </div>
-            <span className={`tg-tab-label ${mobileTab === "dash" ? "tg-label-active" : ""}`}>Dash</span>
+            <span className={`tg-tab-label ${isDash ? "tg-label-active" : ""}`}>Dash</span>
           </button>
 
           {/* Tab 2: Tasks */}
           <button
             onClick={() => setMobileTab("tasks")}
-            className="tg-tab flex-1 select-none"
+            className="tg-tab flex-1 select-none py-2"
           >
-            <div className={`tg-tab-icon-wrap ${mobileTab === "tasks" ? "tg-tab-active" : ""}`}>
+            <div className={`tg-tab-icon-wrap ${isTasks ? "tg-tab-active" : ""}`}>
               <ClipboardList className="w-5 h-5" />
             </div>
-            <span className={`tg-tab-label ${mobileTab === "tasks" ? "tg-label-active" : ""}`}>Tasks</span>
+            <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
 
-          {/* Tab 3: Profile — user DP */}
+          {/* Tab 3: Profile */}
           <button
             onClick={() => setMobileTab("account")}
-            className="tg-tab flex-1 select-none"
+            className="tg-tab flex-1 select-none py-2"
           >
-            <div className={`tg-tab-icon-wrap ${mobileTab === "account" ? "tg-tab-active" : ""}`}>
+            <div className={`tg-tab-icon-wrap ${isAccount ? "tg-tab-active" : ""}`}>
               <Avatar className="w-6 h-6 border border-primary/40">
                 {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" /> : null}
                 <AvatarFallback className="text-primary font-semibold text-[10px] bg-primary/20">{initial}</AvatarFallback>
               </Avatar>
             </div>
-            <span className={`tg-tab-label ${mobileTab === "account" ? "tg-label-active" : ""}`}>Profile</span>
+            <span className={`tg-tab-label ${isAccount ? "tg-label-active" : ""}`}>Profile</span>
           </button>
-
         </div>
       </div>
 

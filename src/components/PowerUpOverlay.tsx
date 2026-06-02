@@ -12,9 +12,9 @@ import { createPortal } from "react-dom";
 import StreakWindow from "./StreakWindow";
 import { todayYmdLocal } from "@/lib/date";
 
-interface Props { onClose: () => void; }
+interface Props { onClose: () => void; onPurchased?: () => void; }
 
-export default function PowerUpOverlay({ onClose }: Props) {
+export default function PowerUpOverlay({ onClose, onPurchased }: Props) {
   const { data: logs } = useDailyLogs();
   const { data: stats } = useUserStats();
   const { user } = useAuth();
@@ -74,6 +74,7 @@ export default function PowerUpOverlay({ onClose }: Props) {
     qc.invalidateQueries({ queryKey: ["daily_logs"] });
     qc.invalidateQueries({ queryKey: ["user_stats"] });
     toast.success("Gap recovered! 🔥");
+    onPurchased?.();
   };
 
   return createPortal(

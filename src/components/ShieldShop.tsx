@@ -15,9 +15,9 @@ const SHOP_OPTIONS = [
   { shields: 3, cost: 150 },
 ];
 
-interface Props { onClose: () => void; }
+interface Props { onClose: () => void; onPurchased?: () => void; }
 
-export default function ShieldShop({ onClose }: Props) {
+export default function ShieldShop({ onClose, onPurchased }: Props) {
   const { data: stats } = useUserStats();
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -45,6 +45,7 @@ export default function ShieldShop({ onClose }: Props) {
 
       toast.success(`Bought ${shields} shield${shields > 1 ? 's' : ''}!`);
       qc.invalidateQueries({ queryKey: ["user_stats"] });
+      onPurchased?.();
     } catch (error: any) {
       toast.error("Purchase failed: " + error.message);
     } finally {
