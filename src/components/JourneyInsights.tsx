@@ -40,7 +40,10 @@ export default function JourneyInsights({ activeTab }: JourneyInsightsProps) {
   const totalDays = denseLogs.length || 0;
   const today = todayYmdLocal();
   const missedDays = denseLogs.filter((l) => l.completed_count === 0 && !l.shield_used && !(l as any).is_recovered && l.date !== today).length || 0;
+  // Perfect days = all habits completed
   const completedDays = denseLogs.filter((l) => (l.completed_count === l.total_count && l.total_count > 0) || (l as any).is_recovered).length || 0;
+  // Active days = any habit completed (used for growth context)
+  const activeDays = denseLogs.filter((l) => l.completed_count > 0 || (l as any).is_recovered).length || 0;
   
   // Customizable timeframe calculation
   const totalProgramDays = useMemo(() => {
@@ -64,9 +67,9 @@ export default function JourneyInsights({ activeTab }: JourneyInsightsProps) {
 
   const items = [
     { label: "Growth", value: formatGrowth(stats?.current_growth), colorClass: "text-[#fbbf24] drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" },
-    { label: "Completed", value: <><span className="text-[#4ade80]">{completedDays}</span><span className="text-foreground text-sm md:text-base ml-1 font-medium">/ {totalProgramDays}</span></>, colorClass: "" },
+    { label: "Perfect", value: <><span className="text-[#4ade80]">{completedDays}</span><span className="text-foreground text-sm md:text-base ml-1 font-medium">/ {totalProgramDays}</span></>, colorClass: "" },
+    { label: "Active Days", value: activeDays, colorClass: "text-[#60a5fa]" },
     { label: "Missed", value: missedDays, colorClass: "text-[#f87171]" },
-    { label: "Completion", value: `${completionRate}%`, colorClass: "text-foreground" },
   ];
 
   return (
@@ -77,10 +80,14 @@ export default function JourneyInsights({ activeTab }: JourneyInsightsProps) {
       
       <div 
         onClick={() => setIsFlipped(!isFlipped)}
-        className={`relative w-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}
+        className={`relative w-full transition-transform duration-700 cursor-pointer ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}
+        style={{ transformStyle: "preserve-3d", WebkitTransformStyle: "preserve-3d" }}
       >
         {/* Front Face */}
-        <div className="glass rounded-2xl p-4 md:p-5 min-h-[96px] flex flex-col justify-center [backface-visibility:hidden]">
+        <div
+          className="glass rounded-2xl p-4 md:p-5 min-h-[96px] flex flex-col justify-center"
+          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+        >
           <div className="grid grid-cols-4 gap-3 md:gap-4">
           {items.map((item) => (
             <div key={item.label} className="text-center">
@@ -92,7 +99,10 @@ export default function JourneyInsights({ activeTab }: JourneyInsightsProps) {
         </div>
 
         {/* Back Face - Road Map */}
-        <div className="absolute inset-0 glass rounded-2xl overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)] bg-gradient-to-b from-[#e8ecec] to-[#cdd9d6] dark:from-[#111615] dark:to-[#1a2321]">
+        <div
+          className="absolute inset-0 glass rounded-2xl overflow-hidden bg-gradient-to-b from-[#e8ecec] to-[#cdd9d6] dark:from-[#111615] dark:to-[#1a2321]"
+          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+        >
           <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full pointer-events-none">
             {/* Background Hills */}
             <path d="M0,80 Q60,40 140,65 T280,55 T400,75 L400,120 L0,120 Z" fill="currentColor" className="text-[#dae5e1] dark:text-[#17201e]" />
