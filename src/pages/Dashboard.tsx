@@ -351,7 +351,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Floating Mobile Tab Bar ─────────────────────────────────────────── */}
-      <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[70%] max-w-[240px]">
+      <div className="md:hidden fixed bottom-7 left-1/2 -translate-x-1/2 z-50 w-[70%] max-w-[240px]">
         <div className="flex items-stretch rounded-full overflow-hidden floating-nav-pill w-full px-1 py-0.5">
           {/* Tab 1: Dash */}
           <button
