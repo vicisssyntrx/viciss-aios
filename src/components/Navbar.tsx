@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/useAuth";
 import { Link } from "react-router-dom";
-import { Bell, LayoutDashboard, Bot } from "lucide-react";
+import { Bell, LayoutDashboard, Bot, Grid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import AccountCenter from "./AccountCenter";
@@ -12,8 +12,8 @@ import { useDailyLogs } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 
 interface NavbarProps {
-  activeTab?: "dash" | "agent";
-  setActiveTab?: (tab: "dash" | "agent") => void;
+  activeTab?: "dash" | "agent" | "apps";
+  setActiveTab?: (tab: "dash" | "agent" | "apps") => void;
 }
 
 export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
@@ -76,13 +76,13 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
             </div>
             {/* Desktop Centered Tabs with smooth liquid glass slide transition */}
             {activeTab && setActiveTab && (
-              <div className="hidden sm:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center p-0.5 bg-black/5 dark:bg-black/45 border border-black/5 dark:border-white/10 rounded-full w-[210px] overflow-hidden">
+              <div className="hidden sm:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center p-0.5 bg-black/5 dark:bg-black/45 border border-black/5 dark:border-white/10 rounded-full w-[290px] overflow-hidden">
                 {/* Smooth sliding pill backdrop */}
                 <div 
                   className="absolute top-0.5 bottom-0.5 rounded-full bg-white/60 dark:bg-white/10 border border-black/5 dark:border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 ease-out"
                   style={{
-                    left: activeTab === "dash" ? "2px" : "calc(50% + 1px)",
-                    width: "calc(50% - 3px)",
+                    left: activeTab === "dash" ? "2px" : activeTab === "agent" ? "calc(33.33% + 1px)" : "calc(66.66% + 1px)",
+                    width: "calc(33.33% - 3px)",
                   }}
                 />
                 <button
@@ -102,6 +102,15 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
                 >
                   <Bot className="w-3.5 h-3.5" />
                   <span>Agents</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("apps")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
+                    activeTab === "apps" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
+                  }`}
+                >
+                  <Grid className="w-3.5 h-3.5" />
+                  <span>Apps</span>
                 </button>
               </div>
             )}

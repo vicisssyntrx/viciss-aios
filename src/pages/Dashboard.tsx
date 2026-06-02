@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/useAuth";
 import { Navigate } from "react-router-dom";
-import { LayoutDashboard, Bot } from "lucide-react";
+import { LayoutDashboard, Bot, Grid } from "lucide-react";
 import ParticleBackground from "@/components/ParticleBackground";
 import LightLeakBackground from "@/components/LightLeakBackground";
 import Navbar from "@/components/Navbar";
@@ -15,6 +15,8 @@ import BottomActionBar from "@/components/BottomActionBar";
 import MobileBoostCards from "@/components/MobileBoostCards";
 import LoadingScreen from "@/components/LoadingScreen";
 import AgentDashboard from "./AgentDashboard";
+import AppsDashboard from "./AppsDashboard";
+import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
 import { useUserStats } from "@/hooks/useUserStats";
 import { useTodayLog } from "@/hooks/useDailyLogs";
@@ -62,7 +64,9 @@ export function useMidnightInvalidation() {
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"dash" | "agent">("dash");
+  const [activeTab, setActiveTab] = useState<"dash" | "agent" | "apps">("dash");
+  
+  useLiquidPhysics();
   const { data: habits, isLoading: habitsLoading, isFetched: habitsFetched } = useHabits();
   const { data: stats, isLoading: statsLoading, error: statsError } = useUserStats();
   // Delay today's log fetch until habits query has resolved — staggers the HTTP/2 burst
@@ -231,9 +235,22 @@ export default function Dashboard() {
               </div>
             </div>
           </>
-        ) : (
+        ) : activeTab === "agent" ? (
           <div className="flex-1 px-5 sm:px-6 pb-4 mt-6 md:mt-8">
             <AgentDashboard />
+
+            <div className="mt-6 mb-24 md:mb-4 flex flex-col items-center justify-center opacity-70 transition-opacity hover:opacity-100">
+              <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                Made with <span className="text-red-500 opacity-100 hover:scale-110 transition-transform duration-300">❤️</span> by <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">Viciss Syntrx</a>
+              </p>
+              <p className="text-[10px] text-muted-foreground/60 mt-1 tracking-widest font-mono uppercase">
+                Vicissometer v0.0.2.6_6.2
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 px-5 sm:px-6 pb-4 mt-6 md:mt-8">
+            <AppsDashboard />
 
             <div className="mt-6 mb-24 md:mb-4 flex flex-col items-center justify-center opacity-70 transition-opacity hover:opacity-100">
               <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
@@ -248,14 +265,14 @@ export default function Dashboard() {
       </div>
 
       {/* Floating Liquid Glass Tab Bar for Mobile viewports */}
-      <div className="sm:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[240px]">
+      <div className="sm:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[290px]">
         <div className="relative flex items-center p-0.5 bg-black/5 dark:bg-black/55 border border-black/5 dark:border-white/10 rounded-full backdrop-blur-xl shadow-2xl overflow-hidden">
           {/* Sliding Pill Background Indicator */}
           <div 
             className="absolute top-0.5 bottom-0.5 rounded-full bg-white/60 dark:bg-white/10 border border-black/5 dark:border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 ease-out"
             style={{
-              left: activeTab === "dash" ? "2px" : "calc(50% + 1px)",
-              width: "calc(50% - 3px)",
+              left: activeTab === "dash" ? "2px" : activeTab === "agent" ? "calc(33.33% + 1px)" : "calc(66.66% + 1px)",
+              width: "calc(33.33% - 3px)",
             }}
           />
           {/* Tab 1: Dash */}
@@ -277,6 +294,16 @@ export default function Dashboard() {
           >
             <Bot className="w-3.5 h-3.5" />
             <span>Agents</span>
+          </button>
+          {/* Tab 3: Apps */}
+          <button
+            onClick={() => setActiveTab("apps")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
+              activeTab === "apps" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
+            }`}
+          >
+            <Grid className="w-3.5 h-3.5" />
+            <span>Apps</span>
           </button>
         </div>
       </div>
