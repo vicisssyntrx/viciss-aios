@@ -270,7 +270,7 @@ export default function Dashboard() {
               {isDash && (
                 <>
                   <GrowthGraph activeTab={mobileTab} />
-                  <JourneyInsights />
+                  <JourneyInsights activeTab={mobileTab} />
                   <OutcomeCards />
                 </>
               )}
@@ -333,7 +333,7 @@ export default function Dashboard() {
             {/* Right column */}
             <div className="hidden md:block space-y-2">
               <GrowthGraph activeTab="dash" />
-              <JourneyInsights />
+              <JourneyInsights activeTab="dash" />
               <OutcomeCards />
             </div>
           </div>

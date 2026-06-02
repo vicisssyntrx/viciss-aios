@@ -25,7 +25,7 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
   const [range, setRange] = useState<"week" | "month" | "all">("all");
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Trigger autoflip effect once per session / refresh / tab change
+  // Trigger autoflip effect once per session / refresh / tab change for 7 seconds
   useEffect(() => {
     if (activeTab === "dash" || !activeTab) {
       setIsFlipped(false);
@@ -33,9 +33,9 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
         setIsFlipped(true);
         const backToGraphTimer = setTimeout(() => {
           setIsFlipped(false);
-        }, 6000);
+        }, 7000);
         return () => clearTimeout(backToGraphTimer);
-      }, 6000);
+      }, 7000);
       return () => clearTimeout(toThoughtTimer);
     }
   }, [activeTab]);

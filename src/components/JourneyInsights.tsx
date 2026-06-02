@@ -5,10 +5,29 @@ import { useMemo, useState } from "react";
 import { parseISO, differenceInDays } from "date-fns";
 import { RotateCw } from "lucide-react";
 
-export default function JourneyInsights() {
+interface JourneyInsightsProps {
+  activeTab?: string;
+}
+
+export default function JourneyInsights({ activeTab }: JourneyInsightsProps) {
   const { data: logs } = useDailyLogs();
   const { data: stats } = useUserStats();
   const [isFlipped, setIsFlipped] = useState(false);
+
+  // Trigger autoflip effect once per session / refresh / tab change for 5 seconds
+  useEffect(() => {
+    if (activeTab === "dash" || !activeTab) {
+      setIsFlipped(false);
+      const toRoadmapTimer = setTimeout(() => {
+        setIsFlipped(true);
+        const backToInsightsTimer = setTimeout(() => {
+          setIsFlipped(false);
+        }, 5000);
+        return () => clearTimeout(backToInsightsTimer);
+      }, 5000);
+      return () => clearTimeout(toRoadmapTimer);
+    }
+  }, [activeTab]);
   
   const denseLogs = getDenseLogs(logs, stats?.start_date);
 
@@ -53,17 +72,11 @@ export default function JourneyInsights() {
     <div className="space-y-2 group [perspective:1000px]">
       <div className="flex items-center justify-between px-1">
         <h3 className="text-sm uppercase tracking-wider text-muted-foreground">Journey Insights</h3>
-        <button 
-          onClick={() => setIsFlipped(!isFlipped)}
-          className="text-muted-foreground hover:text-foreground transition-colors p-1"
-          title="Flip card"
-        >
-          <RotateCw className="w-3.5 h-3.5" />
-        </button>
       </div>
       
       <div 
-        className={`relative w-full transition-transform duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}
+        onClick={() => setIsFlipped(!isFlipped)}
+        className={`relative w-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}
       >
         {/* Front Face */}
         <div className="glass rounded-2xl p-4 md:p-5 min-h-[96px] flex flex-col justify-center [backface-visibility:hidden]">
