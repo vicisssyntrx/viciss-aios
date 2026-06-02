@@ -269,7 +269,7 @@ export default function Dashboard() {
               {/* ── Dash tab ── */}
               {isDash && (
                 <>
-                  <GrowthGraph />
+                  <GrowthGraph activeTab={mobileTab} />
                   <JourneyInsights />
                   <OutcomeCards />
                 </>
@@ -330,7 +330,7 @@ export default function Dashboard() {
 
             {/* Right column */}
             <div className="hidden md:block space-y-2">
-              <GrowthGraph />
+              <GrowthGraph activeTab="dash" />
               <JourneyInsights />
               <OutcomeCards />
             </div>
@@ -349,15 +349,15 @@ export default function Dashboard() {
       </div>
 
       {/* ── Floating Mobile Tab Bar ─────────────────────────────────────────── */}
-      <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[400px]">
-        <div className="flex items-stretch rounded-[22px] overflow-hidden floating-nav-pill w-full">
+      <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[84%] max-w-[310px]">
+        <div className="flex items-stretch rounded-[22px] overflow-hidden floating-nav-pill w-full px-1">
           {/* Tab 1: Dash */}
           <button
             onClick={() => setMobileTab("dash")}
-            className="tg-tab flex-1 select-none py-2"
+            className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isDash ? "tg-tab-active" : ""}`}>
-              <Home className="w-5 h-5" />
+              <Home className="w-5.5 h-5.5" />
             </div>
             <span className={`tg-tab-label ${isDash ? "tg-label-active" : ""}`}>Dash</span>
           </button>
@@ -365,10 +365,10 @@ export default function Dashboard() {
           {/* Tab 2: Tasks */}
           <button
             onClick={() => setMobileTab("tasks")}
-            className="tg-tab flex-1 select-none py-2"
+            className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isTasks ? "tg-tab-active" : ""}`}>
-              <ClipboardList className="w-5 h-5" />
+              <ClipboardList className="w-5.5 h-5.5" />
             </div>
             <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
@@ -376,10 +376,10 @@ export default function Dashboard() {
           {/* Tab 3: Profile */}
           <button
             onClick={() => setMobileTab("account")}
-            className="tg-tab flex-1 select-none py-2"
+            className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isAccount ? "tg-tab-active" : ""}`}>
-              <Avatar className="w-6 h-6 border border-primary/40">
+              <Avatar className="w-6.5 h-6.5 border border-primary/40">
                 {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" /> : null}
                 <AvatarFallback className="text-primary font-semibold text-[10px] bg-primary/20">{initial}</AvatarFallback>
               </Avatar>

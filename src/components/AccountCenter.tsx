@@ -48,6 +48,16 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
     return localStorage.getItem("vicissometer-bg-style") || "solid";
   });
 
+  const [orbitStyle, setOrbitStyle] = useState(() => {
+    return localStorage.getItem("vicissometer-orbit-style") || "red-blue";
+  });
+
+  const [customPulseColor, setCustomPulseColor] = useState(() => {
+    return localStorage.getItem("vicissometer-pulse-color") || "#ef4444";
+  });
+
+  const [quoteInput, setQuoteInput] = useState("");
+
   const handleBgChange = (newStyle: string) => {
     setBgStyle(newStyle);
     localStorage.setItem("vicissometer-bg-style", newStyle);
@@ -61,6 +71,51 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
             ? "Orbital Pulse"
             : "Moving Orbits"
     }`);
+  };
+
+  const handleOrbitStyleChange = (style: "red-blue" | "red-blue-yellow") => {
+    setOrbitStyle(style);
+    localStorage.setItem("vicissometer-orbit-style", style);
+    window.dispatchEvent(new Event("vicissometer-bg-changed"));
+    toast.success(`Moving Orbits layout changed!`);
+  };
+
+  const handlePulseColorChange = (hexColor: string) => {
+    setCustomPulseColor(hexColor);
+    localStorage.setItem("vicissometer-pulse-color", hexColor);
+    window.dispatchEvent(new Event("vicissometer-bg-changed"));
+  };
+
+  const handleBulkImportQuotes = () => {
+    if (!quoteInput.trim()) {
+      toast.error("Please enter some quotes first.");
+      return;
+    }
+
+    try {
+      // Regex parsing for bulk quote input: ["quote" - Author],["quote" - Author]...
+      const matches = [...quoteInput.matchAll(/\[\s*"([^"]+)"\s*-\s*([^\]]+)\]/g)];
+      if (matches.length === 0) {
+        toast.error("Invalid format. Please use: [\"quote\" - Author],[\"quote\" - Author]");
+        return;
+      }
+
+      if (matches.length > 366) {
+        toast.error("You can import a maximum of 366 quotes.");
+        return;
+      }
+
+      const imported = matches.map(m => ({
+        text: m[1].trim(),
+        author: m[2].trim()
+      }));
+
+      localStorage.setItem("vicissometer-quotes", JSON.stringify(imported));
+      toast.success(`Successfully imported ${imported.length} quotes!`);
+      setQuoteInput("");
+    } catch (e) {
+      toast.error("Failed to parse quote string. Please double-check formatting.");
+    }
   };
 
   const [themeMode, setThemeMode] = useState(() => {
@@ -508,6 +563,81 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
                 <Waves className="h-4 w-4" /> Moving Orbits
               </button>
             </div>
+
+            {/* Sub-options for Moving Orbits */}
+            {bgStyle === "orbit-moving" && (
+              <div className="mt-3 p-2.5 rounded-xl bg-secondary/30 border border-border/30 space-y-2 animate-in slide-in-from-top-1 duration-200">
+                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">Orbit Color Palette</span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    onClick={() => handleOrbitStyleChange("red-blue")}
+                    className={cn(
+                      "p-1.5 rounded-lg text-[10px] font-semibold border transition-all",
+                      orbitStyle === "red-blue"
+                        ? "bg-primary/20 border-primary text-foreground"
+                        : "bg-transparent border-border/30 text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    🔴 🔵 Red & Blue
+                  </button>
+                  <button
+                    onClick={() => handleOrbitStyleChange("red-blue-yellow")}
+                    className={cn(
+                      "p-1.5 rounded-lg text-[10px] font-semibold border transition-all",
+                      orbitStyle === "red-blue-yellow"
+                        ? "bg-primary/20 border-primary text-foreground"
+                        : "bg-transparent border-border/30 text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    🔴 🔵 🟡 3-Color
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Sub-options for Horizon / Orbital Pulses */}
+            {(bgStyle === "pulse" || bgStyle === "orbit-static") && (
+              <div className="mt-3 p-2.5 rounded-xl bg-secondary/30 border border-border/30 flex items-center justify-between gap-3 animate-in slide-in-from-top-1 duration-200">
+                <div>
+                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">Pulse Glow Color</span>
+                  <span className="text-[10px] text-muted-foreground/60">Tap swatch to pick custom color</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={customPulseColor}
+                    onChange={(e) => handlePulseColorChange(e.target.value)}
+                    className="w-8 h-8 rounded-md cursor-pointer border-none bg-transparent"
+                  />
+                  <button
+                    onClick={() => handlePulseColorChange("#ef4444")}
+                    className="text-[9px] font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-1 rounded"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Bulk Quote Import Feature */}
+          <div className="p-3 space-y-2 border-t border-border/40 mt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Import Bulk Quotes</span>
+              <span className="text-[9px] text-muted-foreground/50 font-semibold">(Max 366)</span>
+            </div>
+            <textarea
+              value={quoteInput}
+              onChange={(e) => setQuoteInput(e.target.value)}
+              placeholder='["Habits build character." - Author],["Consistency is key." - Author]'
+              className="w-full h-18 text-xs bg-secondary/40 border border-border/40 rounded-xl p-2 focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-mono"
+            />
+            <Button
+              onClick={handleBulkImportQuotes}
+              className="w-full h-8 text-[11px] font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+            >
+              Import Quote Pool
+            </Button>
           </div>
 
           <hr className="border-border my-1" />

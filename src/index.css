@@ -327,27 +327,33 @@
     transform: scaleY(1.15); 
   }
 }
+.bg-orbit-blue {
+  background: radial-gradient(circle, var(--orbit-blue, rgba(59, 130, 246, 0.5)) 0%, rgba(59, 130, 246, 0.06) 70%);
+}
+.dark .bg-orbit-blue {
+  background: radial-gradient(circle, var(--orbit-blue, rgba(59, 130, 246, 0.42)) 0%, rgba(59, 130, 246, 0) 70%);
+}
+
+/* Yellow Orbit */
+.bg-orbit-yellow {
+  background: radial-gradient(circle, var(--orbit-yellow, rgba(234, 179, 8, 0.5)) 0%, rgba(234, 179, 8, 0.06) 70%);
+}
+.dark .bg-orbit-yellow {
+  background: radial-gradient(circle, var(--orbit-yellow, rgba(234, 179, 8, 0.42)) 0%, rgba(234, 179, 8, 0) 70%);
+}
+
+/* Horizon Pulse custom color support */
 .bg-style-horizon-pulse {
-  background: radial-gradient(ellipse 100% 75% at 50% 100%, rgba(239, 68, 68, 0.22) 0%, rgba(239, 68, 68, 0.06) 60%, transparent 100%);
+  background: radial-gradient(ellipse 100% 75% at 50% 100%, var(--pulse-color-rgba-high, rgba(239, 68, 68, 0.22)) 0%, var(--pulse-color-rgba-low, rgba(239, 68, 68, 0.06)) 60%, transparent 100%);
   transform-origin: bottom;
   animation: horizon-pulse-enhanced 9s ease-in-out infinite;
   filter: blur(24px);
 }
 .dark .bg-style-horizon-pulse {
-  background: radial-gradient(ellipse 100% 75% at 50% 100%, rgba(239, 68, 68, 0.45) 0%, rgba(239, 68, 68, 0.12) 60%, transparent 100%);
+  background: radial-gradient(ellipse 100% 75% at 50% 100%, var(--pulse-color-rgba-high-dark, rgba(239, 68, 68, 0.45)) 0%, var(--pulse-color-rgba-low-dark, rgba(239, 68, 68, 0.12)) 60%, transparent 100%);
 }
 
-/* Orbital Pulse (Static centered breathing circular glow) */
-@keyframes orbit-pulse-static {
-  0%, 100% { 
-    opacity: 0.24; 
-    transform: translate(-50%, -50%) scale(0.9); 
-  }
-  50% { 
-    opacity: 0.58; 
-    transform: translate(-50%, -50%) scale(1.1); 
-  }
-}
+/* Orbital Pulse custom color support */
 .bg-style-orbit-static {
   position: absolute;
   top: 50%;
@@ -356,36 +362,52 @@
   width: min(650px, 80vw);
   height: min(650px, 80vw);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.24) 0%, rgba(239, 68, 68, 0) 70%);
+  background: radial-gradient(circle, var(--pulse-color-rgba-high, rgba(239, 68, 68, 0.24)) 0%, rgba(239, 68, 68, 0) 70%);
   animation: orbit-pulse-static 8s ease-in-out infinite;
   filter: blur(48px);
 }
 .dark .bg-style-orbit-static {
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, rgba(239, 68, 68, 0) 70%);
+  background: radial-gradient(circle, var(--pulse-color-rgba-high-dark, rgba(239, 68, 68, 0.45)) 0%, rgba(239, 68, 68, 0) 70%);
 }
 
-/* Moving Orbits Glow Classes */
-/* Light mode: multiply blend so orbs darken against white bg */
-.orbit-blob {
-  mix-blend-mode: multiply;
-}
-.dark .orbit-blob {
-  mix-blend-mode: screen;
-}
-
-/* Light mode: stronger, more saturated colors so they're visible on white */
+/* Moving Orbits Red custom color support */
 .bg-orbit-red {
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.55) 0%, rgba(239, 68, 68, 0.08) 70%);
+  background: radial-gradient(circle, var(--orbit-red, rgba(239, 68, 68, 0.55)) 0%, rgba(239, 68, 68, 0.08) 70%);
 }
 .dark .bg-orbit-red {
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, rgba(239, 68, 68, 0) 70%);
+  background: radial-gradient(circle, var(--orbit-red, rgba(239, 68, 68, 0.45)) 0%, rgba(239, 68, 68, 0) 70%);
 }
 
-.bg-orbit-blue {
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, rgba(59, 130, 246, 0.06) 70%);
+/* 3D Flip Card Classes */
+.flip-card-container {
+  perspective: 1000px;
+  position: relative;
+  width: 100%;
 }
-.dark .bg-orbit-blue {
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.42) 0%, rgba(59, 130, 246, 0) 70%);
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.flip-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
 }/* Mobile-specific Lift Effect (For touch-only viewports, excluding top navbar and its items) */
 @media (hover: none) {
   /* Light mode lift — dark shadow for contrast on white */
@@ -441,9 +463,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 28px;
-  border-radius: 14px;
+  width: 48px;
+  height: 30px;
+  border-radius: 15px;
   color: rgba(0, 0, 0, 0.38);
   background: transparent;
   transition: background 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease, transform 0.2s ease;
