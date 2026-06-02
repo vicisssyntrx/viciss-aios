@@ -336,7 +336,15 @@ export default function Dashboard() {
             </div>
           </div>
 
-
+          {/* Footer — desktop only */}
+          <div className="hidden md:flex mt-4 mb-2 flex-col items-center justify-center opacity-60 transition-opacity hover:opacity-100">
+            <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+              Made with <span className="text-red-500 hover:scale-110 transition-transform duration-300">❤️</span> by{" "}
+              <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
+                Viciss Syntrx
+              </a>
+            </p>
+          </div>
         </div>
       </div>
 
