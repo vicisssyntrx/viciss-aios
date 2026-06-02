@@ -23,7 +23,9 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
   );
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
+      <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Tasks</h3>
+      <div className="space-y-1.5">
       {habits.map((h) => {
         const checked = completedIds.has(h.id);
         return (
@@ -58,6 +60,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

@@ -57,13 +57,21 @@ export default function ShieldShop({ onClose, onPurchased }: Props) {
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
       <div className="glass w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-foreground">🛡️ Shield Shop</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <span style={{ filter: "drop-shadow(0 0 10px hsl(var(--primary))) drop-shadow(0 0 15px hsl(var(--primary)))" }}>🛡️</span>
+            Shield Shop
+          </h2>
           <button onClick={onClose} className="popup-close"><X className="h-4 w-4" /></button>
         </div>
         <div className="text-center mb-6">
-          <p className="text-3xl font-bold text-foreground">🪙 {stats?.coins || 0}</p>
+          <p className="text-3xl font-bold text-foreground">
+            <span style={{ filter: "drop-shadow(0 0 10px hsl(var(--primary)))" }}>🪙</span> {stats?.coins || 0}
+          </p>
           <p className="text-xs text-muted-foreground mt-1">Your coins</p>
-          <p className="text-lg font-semibold text-foreground mt-2">🛡️ {stats?.shields || 0} owned</p>
+          <p className="text-lg font-semibold text-foreground mt-2 flex items-center justify-center gap-2">
+            <span style={{ filter: "drop-shadow(0 0 10px hsl(var(--primary))) drop-shadow(0 0 15px hsl(var(--primary)))" }}>🛡️</span>
+            {stats?.shields || 0} owned
+          </p>
         </div>
         <div className="space-y-3">
           {SHOP_OPTIONS.map((opt) => {

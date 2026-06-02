@@ -122,15 +122,16 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
     return localStorage.getItem("vicissometer-theme") || "dark";
   });
 
-  const handleThemeChange = (newTheme: "light" | "dark") => {
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
     setThemeMode(newTheme);
     localStorage.setItem("vicissometer-theme", newTheme);
-    if (newTheme === "dark") {
+    const isDark = newTheme === "dark" || (newTheme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    if (isDark) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
-    toast.success(`${newTheme === "dark" ? "Dark" : "Light"} mode activated`);
+    toast.success(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`);
   };
 
   // Fetch current start_date
@@ -369,10 +370,10 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
   const content = (
     <>
-      <div className="relative w-full max-w-sm flex flex-col items-center pt-[6rem] sm:pt-[6.5rem] select-none mx-auto mt-8 sm:mt-0">
+      <div className="relative w-full max-w-sm flex flex-col items-center pt-[5rem] sm:pt-[5.5rem] select-none mx-auto mt-8 sm:mt-0">
         {/* Large Centered Avatar */}
         <div 
-          className="absolute top-6 left-1/2 -translate-x-1/2 z-20 w-36 h-36 sm:w-40 sm:h-40 shrink-0 rounded-full overflow-hidden shadow-[0_24px_60px_-12px_rgba(0,0,0,0.85),0_12px_24px_-8px_rgba(0,0,0,0.6)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
+          className="absolute top-6 left-1/2 -translate-x-1/2 z-20 w-32 h-32 sm:w-36 sm:h-36 shrink-0 rounded-full overflow-hidden shadow-[0_24px_60px_-12px_rgba(0,0,0,0.85),0_12px_24px_-8px_rgba(0,0,0,0.6)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
           onClick={() => {
             if (!editingProfile) {
               setDisplayName(currentDisplayName);
@@ -410,7 +411,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
 
           {/* Centered Profile Details Section */}
-          <div className="text-center mb-4 border-b border-border/40 pb-4">
+          <div className="text-center mt-3 mb-4 border-b border-border/40 pb-4">
             {editingProfile ? (
               <div className="space-y-3 max-w-[260px] mx-auto">
                 <Input 
