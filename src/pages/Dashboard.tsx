@@ -279,7 +279,7 @@ export default function Dashboard() {
               {isTasks && (
                 <div className="px-2 space-y-5">
                   {/* Shield + Power-Up quick-access row */}
-                  <div className="grid grid-cols-2 gap-3 mt-4">
+                  <div className="grid grid-cols-2 gap-3 mt-8">
                     <button
                       type="button"
                       onClick={() => setShowShields(true)}
@@ -336,15 +336,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Footer — pushed above bottom nav with enough margin */}
-          <div className="mt-0 mb-24 md:mb-2 flex flex-col items-center justify-center opacity-60 transition-opacity hover:opacity-100">
-            <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-              Made with <span className="text-red-500 hover:scale-110 transition-transform duration-300">❤️</span> by{" "}
-              <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-                Viciss Syntrx
-              </a>
-            </p>
-          </div>
+
         </div>
       </div>
 

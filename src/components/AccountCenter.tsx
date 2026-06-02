@@ -314,7 +314,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
   const content = (
     <>
-      <div className="relative w-full max-w-sm flex flex-col items-center pt-20 sm:pt-24 select-none mx-auto">
+      <div className="relative w-full max-w-sm flex flex-col items-center pt-20 sm:pt-24 select-none mx-auto mt-8 sm:mt-0">
         {/* Large Centered Avatar */}
         <div 
           className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.36)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
@@ -551,16 +551,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
             <LogOut className="h-5 w-5 mr-3" /> Sign Out
           </Button>
 
-          {/* App branding — only here, nowhere else */}
-          <div className="mt-1 pt-2 border-t border-border/30 flex flex-col items-center gap-0.5 opacity-50">
-            <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-              Made with <span className="text-red-500">❤️</span> by{" "}
-              <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-                Viciss Syntrx
-              </a>
-            </p>
-            <p className="text-[10px] text-muted-foreground/50 font-mono tracking-widest uppercase">v0.0.2.6_6.2</p>
-          </div>
+
         </div>
       </div>
     </div>
