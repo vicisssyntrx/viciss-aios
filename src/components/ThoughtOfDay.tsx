@@ -39,15 +39,17 @@ export default function ThoughtOfDay({ onFlipBack }: Props) {
 
   return (
     <div
-      className="glass rounded-2xl p-5 flex flex-col items-center justify-center gap-4 cursor-pointer select-none h-full"
+      className="glass rounded-2xl p-5 flex flex-col items-center justify-center gap-4 cursor-pointer select-none h-full relative"
       onClick={onFlipBack}
     >
-      <span className="text-4xl">💭</span>
-      <blockquote className="text-center text-foreground/90 text-sm md:text-base italic leading-relaxed font-medium max-w-[320px]">
-        "{quote.text}"
-      </blockquote>
-      <p className="text-xs md:text-sm text-muted-foreground font-semibold">— {quote.author}</p>
-      <p className="text-[10px] text-muted-foreground/50 flex items-center gap-1 mt-auto">
+      <div className="flex flex-col items-center justify-center flex-1 gap-3.5 pb-4">
+        <span className="text-4xl">💭</span>
+        <blockquote className="text-center text-foreground/90 text-sm md:text-base italic leading-relaxed font-semibold max-w-[320px]">
+          "{quote.text}"
+        </blockquote>
+        <p className="text-xs md:text-sm text-muted-foreground font-bold">— {quote.author}</p>
+      </div>
+      <p className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground/50 flex items-center gap-1">
         <RotateCcw className="w-2.5 h-2.5" /> tap to flip back
       </p>
     </div>
