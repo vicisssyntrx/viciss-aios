@@ -4,6 +4,7 @@ export function useLiquidPhysics() {
   useEffect(() => {
     let activeCard: HTMLElement | null = null;
     let cachedRect: DOMRect | null = null;
+    let transitionTimeout: number | null = null;
 
     const handleMouseMove = (e: MouseEvent) => {
       // Find the closest parent glass card
@@ -18,8 +19,27 @@ export function useLiquidPhysics() {
         activeCard = card;
         if (card) {
           cachedRect = card.getBoundingClientRect(); // Query ONCE when mouse enters the card!
+          
+          // Apply active card transition for the initial springy tilt entry
+          card.style.transition = "transform 280ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1)";
+          
+          if (transitionTimeout) {
+            clearTimeout(transitionTimeout);
+          }
+          
+          const currentCard = card;
+          transitionTimeout = window.setTimeout(() => {
+            if (activeCard === currentCard) {
+              // Once scaled/tilted into place, disable transform transition to ensure 120 FPS tracking
+              currentCard.style.transition = "box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1)";
+            }
+          }, 280);
         } else {
           cachedRect = null;
+          if (transitionTimeout) {
+            clearTimeout(transitionTimeout);
+            transitionTimeout = null;
+          }
         }
       }
 
@@ -73,12 +93,26 @@ export function useLiquidPhysics() {
     };
 
     const resetCard = (card: HTMLElement) => {
+      if (transitionTimeout) {
+        clearTimeout(transitionTimeout);
+        transitionTimeout = null;
+      }
+      
+      // Apply exit transition for card returning to rest
+      card.style.transition = "transform 320ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1)";
       card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
       card.style.removeProperty("--mouse-x");
       card.style.removeProperty("--mouse-y");
       card.style.removeProperty("--mouse-px");
       card.style.removeProperty("--mouse-py");
       card.style.boxShadow = "";
+      
+      const currentCard = card;
+      setTimeout(() => {
+        if (currentCard && currentCard.style.transform === "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)") {
+          currentCard.style.removeProperty("transition");
+        }
+      }, 330);
     };
 
     // Bind listeners
