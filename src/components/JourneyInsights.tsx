@@ -40,11 +40,41 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
     return 365;
   }, [stats?.start_date, stats?.end_date]);
 
-  const items = [
-    { label: "Growth",      value: formatGrowth(stats?.current_growth), colorClass: "text-[#fbbf24] drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" },
-    { label: "Perfect",     value: <><span className="text-[#4ade80]">{completedDays}</span><span className="text-foreground text-sm md:text-base ml-1 font-medium">/ {totalProgramDays}</span></>, colorClass: "" },
-    { label: "Active Days", value: activeDays,  colorClass: "text-[#60a5fa]" },
-    { label: "Missed",      value: missedDays,  colorClass: "text-[#f87171]" },
+  // Hill peaks [x, peakY] — vary heights for visual depth
+  // peakY is lower number = taller hill (SVG coords)
+  const hills = [
+    {
+      label: "GROWTH",
+      value: formatGrowth(stats?.current_growth),
+      color: "#fbbf24",
+      glow: "rgba(251,191,36,0.6)",
+      peakX: 50,
+      peakY: 34,   // tallest
+    },
+    {
+      label: "PERFECT",
+      value: `${completedDays}/${totalProgramDays}`,
+      color: "#4ade80",
+      glow: "rgba(74,222,128,0.6)",
+      peakX: 152,
+      peakY: 46,   // medium-tall
+    },
+    {
+      label: "ACTIVE DAYS",
+      value: String(activeDays),
+      color: "#60a5fa",
+      glow: "rgba(96,165,250,0.6)",
+      peakX: 258,
+      peakY: 40,   // medium
+    },
+    {
+      label: "MISSED",
+      value: String(missedDays),
+      color: "#f87171",
+      glow: "rgba(248,113,113,0.6)",
+      peakX: 362,
+      peakY: 52,   // shortest
+    },
   ];
 
   return (
@@ -53,45 +83,110 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
         <h3 className="text-sm uppercase tracking-wider text-muted-foreground">Journey Insights</h3>
       </div>
 
-      {/* Card — no flip, just stats + decorative ground strip */}
-      <div className="glass rounded-2xl overflow-hidden">
-        {/* Stats row */}
-        <div className="p-4 md:p-5">
-          <div className="grid grid-cols-4 gap-3 md:gap-4">
-            {items.map((item) => (
-              <div key={item.label} className="text-center">
-                <p className={`text-xl md:text-2xl font-bold ${item.colorClass}`}>{item.value}</p>
-                <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-wider leading-tight mt-1">{item.label}</p>
-              </div>
+      {/* Full landscape card */}
+      <div className="glass rounded-2xl overflow-hidden" style={{ minHeight: "110px" }}>
+        <svg
+          viewBox="0 0 400 110"
+          preserveAspectRatio="xMidYMid meet"
+          className="w-full h-full"
+          style={{ display: "block", minHeight: "110px" }}
+        >
+          {/* ── Background sky gradient ── */}
+          <defs>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="transparent" />
+              <stop offset="100%" stopColor="transparent" />
+            </linearGradient>
+            {hills.map((h) => (
+              <radialGradient key={h.label + "-glow"} id={`glow-${h.label}`} cx="50%" cy="80%" r="50%">
+                <stop offset="0%" stopColor={h.glow} stopOpacity="0.25" />
+                <stop offset="100%" stopColor={h.glow} stopOpacity="0" />
+              </radialGradient>
             ))}
-          </div>
-        </div>
+          </defs>
 
-        {/* Decorative ground strip — sits flush at the bottom, never overlaps stats */}
-        <div className="relative h-7 overflow-hidden pointer-events-none select-none">
-          <svg
-            viewBox="0 0 400 28"
-            preserveAspectRatio="none"
-            className="absolute inset-0 w-full h-full"
-          >
-            {/* Rolling ground hills — dark green / light green via Tailwind sibling trick */}
-            {/* Dark base layer */}
-            <path
-              d="M0,16 Q40,4 90,12 T190,8 T290,14 T400,6 L400,28 L0,28 Z"
-              className="fill-[#1a3a2a] dark:fill-[#0d2018]"
+          {/* ── Far background hills (depth layer) ── */}
+          <path
+            d="M0,75 Q50,55 100,68 T200,60 T300,65 T400,58 L400,110 L0,110 Z"
+            className="fill-[#1a3d2b] dark:fill-[#0a1f12]"
+            opacity="0.5"
+          />
+
+          {/* ── Main ground — single continuous terrain ── */}
+          <path
+            d={`M0,85
+              Q25,80  ${hills[0].peakX},${hills[0].peakY}
+              Q${hills[0].peakX + 50},${hills[0].peakY + 16} ${(hills[0].peakX + hills[1].peakX) / 2},${Math.max(hills[0].peakY, hills[1].peakY) + 6}
+              Q${hills[1].peakX - 30},${hills[1].peakY + 10} ${hills[1].peakX},${hills[1].peakY}
+              Q${hills[1].peakX + 50},${hills[1].peakY + 14} ${(hills[1].peakX + hills[2].peakX) / 2},${Math.max(hills[1].peakY, hills[2].peakY) + 4}
+              Q${hills[2].peakX - 30},${hills[2].peakY + 8}  ${hills[2].peakX},${hills[2].peakY}
+              Q${hills[2].peakX + 50},${hills[2].peakY + 16} ${(hills[2].peakX + hills[3].peakX) / 2},${Math.max(hills[2].peakY, hills[3].peakY) + 4}
+              Q${hills[3].peakX - 30},${hills[3].peakY + 10} ${hills[3].peakX},${hills[3].peakY}
+              Q${hills[3].peakX + 30},${hills[3].peakY + 12} 400,80
+              L400,110 L0,110 Z`}
+            className="fill-[#1e5c38] dark:fill-[#0d2e1c]"
+          />
+
+          {/* ── Highlight edge (lighter top of ground) ── */}
+          <path
+            d={`M0,85
+              Q25,80  ${hills[0].peakX},${hills[0].peakY}
+              Q${hills[0].peakX + 50},${hills[0].peakY + 16} ${(hills[0].peakX + hills[1].peakX) / 2},${Math.max(hills[0].peakY, hills[1].peakY) + 6}
+              Q${hills[1].peakX - 30},${hills[1].peakY + 10} ${hills[1].peakX},${hills[1].peakY}
+              Q${hills[1].peakX + 50},${hills[1].peakY + 14} ${(hills[1].peakX + hills[2].peakX) / 2},${Math.max(hills[1].peakY, hills[2].peakY) + 4}
+              Q${hills[2].peakX - 30},${hills[2].peakY + 8}  ${hills[2].peakX},${hills[2].peakY}
+              Q${hills[2].peakX + 50},${hills[2].peakY + 16} ${(hills[2].peakX + hills[3].peakX) / 2},${Math.max(hills[2].peakY, hills[3].peakY) + 4}
+              Q${hills[3].peakX - 30},${hills[3].peakY + 10} ${hills[3].peakX},${hills[3].peakY}
+              Q${hills[3].peakX + 30},${hills[3].peakY + 12} 400,80`}
+            fill="none"
+            className="stroke-[#29784a] dark:stroke-[#14422a]"
+            strokeWidth="1.2"
+          />
+
+          {/* ── Glow halos on each peak ── */}
+          {hills.map((h) => (
+            <ellipse
+              key={h.label + "-halo"}
+              cx={h.peakX}
+              cy={h.peakY + 2}
+              rx="28"
+              ry="10"
+              fill={`url(#glow-${h.label})`}
             />
-            {/* Mid layer with slightly lighter tone */}
-            <path
-              d="M0,22 Q60,10 130,18 T260,12 T400,18 L400,28 L0,28 Z"
-              className="fill-[#22543d] dark:fill-[#102a1c]"
-            />
-            {/* Top highlight — lightest green strip */}
-            <path
-              d="M0,26 Q80,18 160,24 T320,20 T400,24 L400,28 L0,28 Z"
-              className="fill-[#276749] dark:fill-[#163824]"
-            />
-          </svg>
-        </div>
+          ))}
+
+          {/* ── Value labels — sitting just above each hill peak ── */}
+          {hills.map((h) => (
+            <text
+              key={h.label + "-val"}
+              x={h.peakX}
+              y={h.peakY - 4}
+              textAnchor="middle"
+              fontSize="11"
+              fontWeight="bold"
+              fill={h.color}
+              style={{ filter: `drop-shadow(0 0 4px ${h.glow})` }}
+            >
+              {h.value}
+            </text>
+          ))}
+
+          {/* ── Category labels — at the very bottom ── */}
+          {hills.map((h) => (
+            <text
+              key={h.label + "-lbl"}
+              x={h.peakX}
+              y={104}
+              textAnchor="middle"
+              fontSize="5.5"
+              fontWeight="bold"
+              letterSpacing="0.4"
+              fill="#94a3b8"
+            >
+              {h.label}
+            </text>
+          ))}
+        </svg>
       </div>
     </div>
   );
