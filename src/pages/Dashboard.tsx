@@ -302,12 +302,14 @@ export default function Dashboard() {
 
                   <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
 
-                  <BottomActionBar
-                    onSave={handleSave}
-                    onReset={handleReset}
-                    disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                    hasHabits={!!habits?.length}
-                  />
+                  <div className="-mx-2 sm:-mx-4">
+                    <BottomActionBar
+                      onSave={handleSave}
+                      onReset={handleReset}
+                      disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
+                      hasHabits={!!habits?.length}
+                    />
+                  </div>
                 </div>
               )}
 

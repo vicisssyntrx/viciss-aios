@@ -65,7 +65,7 @@ export default function Navbar() {
       {/* ── Desktop: full glass navbar ── */}
       <div className="hidden md:flex fixed top-0 left-0 right-0 z-40 justify-center px-3 mt-4 pointer-events-none">
         <div className="relative w-full max-w-[1060px] pointer-events-auto">
-          <nav className="w-full flex items-center justify-between py-4 px-8 glass !transform-none !shadow-[0_12px_40px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08),inset_1px_1px_0px_rgba(255,255,255,0.8),inset_-1px_-1px_0px_rgba(0,0,0,0.04)] dark:!shadow-[0_8px_32px_rgba(0,0,0,0.07),inset_1px_1px_0px_rgba(255,255,255,0.05),inset_-1px_-1px_0px_rgba(0,0,0,0.2)]">
+          <nav className="w-full flex items-center justify-between py-4 px-8 glass !transform-none !shadow-[0_12px_40px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08),inset_1px_1px_0px_rgba(255,255,255,0.8),inset_-1px_-1px_0px_rgba(0,0,0,0.04)] dark:!shadow-[0_8px_32px_rgba(0,0,0,0.07),inset_1px_1px_0px_rgba(255,255,255,0.05),inset_-1px_-1px_0px_rgba(0,0,0,0.2)] dark:border dark:border-white/10">
 
             {/* Left: Brand */}
             <div className="flex items-center gap-1 flex-shrink-0">

@@ -618,7 +618,7 @@
 .glass-strong select {
   background: rgba(255, 255, 255, 0.95) !important;
   border-color: rgba(0, 0, 0, 0.15) !important;
-  color: hsl(var(--foreground)) !important;
+  color: #111111 !important;
 }
 
 .glass-strong input:focus,
@@ -633,7 +633,7 @@
 .dark .glass-strong select {
   background: rgba(30, 30, 38, 0.85) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
-  color: hsl(var(--foreground)) !important;
+  color: #eeeeee !important;
 }
 
 .dark .glass-strong input:focus,
