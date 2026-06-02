@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserStats } from "@/hooks/useUserStats";
 import { Home, ClipboardList } from "lucide-react";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -35,25 +36,30 @@ export default function Navbar() {
     null;
   const initial = displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
   const displayStreak = stats?.streak || 0;
+  const scrollDirection = useScrollDirection();
+  const isHidden = scrollDirection === "down";
 
   return (
     <>
-      {/* ── Mobile: coins pill — top LEFT ── */}
-      <div className="md:hidden fixed top-0 left-0 z-40 pt-3 pl-3 pointer-events-none">
-        <span className="pointer-events-auto glass rounded-full px-3.5 py-1.5 text-sm font-semibold text-foreground whitespace-nowrap shadow-lg">
-          🪙 {stats?.coins ?? 0}
-        </span>
-      </div>
-
-      {/* ── Mobile: streak pill — top RIGHT ── */}
-      <div className="md:hidden fixed top-0 right-0 z-40 pt-3 pr-3 pointer-events-none">
-        <button
-          type="button"
-          onClick={() => setShowStreak(true)}
-          className="pointer-events-auto glass rounded-full px-3.5 py-1.5 text-sm font-semibold text-foreground whitespace-nowrap shadow-lg hover:bg-secondary/60 active:scale-95 transition-all"
-        >
-          🔥 {displayStreak}
-        </button>
+      {/* ── Mobile: full glass navbar ── */}
+      <div className={`md:hidden fixed top-0 left-0 right-0 z-40 justify-center px-3 mt-4 transition-all duration-500 ease-in-out ${isHidden ? "-translate-y-[150%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
+        <nav className="w-full flex items-center justify-between py-3 px-5 glass pointer-events-auto">
+          <h1 className="text-lg font-bold tracking-tight text-foreground ml-1">
+            Vicissometer
+          </h1>
+          <div className="flex items-center gap-2">
+            <span className="glass rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap">
+              🪙 {stats?.coins ?? 0}
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowStreak(true)}
+              className="glass rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 active:scale-95 transition-all"
+            >
+              🔥 {displayStreak}
+            </button>
+          </div>
+        </nav>
       </div>
 
       {/* ── Desktop: full glass navbar ── */}
