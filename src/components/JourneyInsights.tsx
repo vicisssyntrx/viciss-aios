@@ -40,38 +40,38 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
     return 365;
   }, [stats?.start_date, stats?.end_date]);
 
-  // Each hill: peakX = horizontal center, peakY = where ground surface is at that hill
+  // peakY = where the ground surface sits — pushed low so values have room above
   const hills = [
-    { label: "Growth",      value: formatGrowth(stats?.current_growth), color: "#fbbf24", peakX: 50,  peakY: 52 },
-    { label: "Perfect",     value: `${completedDays}/${totalProgramDays}`, color: "#4ade80", peakX: 150, peakY: 66 },
-    { label: "Active Days", value: String(activeDays),                   color: "#60a5fa", peakX: 255, peakY: 58 },
-    { label: "Missed",      value: String(missedDays),                   color: "#f87171", peakX: 355, peakY: 74 },
+    { label: "GROWTH",      value: formatGrowth(stats?.current_growth), color: "#fbbf24", peakX: 50,  peakY: 78 },
+    { label: "PERFECT",     value: `${completedDays}/${totalProgramDays}`, color: "#4ade80", peakX: 150, peakY: 92 },
+    { label: "ACTIVE DAYS", value: String(activeDays),                   color: "#60a5fa", peakX: 255, peakY: 83 },
+    { label: "MISSED",      value: String(missedDays),                   color: "#f87171", peakX: 355, peakY: 98 },
   ];
 
-  // Smooth hill terrain path — hand-tuned beziers, no sharp transitions
-  const terrainD = `
-    M0,100
-    C20,100 32,54 ${hills[0].peakX},${hills[0].peakY}
-    C68,${hills[0].peakY} 80,82 102,82
-    C124,82 132,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
-    C168,${hills[1].peakY} 182,82 204,82
-    C226,82 236,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
-    C274,${hills[2].peakY} 286,82 308,82
-    C330,82 340,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
-    C370,${hills[3].peakY} 385,92 400,92
-    L400,130 L0,130 Z
+  // Smooth terrain — peaks pushed to bottom third of the card
+  const terrain = `
+    M0,118
+    C22,118 34,80 ${hills[0].peakX},${hills[0].peakY}
+    C66,${hills[0].peakY} 78,110 102,110
+    C126,110 134,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
+    C166,${hills[1].peakY} 180,110 204,110
+    C228,110 238,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
+    C272,${hills[2].peakY} 284,110 308,110
+    C332,110 342,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
+    C368,${hills[3].peakY} 384,114 400,114
+    L400,145 L0,145 Z
   `.trim();
 
   const terrainEdge = `
-    M0,100
-    C20,100 32,54 ${hills[0].peakX},${hills[0].peakY}
-    C68,${hills[0].peakY} 80,82 102,82
-    C124,82 132,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
-    C168,${hills[1].peakY} 182,82 204,82
-    C226,82 236,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
-    C274,${hills[2].peakY} 286,82 308,82
-    C330,82 340,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
-    C370,${hills[3].peakY} 385,92 400,92
+    M0,118
+    C22,118 34,80 ${hills[0].peakX},${hills[0].peakY}
+    C66,${hills[0].peakY} 78,110 102,110
+    C126,110 134,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
+    C166,${hills[1].peakY} 180,110 204,110
+    C228,110 238,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
+    C272,${hills[2].peakY} 284,110 308,110
+    C332,110 342,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
+    C368,${hills[3].peakY} 384,114 400,114
   `.trim();
 
   return (
@@ -82,21 +82,21 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
 
       <div className="glass rounded-2xl overflow-hidden">
         <svg
-          viewBox="0 0 400 128"
+          viewBox="0 0 400 140"
           preserveAspectRatio="xMidYMid meet"
           className="w-full"
-          style={{ display: "block", height: "128px" }}
+          style={{ display: "block", height: "140px" }}
         >
           {/* Background depth hill */}
           <path
-            d="M0,108 Q80,88 160,100 T320,94 T400,100 L400,130 L0,130 Z"
+            d="M0,122 Q80,104 160,116 T320,110 T400,118 L400,145 L0,145 Z"
             className="fill-[#14472e] dark:fill-[#081910]"
           />
 
           {/* Main terrain */}
-          <path d={terrainD} className="fill-[#1e6b40] dark:fill-[#0d2e1c]" />
+          <path d={terrain} className="fill-[#1e6b40] dark:fill-[#0d2e1c]" />
 
-          {/* Soft lighter highlight along the top edge */}
+          {/* Highlight edge */}
           <path
             d={terrainEdge}
             fill="none"
@@ -104,32 +104,34 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
             strokeWidth="1.5"
           />
 
-          {/* Values + labels grouped per hill */}
+          {/* Values + labels per hill */}
           {hills.map((h) => (
             <g key={h.label}>
-              {/* Value — sits just above the hill peak */}
+              {/* Value — large, sits well above the hill peak */}
               <text
                 x={h.peakX}
-                y={h.peakY - 16}
+                y={h.peakY - 20}
                 textAnchor="middle"
-                fontSize="15"
-                fontWeight="bold"
+                fontSize="19"
+                fontWeight="800"
                 fill={h.color}
-                style={{ filter: `drop-shadow(0 1px 6px ${h.color}88)` }}
+                fontFamily="inherit"
+                style={{ filter: `drop-shadow(0 1px 8px ${h.color}99)` }}
               >
                 {h.value}
               </text>
-              {/* Label — sits just below the value, close and tidy */}
+              {/* Label — immediately below the value, tight spacing */}
               <text
                 x={h.peakX}
-                y={h.peakY - 3}
+                y={h.peakY - 6}
                 textAnchor="middle"
-                fontSize="6.5"
+                fontSize="7"
                 fontWeight="600"
-                letterSpacing="0.5"
-                fill="#94a3b8"
+                letterSpacing="0.6"
+                fill="#64748b"
+                fontFamily="inherit"
               >
-                {h.label.toUpperCase()}
+                {h.label}
               </text>
             </g>
           ))}
