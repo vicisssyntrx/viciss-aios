@@ -148,7 +148,7 @@ export default function Dashboard() {
   if (isResetting) return <LoadingScreen message="Resetting today's progress..." />;
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-screen">
       <LightLeakBackground />
       <ParticleBackground />
       <div className="relative z-10 flex flex-col min-h-screen pt-20 sm:pt-22 md:pt-24">

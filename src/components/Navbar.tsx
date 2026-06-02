@@ -59,11 +59,6 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Center: App name on mobile */}
-            <span className="sm:hidden text-base font-bold tracking-tight text-foreground absolute left-1/2 -translate-x-1/2">
-              Vicissometer
-            </span>
-
             {/* Right: Avatar */}
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
               <button
