@@ -214,6 +214,18 @@ export default function Dashboard() {
   const isTasks = mobileTab === "tasks";
   const isAccount = mobileTab === "account";
 
+  // ── Sunrise animation: replay on mount + every time tab becomes visible ──
+  const [sunriseKey, setSunriseKey] = useState(0);
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        setSunriseKey((k) => k + 1);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
+
   return (
     <div className="relative min-h-screen">
       <LightLeakBackground />
@@ -236,7 +248,7 @@ export default function Dashboard() {
         />
       )}
 
-      <div className="relative z-10 flex flex-col min-h-screen pt-4 md:pt-24">
+      <div key={sunriseKey} className="page-sunrise relative z-10 flex flex-col min-h-screen pt-4 md:pt-24">
         <Navbar />
 
         {/* ── Greeting ── */}
