@@ -48,33 +48,49 @@ export default function Navbar({ desktopTab, onDesktopTabChange }: NavbarProps) 
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-40 flex justify-center px-1 sm:px-2 md:px-3 mt-2 sm:mt-3 md:mt-4 pointer-events-none">
+      {/* ── Mobile: floating stat bubbles top-right ── */}
+      <div className="md:hidden fixed top-0 right-0 z-40 flex flex-col items-end gap-2 pt-3 pr-3 pointer-events-none">
+        {/* Coins bubble */}
+        <span className="pointer-events-auto glass rounded-full px-3.5 py-1.5 text-sm font-semibold text-foreground whitespace-nowrap shadow-lg">
+          🪙 {stats?.coins ?? 0}
+        </span>
+        {/* Streak bubble — tappable */}
+        <button
+          type="button"
+          onClick={() => setShowStreak(true)}
+          className="pointer-events-auto glass rounded-full px-3.5 py-1.5 text-sm font-semibold text-foreground whitespace-nowrap shadow-lg hover:bg-secondary/60 active:scale-95 transition-all"
+        >
+          🔥 {displayStreak}
+        </button>
+      </div>
+
+      {/* ── Desktop: full glass navbar ── */}
+      <div className="hidden md:flex fixed top-0 left-0 right-0 z-40 justify-center px-3 mt-4 pointer-events-none">
         <div className="relative w-full max-w-[1060px] pointer-events-auto">
-          <nav className="w-full flex items-center justify-between py-3.5 md:py-4 px-5 sm:px-6 md:px-8 glass">
+          <nav className="w-full flex items-center justify-between py-4 px-8 glass">
 
             {/* Left: Brand + Stats */}
             <div className="flex items-center gap-1 flex-shrink-0">
-              {/* Brand name — desktop only */}
-              <h1 className="hidden md:block text-lg sm:text-xl font-bold tracking-tight text-foreground mr-3">
+              <h1 className="text-xl font-bold tracking-tight text-foreground mr-3">
                 Vicissometer
               </h1>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="glass rounded-full px-3.5 py-1.5 text-base sm:text-lg font-semibold text-foreground whitespace-nowrap">
+              <div className="flex items-center gap-2">
+                <span className="glass rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap">
                   🪙 {stats?.coins ?? 0}
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowStreak(true)}
-                  className="glass rounded-full px-3.5 py-1.5 text-base sm:text-lg font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 transition-colors"
+                  className="glass rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 transition-colors"
                 >
                   🔥 {displayStreak}
                 </button>
               </div>
             </div>
 
-            {/* Centre: Dash / Tasks tabs — desktop only */}
+            {/* Centre: Dash / Tasks tabs */}
             {onDesktopTabChange && (
-              <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+              <div className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
                 <div className="flex items-center gap-0.5 p-1 glass rounded-full">
                   {tabs.map((tab) => (
                     <button
@@ -97,12 +113,11 @@ export default function Navbar({ desktopTab, onDesktopTabChange }: NavbarProps) 
               </div>
             )}
 
-            {/* Right: Avatar — desktop only */}
+            {/* Right: Avatar */}
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
-              {/* Hidden on mobile — avatar is in the bottom nav instead */}
               <button
                 onClick={() => setShowAccount(true)}
-                className="hidden md:flex w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden hover:opacity-90 transition-opacity flex-shrink-0"
+                className="w-10 h-10 rounded-full overflow-hidden hover:opacity-90 transition-opacity flex-shrink-0"
               >
                 <Avatar className="h-full w-full border border-primary/40 bg-primary/20">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" /> : null}
@@ -113,6 +128,7 @@ export default function Navbar({ desktopTab, onDesktopTabChange }: NavbarProps) 
           </nav>
         </div>
       </div>
+
       {showStreak && <StreakWindow onClose={() => setShowStreak(false)} />}
       {showAccount && <AccountCenter onClose={() => setShowAccount(false)} />}
     </>

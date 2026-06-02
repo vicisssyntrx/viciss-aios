@@ -180,7 +180,7 @@ export default function Dashboard() {
     <div className="relative min-h-screen">
       <LightLeakBackground />
       <ParticleBackground />
-      <div className="relative z-10 flex flex-col min-h-screen pt-20 sm:pt-22 md:pt-24">
+      <div className="relative z-10 flex flex-col min-h-screen pt-4 md:pt-24">
         <Navbar desktopTab={desktopTab} onDesktopTabChange={setDesktopTab} />
 
         <>
