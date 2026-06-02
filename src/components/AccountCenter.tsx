@@ -369,7 +369,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
   const content = (
     <>
-      <div className="relative w-full max-w-sm flex flex-col items-center pt-[13rem] sm:pt-[15rem] select-none mx-auto mt-8 sm:mt-0">
+      <div className="relative w-full max-w-sm flex flex-col items-center pt-[6rem] sm:pt-[6.5rem] select-none mx-auto mt-8 sm:mt-0">
         {/* Large Centered Avatar */}
         <div 
           className="absolute top-6 left-1/2 -translate-x-1/2 z-20 w-36 h-36 sm:w-40 sm:h-40 shrink-0 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.36)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"

@@ -43,18 +43,18 @@ export default function Navbar() {
     <>
       {/* ── Mobile: full glass navbar ── */}
       <div className={`md:hidden fixed top-0 left-0 right-0 z-40 justify-center px-3 mt-4 transition-all duration-500 ease-in-out ${isHidden ? "-translate-y-[150%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
-        <nav className="w-full flex items-center justify-between py-3 px-5 glass pointer-events-auto">
+        <nav className="w-full flex items-center justify-between py-3 px-5 glass !transform-none pointer-events-auto">
           <h1 className="text-lg font-bold tracking-tight text-foreground ml-1">
             Vicissometer
           </h1>
           <div className="flex items-center gap-2">
-            <span className="glass rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap">
+            <span className="glass !transform-none rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap">
               🪙 {stats?.coins ?? 0}
             </span>
             <button
               type="button"
               onClick={() => setShowStreak(true)}
-              className="glass rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 active:scale-95 transition-all"
+              className="glass !transform-none rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 active:scale-95 transition-all"
             >
               🔥 {displayStreak}
             </button>
@@ -65,26 +65,30 @@ export default function Navbar() {
       {/* ── Desktop: full glass navbar ── */}
       <div className="hidden md:flex fixed top-0 left-0 right-0 z-40 justify-center px-3 mt-4 pointer-events-none">
         <div className="relative w-full max-w-[1060px] pointer-events-auto">
-          <nav className="w-full flex items-center justify-between py-4 px-8 glass">
+          <nav className="w-full flex items-center justify-between py-4 px-8 glass !transform-none !shadow-[0_12px_40px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08),inset_1px_1px_0px_rgba(255,255,255,0.8),inset_-1px_-1px_0px_rgba(0,0,0,0.04)] dark:!shadow-[0_8px_32px_rgba(0,0,0,0.07),inset_1px_1px_0px_rgba(255,255,255,0.05),inset_-1px_-1px_0px_rgba(0,0,0,0.2)]">
 
-            {/* Left: Brand + Stats */}
+            {/* Left: Brand */}
             <div className="flex items-center gap-1 flex-shrink-0">
+              <h1 className="text-xl font-bold tracking-tight text-foreground">
+                Vicissometer
+              </h1>
+            </div>
+
+            {/* Right: Stats & Avatar */}
+            <div className="flex items-center gap-4 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <span className="glass rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap">
+                <span className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap">
                   🪙 {stats?.coins ?? 0}
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowStreak(true)}
-                  className="glass rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 transition-colors"
+                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 transition-colors"
                 >
                   🔥 {displayStreak}
                 </button>
               </div>
-            </div>
 
-            {/* Right: Avatar */}
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
               <button
                 onClick={() => setShowAccount(true)}
                 className="w-10 h-10 rounded-full overflow-hidden hover:opacity-90 transition-opacity flex-shrink-0"

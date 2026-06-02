@@ -36,8 +36,12 @@ export default function SaveProgressButton({ onSave, locked, disabled }: Props) 
   return (
     <Button
       onClick={handle}
-      disabled={disabled || saving}
-      className={`w-full h-12 md:h-14 text-base md:text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/20 transition-all ${pulsing ? "animate-red-pulse" : ""}`}
+      disabled={disabled || locked || saving}
+      className={`w-full h-14 rounded-[1.25rem] flex items-center justify-center font-bold text-lg transition-all duration-300 relative overflow-hidden ${
+        locked
+          ? "bg-secondary text-muted-foreground opacity-50 cursor-not-allowed"
+          : "bg-[#15803d] hover:bg-[#166534] text-white shadow-[0_8px_32px_rgba(21,128,61,0.4)]"
+      } ${pulsing ? "scale-[1.02]" : ""}`}
     >
       <Save className="h-5 w-5 mr-2" />
       {saving ? "Saving..." : "Save Progress"}

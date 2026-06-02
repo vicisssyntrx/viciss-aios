@@ -83,7 +83,7 @@ export default function BottomActionBar({ onSave, onReset, disabled, hasHabits }
           <button
             onClick={handleSave}
             disabled={disabled || saving}
-            className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl font-semibold text-base bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl font-semibold text-base bg-[#15803d] hover:bg-[#166534] text-white shadow-[0_8px_32px_rgba(21,128,61,0.4)] disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
               pulsing ? "scale-[1.03]" : ""
             }`}
           >

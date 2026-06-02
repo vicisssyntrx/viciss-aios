@@ -248,7 +248,7 @@ export default function Dashboard() {
         />
       )}
 
-      <div key={sunriseKey} className="page-sunrise relative z-10 flex flex-col min-h-screen pt-24">
+      <div key={sunriseKey} className="page-sunrise relative z-10 flex flex-col min-h-screen pt-[4.5rem] md:pt-[5.5rem]">
         <Navbar />
 
         {/* ── Greeting ── */}
