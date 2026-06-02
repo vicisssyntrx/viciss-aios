@@ -349,15 +349,15 @@ export default function Dashboard() {
       </div>
 
       {/* ── Floating Mobile Tab Bar ─────────────────────────────────────────── */}
-      <div className="md:hidden fixed bottom-4 left-0 right-0 z-50 px-3">
-        <div className="flex items-stretch rounded-[22px] overflow-hidden floating-nav-pill w-full px-1">
+      <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[70%] max-w-[240px]">
+        <div className="flex items-stretch rounded-[22px] overflow-hidden floating-nav-pill w-full px-1 py-0.5">
           {/* Tab 1: Dash */}
           <button
             onClick={() => setMobileTab("dash")}
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isDash ? "tg-tab-active" : ""}`}>
-              <Home className="w-5.5 h-5.5" />
+              <Home className="w-6.5 h-6.5" />
             </div>
             <span className={`tg-tab-label ${isDash ? "tg-label-active" : ""}`}>Dash</span>
           </button>
@@ -368,7 +368,7 @@ export default function Dashboard() {
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isTasks ? "tg-tab-active" : ""}`}>
-              <ClipboardList className="w-5.5 h-5.5" />
+              <ClipboardList className="w-6.5 h-6.5" />
             </div>
             <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
@@ -379,9 +379,9 @@ export default function Dashboard() {
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isAccount ? "tg-tab-active" : ""}`}>
-              <Avatar className="w-6 h-6 border border-primary/40 shrink-0">
+              <Avatar className="w-7.5 h-7.5 border border-primary/40 shrink-0">
                 {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" className="object-cover rounded-full" /> : null}
-                <AvatarFallback className="text-primary font-bold text-[9px] bg-primary/20 flex items-center justify-center rounded-full w-full h-full">{initial}</AvatarFallback>
+                <AvatarFallback className="text-primary font-bold text-[10px] bg-primary/20 flex items-center justify-center rounded-full w-full h-full">{initial}</AvatarFallback>
               </Avatar>
             </div>
             <span className={`tg-tab-label ${isAccount ? "tg-label-active" : ""}`}>Profile</span>
