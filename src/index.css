@@ -608,6 +608,19 @@
   pointer-events: none;
 }
 
+@keyframes road-scroll {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 100px;
+  }
+}
+
+.animate-road-scroll {
+  animation: road-scroll 1.5s linear infinite;
+}
+
 /* ════════════════════════════════════════════════
    Light-mode Manage Habits sheet — input contrast
    ════════════════════════════════════════════════ */
