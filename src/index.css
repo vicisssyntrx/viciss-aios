@@ -91,16 +91,6 @@
 
   body {
     @apply bg-background text-foreground text-base;
-    /* Smooth brightness transition when toggling light/dark */
-    transition: filter 400ms ease;
-  }
-
-  /* Dark mode base brightness boost — doubles the rendered luminance so
-     content is clearly visible even at mid-range device brightness.
-     The device's own screen brightness still multiplies on top of this,
-     meaning higher phone brightness → even brighter result than stock. */
-  .dark body {
-    filter: brightness(2);
   }
 }
 
@@ -161,7 +151,7 @@
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.32),
     inset 1px 1px 0px rgba(255, 255, 255, 0.22),
-    inset -1px -1px 0px rgba(0, 0, 0, 0.28);
+    inset -1px -1px 0px rgba(255, 255, 255, 0.10);
     
   background-image: radial-gradient(
     circle 160px at var(--mouse-px, 50px) var(--mouse-py, 50px),
