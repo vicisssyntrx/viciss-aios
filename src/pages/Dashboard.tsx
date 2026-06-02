@@ -379,9 +379,9 @@ export default function Dashboard() {
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isAccount ? "tg-tab-active" : ""}`}>
-              <Avatar className="w-6.5 h-6.5 border border-primary/40">
-                {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" /> : null}
-                <AvatarFallback className="text-primary font-semibold text-[10px] bg-primary/20">{initial}</AvatarFallback>
+              <Avatar className="w-6 h-6 border border-primary/40 shrink-0">
+                {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" className="object-cover rounded-full" /> : null}
+                <AvatarFallback className="text-primary font-bold text-[9px] bg-primary/20 flex items-center justify-center rounded-full w-full h-full">{initial}</AvatarFallback>
               </Avatar>
             </div>
             <span className={`tg-tab-label ${isAccount ? "tg-label-active" : ""}`}>Profile</span>
