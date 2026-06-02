@@ -273,7 +273,13 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
     };
     const { error } = await supabase.from("user_stats").update(update).eq("user_id", user.id);
     if (error) { toast.error(error.message); return; }
+    
+    // Invalidate user stats and logs to force dynamic recalculation on Growth Graph
     qc.invalidateQueries({ queryKey: ["user_stats"] });
+    qc.invalidateQueries({ queryKey: ["daily_logs"] });
+    qc.invalidateQueries({ queryKey: ["daily_log_today"] });
+    qc.invalidateQueries({ queryKey: ["daily_log_date"] });
+    
     toast.success(`Program start set to ${format(date, "MMM d, yyyy")} (Default End: ${format(defaultEndDate, "MMM d, yyyy")})`);
   };
 
@@ -290,7 +296,12 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
     const update: TablesUpdate<"user_stats"> = { end_date: dateStr };
     const { error } = await supabase.from("user_stats").update(update).eq("user_id", user.id);
     if (error) { toast.error(error.message); return; }
+    
+    // Invalidate user stats and logs to force dynamic recalculation on Growth Graph
     qc.invalidateQueries({ queryKey: ["user_stats"] });
+    qc.invalidateQueries({ queryKey: ["daily_logs"] });
+    qc.invalidateQueries({ queryKey: ["daily_log_today"] });
+    qc.invalidateQueries({ queryKey: ["daily_log_date"] });
 
     const durationDays = currentStartDate 
       ? Math.round((date.getTime() - currentStartDate.getTime()) / (1000 * 60 * 60 * 24)) 

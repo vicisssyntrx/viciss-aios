@@ -73,43 +73,56 @@ export default function JourneyInsights() {
         </div>
 
         {/* Back Face - Road Map */}
-        <div className="absolute inset-0 glass rounded-2xl overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)] bg-black/40 border border-primary/20">
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 glass rounded-2xl overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)] bg-gradient-to-b from-[#e8ecec] to-[#cdd9d6] dark:from-[#111615] dark:to-[#1a2321]">
+          <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full pointer-events-none">
+            {/* Background Hills */}
+            <path d="M0,80 Q60,40 140,65 T280,55 T400,75 L400,120 L0,120 Z" fill="currentColor" className="text-[#dae5e1] dark:text-[#17201e]" />
+            <path d="M0,95 Q100,70 190,85 T340,65 T400,80 L400,120 L0,120 Z" fill="currentColor" className="text-[#c1cfcb] dark:text-[#1c2624]" />
             
-            {/* 3D Road Container */}
-            <div className="relative w-24 h-[150%] [transform:perspective(200px)_rotateX(60deg)_translateY(-20%)] -mt-10 opacity-70">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/20 to-primary/40 rounded-t-full shadow-[0_0_30px_rgba(239,68,68,0.4)]" />
-              {/* Scrolling dashed line */}
-              <div 
-                className="absolute left-1/2 -translate-x-1/2 w-1 h-[200%] -top-1/2 animate-road-scroll"
-                style={{
-                  backgroundImage: 'linear-gradient(to bottom, transparent 50%, rgba(255,255,255,0.7) 50%)',
-                  backgroundSize: '100% 40px'
-                }}
-              />
-            </div>
+            {/* Tapered Winding Road */}
+            <path d="M-40,120 C80,120 160,90 220,80 C280,70 340,75 380,60 L380,57 C340,72 280,67 220,77 C160,87 80,105 0,120 Z" fill="#2c3b38" />
+            
+            {/* Dashed Center Line */}
+            <path d="M-20,120 C80,112.5 160,88.5 220,78.5 C280,68.5 340,73.5 380,58.5" fill="none" stroke="#fbbf24" strokeWidth="1" strokeDasharray="4,4" className="opacity-70" />
 
-            {/* HUD Overlay */}
-            <div className="absolute inset-0 flex flex-col justify-between p-3">
-              {/* Goal Marker */}
-              <div className="flex items-center justify-between text-xs font-bold text-foreground">
-                <span className="bg-background/50 px-2 py-0.5 rounded backdrop-blur-sm">🏁 Goal</span>
-                <span className="text-[#fbbf24] drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">{maxGrowth}</span>
-              </div>
+            {/* Nearest Board (Present GF) */}
+            <g transform="translate(130, 60)">
+              {/* Poles */}
+              <rect x="6" y="24" width="2" height="18" fill="#475569" />
+              <rect x="32" y="24" width="2" height="18" fill="#475569" />
+              {/* Board */}
+              <rect x="0" y="0" width="40" height="24" rx="2" fill="#1e293b" className="shadow-lg" />
+              <rect x="0" y="0" width="40" height="24" rx="2" fill="none" stroke="#334155" strokeWidth="1" />
+              <text x="20" y="9" fontSize="4.5" fill="#94a3b8" textAnchor="middle" fontWeight="bold" letterSpacing="0.5">PRESENT</text>
+              <text x="20" y="18" fontSize="7.5" fill="#fbbf24" textAnchor="middle" fontWeight="bold" className="drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]">
+                {formatGrowth(stats?.current_growth)}
+              </text>
+            </g>
 
-              {/* Player Progress Marker */}
-              <div className="absolute w-full px-3 transition-all duration-1000 ease-out" style={{ bottom: `${Math.max(10, progressPercent)}%` }}>
-                <div className="flex flex-col items-center animate-bounce duration-[2000ms]">
-                  <span className="text-2xl drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] z-10">🚗</span>
-                  <div className="w-6 h-1.5 bg-black/40 rounded-full blur-[2px] -mt-1" />
-                </div>
-                <div className="absolute left-3 top-1 text-[10px] font-bold text-white bg-primary/80 px-1.5 rounded backdrop-blur-sm shadow-md">
-                  {formatGrowth(stats?.current_growth)}
-                </div>
-              </div>
-            </div>
+            {/* Midground Board (Next GF) */}
+            <g transform="translate(230, 48) scale(0.75)">
+              <rect x="6" y="24" width="2" height="18" fill="#475569" />
+              <rect x="32" y="24" width="2" height="18" fill="#475569" />
+              <rect x="0" y="0" width="40" height="24" rx="2" fill="#1e293b" />
+              <rect x="0" y="0" width="40" height="24" rx="2" fill="none" stroke="#334155" strokeWidth="1" />
+              <text x="20" y="9" fontSize="4.5" fill="#94a3b8" textAnchor="middle" fontWeight="bold" letterSpacing="0.5">NEXT</text>
+              <text x="20" y="18" fontSize="7.5" fill="#4ade80" textAnchor="middle" fontWeight="bold" className="drop-shadow-[0_0_4px_rgba(74,222,128,0.5)]">
+                {nextGrowth}
+              </text>
+            </g>
 
-          </div>
+            {/* Distant Goal Marker */}
+            <g transform="translate(365, 42) scale(0.4)">
+              <rect x="6" y="24" width="2" height="18" fill="#475569" />
+              <rect x="32" y="24" width="2" height="18" fill="#475569" />
+              <rect x="0" y="0" width="40" height="24" rx="2" fill="#1e293b" />
+              <rect x="0" y="0" width="40" height="24" rx="2" fill="none" stroke="#334155" strokeWidth="1" />
+              <text x="20" y="9" fontSize="4.5" fill="#94a3b8" textAnchor="middle" fontWeight="bold" letterSpacing="0.5">MAX GOAL</text>
+              <text x="20" y="18" fontSize="7.5" fill="#f8fafc" textAnchor="middle" fontWeight="bold">
+                {maxGrowth}
+              </text>
+            </g>
+          </svg>
         </div>
       </div>
     </div>
