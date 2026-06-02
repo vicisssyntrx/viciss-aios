@@ -29,8 +29,8 @@ export default function JourneyInsights({ activeTab }: JourneyInsightsProps) {
   const denseLogs = getDenseLogs(logs, stats?.start_date);
 
   const formatGrowth = (value: number | undefined) => {
-    if (value === undefined || Number.isNaN(value)) return "1.0000x";
-    return value.toFixed(4) + "x";
+    if (value === undefined || Number.isNaN(value)) return "1.00x";
+    return value.toFixed(2) + "x";
   };
 
   const today = todayYmdLocal();
@@ -116,13 +116,7 @@ export default function JourneyInsights({ activeTab }: JourneyInsightsProps) {
               transform: "rotateX(180deg)",
             }}
           >
-            {/* Goal GF — top-right overlay */}
-            <div className="absolute top-2 right-3 z-10 text-right pointer-events-none">
-              <p className="text-[9px] uppercase tracking-widest text-slate-400 font-semibold">Goal Growth</p>
-              <p className="text-lg font-bold text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)] leading-tight">{maxGrowth}</p>
-            </div>
-
-            {/* Road SVG */}
+              {/* Road SVG — includes Goal badge in top-right corner */}
             <svg
               viewBox="0 0 400 120"
               preserveAspectRatio="xMidYMid slice"
@@ -145,41 +139,41 @@ export default function JourneyInsights({ activeTab }: JourneyInsightsProps) {
                 opacity="0.7"
               />
 
-              {/* PRESENT board */}
-              <g transform="translate(115, 55)">
-                <rect x="6" y="26" width="2" height="20" fill="#475569" />
-                <rect x="36" y="26" width="2" height="20" fill="#475569" />
-                <rect x="0" y="0" width="44" height="26" rx="3" fill="#1e293b" />
-                <rect x="0" y="0" width="44" height="26" rx="3" fill="none" stroke="#334155" strokeWidth="1" />
-                <text x="22" y="9.5" fontSize="4.5" fill="#94a3b8" textAnchor="middle" fontWeight="bold" letterSpacing="0.5">PRESENT</text>
-                <text x="22" y="20" fontSize="8" fill="#fbbf24" textAnchor="middle" fontWeight="bold">
+              {/* PRESENT board — far left, large */}
+              <g transform="translate(48, 60)">
+                <rect x="7" y="28" width="2" height="22" fill="#475569" />
+                <rect x="39" y="28" width="2" height="22" fill="#475569" />
+                <rect x="0" y="0" width="48" height="28" rx="3" fill="#1e293b" />
+                <rect x="0" y="0" width="48" height="28" rx="3" fill="none" stroke="#fbbf2466" strokeWidth="1" />
+                <text x="24" y="10" fontSize="4.5" fill="#94a3b8" textAnchor="middle" fontWeight="bold" letterSpacing="0.5">PRESENT</text>
+                <text x="24" y="22" fontSize="9" fill="#fbbf24" textAnchor="middle" fontWeight="bold">
                   {formatGrowth(stats?.current_growth)}
                 </text>
               </g>
 
-              {/* NEXT board */}
-              <g transform="translate(228, 44) scale(0.78)">
-                <rect x="6" y="26" width="2" height="20" fill="#475569" />
-                <rect x="36" y="26" width="2" height="20" fill="#475569" />
-                <rect x="0" y="0" width="44" height="26" rx="3" fill="#1e293b" />
-                <rect x="0" y="0" width="44" height="26" rx="3" fill="none" stroke="#334155" strokeWidth="1" />
-                <text x="22" y="9.5" fontSize="4.5" fill="#94a3b8" textAnchor="middle" fontWeight="bold" letterSpacing="0.5">NEXT</text>
-                <text x="22" y="20" fontSize="8" fill="#4ade80" textAnchor="middle" fontWeight="bold">
+              {/* NEXT board — mid */}
+              <g transform="translate(215, 46) scale(0.80)">
+                <rect x="7" y="28" width="2" height="22" fill="#475569" />
+                <rect x="39" y="28" width="2" height="22" fill="#475569" />
+                <rect x="0" y="0" width="48" height="28" rx="3" fill="#1e293b" />
+                <rect x="0" y="0" width="48" height="28" rx="3" fill="none" stroke="#4ade8066" strokeWidth="1" />
+                <text x="24" y="10" fontSize="4.5" fill="#94a3b8" textAnchor="middle" fontWeight="bold" letterSpacing="0.5">NEXT</text>
+                <text x="24" y="22" fontSize="9" fill="#4ade80" textAnchor="middle" fontWeight="bold">
                   {nextGrowth}
                 </text>
               </g>
 
-              {/* MAX GOAL distant board */}
-              <g transform="translate(362, 40) scale(0.42)">
-                <rect x="6" y="26" width="2" height="20" fill="#475569" />
-                <rect x="36" y="26" width="2" height="20" fill="#475569" />
-                <rect x="0" y="0" width="44" height="26" rx="3" fill="#1e293b" />
-                <rect x="0" y="0" width="44" height="26" rx="3" fill="none" stroke="#334155" strokeWidth="1" />
-                <text x="22" y="9.5" fontSize="4.5" fill="#94a3b8" textAnchor="middle" fontWeight="bold" letterSpacing="0.5">MAX</text>
-                <text x="22" y="20" fontSize="8" fill="#f8fafc" textAnchor="middle" fontWeight="bold">
-                  {maxGrowth}
-                </text>
-              </g>
+              {/* GOAL corner badge — top-right, compact with arrow pointing right */}
+              {/* Dashed arrow line from road to badge */}
+              <line x1="358" y1="62" x2="378" y2="18" stroke="#ffffff33" strokeWidth="0.8" strokeDasharray="2,2" />
+              {/* Arrow head */}
+              <polygon points="378,14 374,20 382,20" fill="#ffffff44" />
+              {/* Badge background */}
+              <rect x="340" y="2" width="58" height="12" rx="2" fill="#0f172a" />
+              <rect x="340" y="2" width="58" height="12" rx="2" fill="none" stroke="#ffffff22" strokeWidth="0.8" />
+              {/* Badge label */}
+              <text x="369" y="8" fontSize="3.5" fill="#94a3b8" textAnchor="middle" fontWeight="bold" letterSpacing="0.3">GOAL GROWTH</text>
+              <text x="369" y="12.5" fontSize="5.5" fill="#f8fafc" textAnchor="middle" fontWeight="bold">{maxGrowth}</text>
             </svg>
           </div>
         </div>
