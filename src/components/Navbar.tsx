@@ -49,7 +49,7 @@ export default function Navbar({ desktopTab, onDesktopTabChange }: NavbarProps) 
   return (
     <>
       {/* ── Mobile: floating stat bubbles top-right ── */}
-      <div className="md:hidden fixed top-0 right-0 z-40 flex flex-col items-end gap-2 pt-3 pr-3 pointer-events-none">
+      <div className="md:hidden fixed top-0 right-0 z-40 flex flex-row items-center gap-2 pt-3 pr-3 pointer-events-none">
         {/* Coins bubble */}
         <span className="pointer-events-auto glass rounded-full px-3.5 py-1.5 text-sm font-semibold text-foreground whitespace-nowrap shadow-lg">
           🪙 {stats?.coins ?? 0}
