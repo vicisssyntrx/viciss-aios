@@ -50,12 +50,12 @@ export default function AccountCenter({ onClose }: Props) {
     window.dispatchEvent(new Event("vicissometer-bg-changed"));
     toast.success(`Background style changed to ${
       newStyle === "solid" 
-        ? "Pure Black" 
-        : newStyle === "aura" 
-          ? "Crimson Eclipse" 
-          : newStyle === "waves" 
-            ? "Liquid Waves" 
-            : "Horizon Pulse"
+        ? "Solid Theme" 
+        : newStyle === "pulse" 
+          ? "Horizon Pulse" 
+          : newStyle === "orbit-static"
+            ? "Orbital Pulse"
+            : "Moving Orbits"
     }`);
   };
 
@@ -463,40 +463,40 @@ export default function AccountCenter({ onClose }: Props) {
                     : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
                 )}
               >
-                <Moon className="h-3.5 w-3.5" /> Pure Black
+                <Moon className="h-4 w-4" /> Solid Theme
               </button>
               <button
-                onClick={() => handleBgChange("aura")}
+                onClick={() => handleBgChange("pulse")}
                 className={cn(
                   "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
-                  bgStyle === "aura" 
+                  bgStyle === "pulse" 
                     ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
                     : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
                 )}
               >
-                <Compass className="h-3.5 w-3.5" /> Crimson Eclipse
+                <Sparkles className="h-4 w-4" /> Horizon Pulse
               </button>
               <button
-                onClick={() => handleBgChange("waves")}
+                onClick={() => handleBgChange("orbit-static")}
                 className={cn(
                   "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
-                  bgStyle === "waves" 
+                  bgStyle === "orbit-static" 
                     ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
                     : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
                 )}
               >
-                <Waves className="h-3.5 w-3.5" /> Liquid Waves
+                <Compass className="h-4 w-4" /> Orbital Pulse
               </button>
               <button
-                onClick={() => handleBgChange("beam")}
+                onClick={() => handleBgChange("orbit-moving")}
                 className={cn(
                   "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
-                  bgStyle === "beam" 
+                  bgStyle === "orbit-moving" 
                     ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
                     : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
                 )}
               >
-                <Sparkles className="h-3.5 w-3.5" /> Horizon Pulse
+                <Waves className="h-4 w-4" /> Moving Orbits
               </button>
             </div>
           </div>

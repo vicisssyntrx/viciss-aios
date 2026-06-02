@@ -8,6 +8,7 @@ import PwaInstallManager from "@/components/PwaInstallManager";
 import AppErrorBoundary from "@/components/AppErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AgentDashboard from "./pages/AgentDashboard";
 import NotFound from "./pages/NotFound";
 
 // QueryClient is created once at the module level so it persists across re-renders.
@@ -85,6 +86,7 @@ function AppInner() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/agent" element={<AgentDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

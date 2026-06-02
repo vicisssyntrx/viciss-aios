@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/useAuth";
-import { Bell } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Bell, LayoutDashboard, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import AccountCenter from "./AccountCenter";
@@ -10,7 +11,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useDailyLogs } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 
-export default function Navbar() {
+interface NavbarProps {
+  activeTab?: "dash" | "agent";
+  setActiveTab?: (tab: "dash" | "agent") => void;
+}
+
+export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
   const { user } = useAuth();
   const { data: logs } = useDailyLogs();
   const { data: stats } = useUserStats();
@@ -44,6 +50,7 @@ export default function Navbar() {
         <div className="relative w-full max-w-[1060px] pointer-events-auto">
           <nav className="w-full flex items-center justify-between py-3.5 md:py-4 rounded-2xl px-5 sm:px-6 md:px-8"
             style={{
+              position: "relative",
               background: "transparent",
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
@@ -67,6 +74,38 @@ export default function Navbar() {
                 </button>
               </div>
             </div>
+            {/* Desktop Centered Tabs with smooth liquid glass slide transition */}
+            {activeTab && setActiveTab && (
+              <div className="hidden sm:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center p-0.5 bg-black/5 dark:bg-black/45 border border-black/5 dark:border-white/10 rounded-full w-[210px] overflow-hidden">
+                {/* Smooth sliding pill backdrop */}
+                <div 
+                  className="absolute top-0.5 bottom-0.5 rounded-full bg-white/60 dark:bg-white/10 border border-black/5 dark:border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 ease-out"
+                  style={{
+                    left: activeTab === "dash" ? "2px" : "calc(50% + 1px)",
+                    width: "calc(50% - 3px)",
+                  }}
+                />
+                <button
+                  onClick={() => setActiveTab("dash")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
+                    activeTab === "dash" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
+                  }`}
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  <span>Dash</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("agent")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
+                    activeTab === "agent" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
+                  }`}
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  <span>Agents</span>
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
               <button
                 onClick={() => setShowAccount(true)}
