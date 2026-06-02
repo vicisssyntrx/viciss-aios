@@ -551,7 +551,11 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
             <LogOut className="h-5 w-5 mr-3" /> Sign Out
           </Button>
 
-
+          {/* App branding — only here, nowhere else */}
+          <div className="mt-2 pt-3 border-t border-border/30 flex flex-col items-center gap-0.5 opacity-50">
+            <p className="text-sm font-bold tracking-tight text-foreground">Vicissometer</p>
+            <p className="text-[10px] text-muted-foreground/60 font-mono tracking-widest uppercase">v0.0.2.6_6.2</p>
+          </div>
         </div>
       </div>
     </div>
