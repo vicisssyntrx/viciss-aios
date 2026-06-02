@@ -48,7 +48,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-3 py-6 sm:px-4">
+    <div className="relative min-h-screen flex items-center justify-center px-3 py-6 sm:px-4 bg-background">
       <ParticleBackground />
       <div className="relative z-10 w-full max-w-md">
         <div className="glass rounded-2xl p-4 sm:p-6 md:p-8">

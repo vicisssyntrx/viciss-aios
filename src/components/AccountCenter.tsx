@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { useAuth } from "@/contexts/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { X, LogOut, Shield, Zap, RotateCcw, Bell, User, Calendar, Download } from "lucide-react";
+import { X, LogOut, Shield, Zap, RotateCcw, Bell, User, Calendar, Download, Moon, Compass, Waves, Sparkles, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -39,6 +39,40 @@ export default function AccountCenter({ onClose }: Props) {
   const installLabel = useMemo(() => getInstallLabel(), []);
   const isInstalled = isRunningStandalone();
   const isMobile = isMobileDevice();
+
+  const [bgStyle, setBgStyle] = useState(() => {
+    return localStorage.getItem("vicissometer-bg-style") || "solid";
+  });
+
+  const handleBgChange = (newStyle: string) => {
+    setBgStyle(newStyle);
+    localStorage.setItem("vicissometer-bg-style", newStyle);
+    window.dispatchEvent(new Event("vicissometer-bg-changed"));
+    toast.success(`Background style changed to ${
+      newStyle === "solid" 
+        ? "Pure Black" 
+        : newStyle === "aura" 
+          ? "Crimson Eclipse" 
+          : newStyle === "waves" 
+            ? "Liquid Waves" 
+            : "Horizon Pulse"
+    }`);
+  };
+
+  const [themeMode, setThemeMode] = useState(() => {
+    return localStorage.getItem("vicissometer-theme") || "dark";
+  });
+
+  const handleThemeChange = (newTheme: "light" | "dark") => {
+    setThemeMode(newTheme);
+    localStorage.setItem("vicissometer-theme", newTheme);
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    toast.success(`${newTheme === "dark" ? "Dark" : "Light"} mode activated`);
+  };
 
   // Fetch current start_date
   const { data: stats } = useQuery({
@@ -385,6 +419,86 @@ export default function AccountCenter({ onClose }: Props) {
                 />
               </PopoverContent>
             </Popover>
+          </div>
+
+          {/* Theme Mode Selector */}
+          <div className="p-3 space-y-2 border-t border-border/40 mt-1">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Theme Mode</span>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                onClick={() => handleThemeChange("light")}
+                className={cn(
+                  "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
+                  themeMode === "light" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <Sun className="h-3.5 w-3.5" /> Light Mode
+              </button>
+              <button
+                onClick={() => handleThemeChange("dark")}
+                className={cn(
+                  "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
+                  themeMode === "dark" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <Moon className="h-3.5 w-3.5" /> Dark Mode
+              </button>
+            </div>
+          </div>
+
+          {/* Background Theme Selector */}
+          <div className="p-3 space-y-2 border-t border-border/40 mt-1">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Background Style</span>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                onClick={() => handleBgChange("solid")}
+                className={cn(
+                  "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
+                  bgStyle === "solid" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <Moon className="h-3.5 w-3.5" /> Pure Black
+              </button>
+              <button
+                onClick={() => handleBgChange("aura")}
+                className={cn(
+                  "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
+                  bgStyle === "aura" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <Compass className="h-3.5 w-3.5" /> Crimson Eclipse
+              </button>
+              <button
+                onClick={() => handleBgChange("waves")}
+                className={cn(
+                  "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
+                  bgStyle === "waves" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <Waves className="h-3.5 w-3.5" /> Liquid Waves
+              </button>
+              <button
+                onClick={() => handleBgChange("beam")}
+                className={cn(
+                  "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
+                  bgStyle === "beam" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <Sparkles className="h-3.5 w-3.5" /> Horizon Pulse
+              </button>
+            </div>
           </div>
 
           <hr className="border-border my-1" />

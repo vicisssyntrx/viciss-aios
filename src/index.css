@@ -4,6 +4,47 @@
 
 @layer base {
   :root {
+    --background: 0 0% 98%;
+    --foreground: 230 40% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 230 40% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 40% 10%;
+
+    --primary: 0 72% 51%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 230 40% 10%;
+
+    --muted: 0 0% 90%;
+    --muted-foreground: 230 10% 45%;
+
+    --accent: 0 0% 94%;
+    --accent-foreground: 230 40% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 0 72% 51%;
+
+    --radius: 1.15rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 230 40% 10%;
+    --sidebar-primary: 0 72% 51%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 94%;
+    --sidebar-accent-foreground: 230 40% 10%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 0 72% 51%;
+  }
+
+  .dark {
     --background: 0 0% 0%;
     --foreground: 0 0% 95%;
 
@@ -32,8 +73,6 @@
     --input: 0 0% 18%;
     --ring: 0 72% 51%;
 
-    --radius: 1.15rem;
-
     --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 0 72% 51%;
@@ -55,51 +94,54 @@
   }
 }
 
-/* Glassmorphism — Genuine Liquid Chrome Frosting */
+/* Glassmorphism — Genuine Liquid Chrome Frosting (Optimized & Hardware Accelerated) */
 .glass {
-  background: transparent;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(10, 10, 10, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-radius: 1.35rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.25),
-    inset 1px 1px 0px rgba(255, 255, 255, 0.35),
-    inset -1px -1px 0px rgba(0, 0, 0, 0.2),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    inset 1px 1px 0px rgba(255, 255, 255, 0.15),
+    inset -1px -1px 0px rgba(0, 0, 0, 0.2);
+  /* Force GPU compositing layer without memory thrashing */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
   transition:
-    transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  will-change: transform;
+    transform 320ms cubic-bezier(0.25, 1, 0.5, 1),
+    box-shadow 320ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .glass:hover {
-  transform: scale(1.015);
+  transform: scale(1.015) translate3d(0, 0, 0);
+  -webkit-transform: scale(1.015) translate3d(0, 0, 0);
   box-shadow:
     0 14px 40px rgba(0, 0, 0, 0.3),
-    inset 1px 1px 0px rgba(255, 255, 255, 0.5),
-    inset -1px -1px 0px rgba(0, 0, 0, 0.15),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    inset 1px 1px 0px rgba(255, 255, 255, 0.25),
+    inset -1px -1px 0px rgba(0, 0, 0, 0.15);
 }
 
 .glass:active {
-  transform: scale(0.987);
-  transition-duration: 150ms;
+  transform: scale(0.987) translate3d(0, 0, 0);
+  -webkit-transform: scale(0.987) translate3d(0, 0, 0);
+  transition-duration: 120ms;
   box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.2),
-    inset 1px 1px 0px rgba(255, 255, 255, 0.2),
-    inset -1px -1px 0px rgba(0, 0, 0, 0.25),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    inset 1px 1px 0px rgba(255, 255, 255, 0.15),
+    inset -1px -1px 0px rgba(0, 0, 0, 0.25);
 }
 
 .glass-strong {
-  background: hsla(0, 0%, 14%, 0.75);
-  backdrop-filter: saturate(200%) blur(32px);
-  -webkit-backdrop-filter: saturate(200%) blur(32px);
+  background: hsla(0, 0%, 10%, 0.85);
+  backdrop-filter: saturate(150%) blur(16px);
+  -webkit-backdrop-filter: saturate(150%) blur(16px);
   border-radius: 1.35rem;
-  border: 1px solid hsla(0, 0%, 100%, 0.2);
-  box-shadow: 0 8px 24px hsla(0, 0%, 0%, 0.4), inset 0 1px 0 hsla(0, 0%, 100%, 0.15);
-  background-image: linear-gradient(135deg, hsla(0, 0%, 100%, 0.10), transparent 40%, hsla(0, 0%, 100%, 0.07));
+  border: 1px solid hsla(0, 0%, 100%, 0.15);
+  box-shadow: 0 8px 24px hsla(0, 0%, 0%, 0.4), inset 0 1px 0 hsla(0, 0%, 100%, 0.1);
+  background-image: linear-gradient(135deg, hsla(0, 0%, 100%, 0.05), transparent 40%, hsla(0, 0%, 100%, 0.03));
 }
 
 /* Red pulse animation */
@@ -184,4 +226,76 @@
   transform: scale(0.88);
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* Custom Background Themes */
+
+/* Crimson Eclipse (Aura) */
+@keyframes bg-pulse-slow {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.1); }
+}
+.bg-style-aura {
+  background: radial-gradient(circle at 50% 85%, rgba(239, 68, 68, 0.16) 0%, rgba(239, 68, 68, 0.05) 40%, rgba(0, 0, 0, 0) 70%);
+  animation: bg-pulse-slow 9s ease-in-out infinite;
+  filter: blur(40px);
+}
+.dark .bg-style-aura {
+  background: radial-gradient(circle at 50% 85%, rgba(239, 68, 68, 0.28) 0%, rgba(239, 68, 68, 0.09) 40%, rgba(0, 0, 0, 0) 70%);
+}
+
+@keyframes horizon-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+.bg-style-horizon-line {
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent 0%, rgba(239, 68, 68, 0.45) 50%, transparent 100%);
+  animation: horizon-pulse 4.5s ease-in-out infinite;
+}
+.dark .bg-style-horizon-line {
+  background: linear-gradient(90deg, transparent 0%, rgba(239, 68, 68, 0.8) 50%, transparent 100%);
+}
+
+/* Liquid Atmospheric Waves */
+@keyframes float-slow-1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.2); }
+}
+@keyframes float-slow-2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1.1); }
+  50% { transform: translate(-20px, 30px) scale(0.9); }
+}
+.bg-style-waves-1 {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: float-slow-1 16s ease-in-out infinite;
+  filter: blur(50px);
+}
+.dark .bg-style-waves-1 {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.22) 0%, rgba(0, 0, 0, 0) 70%);
+}
+
+.bg-style-waves-2 {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.10) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: float-slow-2 20s ease-in-out infinite;
+  filter: blur(50px);
+}
+.dark .bg-style-waves-2 {
+  background: radial-gradient(circle, rgba(147, 197, 253, 0.18) 0%, rgba(0, 0, 0, 0) 70%);
+}
+
+/* Breathing Horizon Beam */
+@keyframes beam-breath {
+  0%, 100% { transform: scaleY(0.7); opacity: 0.3; }
+  50% { transform: scaleY(1.3); opacity: 0.75; }
+}
+.bg-style-beam-glow {
+  background: linear-gradient(0deg, rgba(239, 68, 68, 0.18) 0%, rgba(239, 68, 68, 0.02) 60%, transparent 100%);
+  transform-origin: bottom;
+  animation: beam-breath 7s ease-in-out infinite;
+}
+.dark .bg-style-beam-glow {
+  background: linear-gradient(0deg, rgba(239, 68, 68, 0.38) 0%, rgba(239, 68, 68, 0.05) 60%, transparent 100%);
+}
+
+
 

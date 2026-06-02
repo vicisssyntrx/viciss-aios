@@ -22,6 +22,16 @@
     <meta name="twitter:title" content="Vicissometer">
     <meta property="og:description" content="1% Daily Improvement Tracker">
     <meta name="twitter:description" content="1% Daily Improvement Tracker">
+    <script>
+      (function() {
+        const theme = localStorage.getItem("vicissometer-theme") || "dark";
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
