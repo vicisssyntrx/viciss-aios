@@ -1,50 +1,193 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, ExternalLink, Grid, Search, Sparkles, Check, X, Edit2 } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Grid, Search, Sparkles, Check, X, Edit2, Info } from "lucide-react";
 import { toast } from "sonner";
 
 interface AppShortcut {
   id: string;
   name: string;
-  url: string;
-  emoji: string;
+  url: string; // legacy support
+  scheme: string; // native deep link, e.g., capcut://
+  webUrl: string; // web fallback URL
+  playStoreId: string; // Play Store package name, e.g., com.lemon.lvoverseas
   category: string;
-  bgColor: string; // Tailwind/custom CSS gradient class or hex
+  bgColor: string;
+  iconUrl?: string; // High-quality remote logo
+  emoji?: string; // Fallback emoji
+}
+
+interface AppTemplate {
+  name: string;
+  category: string;
+  scheme: string;
+  webUrl: string;
+  playStoreId: string;
+  iconSlug: string; // slug for simpleicons/unavatar
+  bgColor: string;
+  emoji?: string;
 }
 
 const LOCAL_STORAGE_KEY = "vicissometer-apps-shortcuts";
 
-const initialApps: AppShortcut[] = [
+const POPULAR_APPS_CATALOG: AppTemplate[] = [
   {
-    id: "capcut",
     name: "CapCut",
-    url: "https://www.capcut.com",
-    emoji: "🎬",
     category: "Creative",
+    scheme: "capcut://",
+    webUrl: "https://www.capcut.com",
+    playStoreId: "com.lemon.lvoverseas",
+    iconSlug: "capcut",
     bgColor: "from-blue-600/35 to-indigo-600/35",
+    emoji: "🎬",
   },
   {
-    id: "notion",
+    name: "Wondershare Filmora",
+    category: "Creative",
+    scheme: "filmora://",
+    webUrl: "https://filmora.wondershare.com",
+    playStoreId: "com.wondershare.filmorago",
+    iconSlug: "wondershare",
+    bgColor: "from-teal-600/35 to-emerald-600/35",
+    emoji: "🎥",
+  },
+  {
     name: "Notion",
-    url: "https://www.notion.so",
-    emoji: "📓",
     category: "Productivity",
+    scheme: "notion://",
+    webUrl: "https://www.notion.so",
+    playStoreId: "notion.id",
+    iconSlug: "notion",
     bgColor: "from-amber-600/35 to-orange-600/35",
+    emoji: "📓",
   },
   {
-    id: "spotify",
     name: "Spotify",
-    url: "spotify:",
-    emoji: "🎵",
     category: "Music",
+    scheme: "spotify://",
+    webUrl: "https://open.spotify.com",
+    playStoreId: "com.spotify.music",
+    iconSlug: "spotify",
     bgColor: "from-emerald-600/35 to-teal-600/35",
+    emoji: "🎵",
   },
   {
-    id: "youtube",
     name: "YouTube",
-    url: "https://www.youtube.com",
-    emoji: "📺",
     category: "Entertainment",
+    scheme: "youtube://",
+    webUrl: "https://www.youtube.com",
+    playStoreId: "com.google.android.youtube",
+    iconSlug: "youtube",
     bgColor: "from-rose-600/35 to-red-600/35",
+    emoji: "📺",
+  },
+  {
+    name: "WhatsApp",
+    category: "Social",
+    scheme: "whatsapp://",
+    webUrl: "https://web.whatsapp.com",
+    playStoreId: "com.whatsapp",
+    iconSlug: "whatsapp",
+    bgColor: "from-green-600/35 to-emerald-600/35",
+    emoji: "💬",
+  },
+  {
+    name: "Instagram",
+    category: "Social",
+    scheme: "instagram://",
+    webUrl: "https://www.instagram.com",
+    playStoreId: "com.instagram.android",
+    iconSlug: "instagram",
+    bgColor: "from-pink-600/35 to-rose-600/35",
+    emoji: "📸",
+  },
+  {
+    name: "Discord",
+    category: "Social",
+    scheme: "discord://",
+    webUrl: "https://discord.com",
+    playStoreId: "com.discord",
+    iconSlug: "discord",
+    bgColor: "from-indigo-600/35 to-violet-600/35",
+    emoji: "👾",
+  },
+  {
+    name: "Telegram",
+    category: "Social",
+    scheme: "tg://",
+    webUrl: "https://web.telegram.org",
+    playStoreId: "org.telegram.messenger",
+    iconSlug: "telegram",
+    bgColor: "from-sky-600/35 to-blue-600/35",
+    emoji: "✈️",
+  },
+  {
+    name: "Figma",
+    category: "Creative",
+    scheme: "figma://",
+    webUrl: "https://www.figma.com",
+    playStoreId: "com.figma.mirror",
+    iconSlug: "figma",
+    bgColor: "from-purple-600/35 to-pink-600/35",
+    emoji: "🎨",
+  },
+  {
+    name: "Canva",
+    category: "Creative",
+    scheme: "canva://",
+    webUrl: "https://www.canva.com",
+    playStoreId: "com.canva.editor",
+    iconSlug: "canva",
+    bgColor: "from-cyan-600/35 to-blue-600/35",
+    emoji: "📐",
+  },
+  {
+    name: "ChatGPT",
+    category: "Productivity",
+    scheme: "chatgpt://",
+    webUrl: "https://chatgpt.com",
+    playStoreId: "com.openai.chatgpt",
+    iconSlug: "openai",
+    bgColor: "from-emerald-600/35 to-green-600/35",
+    emoji: "🤖",
+  },
+  {
+    name: "Netflix",
+    category: "Entertainment",
+    scheme: "nflx://",
+    webUrl: "https://www.netflix.com",
+    playStoreId: "com.netflix.mediaclient",
+    iconSlug: "netflix",
+    bgColor: "from-rose-950/40 to-black/50",
+    emoji: "🍿",
+  },
+  {
+    name: "Microsoft Teams",
+    category: "Productivity",
+    scheme: "msteams://",
+    webUrl: "https://teams.microsoft.com",
+    playStoreId: "com.microsoft.teams",
+    iconSlug: "microsoftteams",
+    bgColor: "from-blue-600/35 to-violet-600/35",
+    emoji: "👥",
+  },
+  {
+    name: "Pinterest",
+    category: "Entertainment",
+    scheme: "pinterest://",
+    webUrl: "https://www.pinterest.com",
+    playStoreId: "com.pinterest",
+    iconSlug: "pinterest",
+    bgColor: "from-red-600/35 to-orange-600/35",
+    emoji: "📌",
+  },
+  {
+    name: "Steam",
+    category: "Entertainment",
+    scheme: "steam://",
+    webUrl: "https://store.steampowered.com",
+    playStoreId: "com.valvesoftware.android.steam.community",
+    iconSlug: "steam",
+    bgColor: "from-slate-600/35 to-slate-900/35",
+    emoji: "🎮",
   },
 ];
 
@@ -61,6 +204,11 @@ const PRESET_GRADIENTS = [
 
 const CATEGORIES = ["Creative", "Productivity", "Entertainment", "Music", "Social", "Tools", "Other"];
 
+const getIconUrl = (slug: string) => {
+  // Use unavatar.io (high reliability logo service) or simpleicons
+  return `https://unavatar.io/simpleicons/${slug.toLowerCase().trim()}`;
+};
+
 export default function AppsDashboard() {
   const [apps, setApps] = useState<AppShortcut[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -71,10 +219,18 @@ export default function AppsDashboard() {
   const [editingAppId, setEditingAppId] = useState<string | null>(null);
   
   const [name, setName] = useState("");
-  const [url, setUrl] = useState("");
-  const [emoji, setEmoji] = useState("🚀");
+  const [scheme, setScheme] = useState("");
+  const [webUrl, setWebUrl] = useState("");
+  const [playStoreId, setPlayStoreId] = useState("");
   const [category, setCategory] = useState("Tools");
   const [selectedGradient, setSelectedGradient] = useState(PRESET_GRADIENTS[0]);
+  const [iconUrl, setIconUrl] = useState("");
+  const [emoji, setEmoji] = useState("🚀");
+  const [useEmoji, setUseEmoji] = useState(false);
+
+  // Template Search State
+  const [templateSearch, setTemplateSearch] = useState("");
+  const [showCatalog, setShowCatalog] = useState(true);
 
   // Load from localStorage
   useEffect(() => {
@@ -83,13 +239,29 @@ export default function AppsDashboard() {
       try {
         setApps(JSON.parse(saved));
       } catch (e) {
-        setApps(initialApps);
+        initializeDefaultApps();
       }
     } else {
-      setApps(initialApps);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initialApps));
+      initializeDefaultApps();
     }
   }, []);
+
+  const initializeDefaultApps = () => {
+    const defaults: AppShortcut[] = POPULAR_APPS_CATALOG.slice(0, 4).map((tpl, idx) => ({
+      id: `default-${idx}`,
+      name: tpl.name,
+      url: tpl.webUrl,
+      scheme: tpl.scheme,
+      webUrl: tpl.webUrl,
+      playStoreId: tpl.playStoreId,
+      category: tpl.category,
+      bgColor: tpl.bgColor,
+      iconUrl: getIconUrl(tpl.iconSlug),
+      emoji: tpl.emoji || "🚀",
+    }));
+    setApps(defaults);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(defaults));
+  };
 
   // Save to localStorage
   const saveToStorage = (updatedApps: AppShortcut[]) => {
@@ -99,58 +271,84 @@ export default function AppsDashboard() {
 
   const handleOpenAdd = () => {
     setName("");
-    setUrl("");
-    setEmoji("🚀");
+    setScheme("");
+    setWebUrl("");
+    setPlayStoreId("");
     setCategory("Tools");
+    setIconUrl("");
+    setEmoji("🚀");
+    setUseEmoji(false);
     setSelectedGradient(PRESET_GRADIENTS[Math.floor(Math.random() * PRESET_GRADIENTS.length)]);
     setEditingAppId(null);
+    setTemplateSearch("");
+    setShowCatalog(true);
     setIsAddOpen(true);
   };
 
   const handleOpenEdit = (app: AppShortcut) => {
     setName(app.name);
-    setUrl(app.url);
-    setEmoji(app.emoji);
+    setScheme(app.scheme || "");
+    setWebUrl(app.webUrl || app.url || "");
+    setPlayStoreId(app.playStoreId || "");
     setCategory(app.category);
+    setIconUrl(app.iconUrl || "");
+    setEmoji(app.emoji || "🚀");
+    setUseEmoji(!app.iconUrl);
     setSelectedGradient(app.bgColor);
     setEditingAppId(app.id);
+    setShowCatalog(false);
     setIsAddOpen(true);
+  };
+
+  const handleSelectTemplate = (tpl: AppTemplate) => {
+    setName(tpl.name);
+    setScheme(tpl.scheme);
+    setWebUrl(tpl.webUrl);
+    setPlayStoreId(tpl.playStoreId);
+    setCategory(tpl.category);
+    setIconUrl(getIconUrl(tpl.iconSlug));
+    setEmoji(tpl.emoji || "🚀");
+    setUseEmoji(false);
+    setSelectedGradient(tpl.bgColor);
+    setShowCatalog(false);
+    toast.success(`Selected ${tpl.name}! Form auto-filled.`);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !url.trim()) {
-      toast.error("Please fill in both Name and URL/Shortcut Path");
+    if (!name.trim()) {
+      toast.error("Please enter a name for the app");
       return;
     }
 
-    // Format URL if it doesn't look like a protocol or web URL
-    let formattedUrl = url.trim();
-    if (!formattedUrl.includes("://") && !formattedUrl.endsWith(":") && !formattedUrl.startsWith("mailto:") && !formattedUrl.startsWith("tel:")) {
-      // If it looks like a domain, prepend https://
-      if (formattedUrl.includes(".") && !formattedUrl.includes(" ")) {
-        formattedUrl = "https://" + formattedUrl;
-      }
+    // Try to auto-derive icon URL if missing and not using emoji
+    let finalIconUrl = iconUrl.trim();
+    if (!finalIconUrl && !useEmoji) {
+      finalIconUrl = getIconUrl(name.trim().toLowerCase().replace(/\s+/g, ""));
     }
 
+    const updatedShortcut: Omit<AppShortcut, "id"> = {
+      name: name.trim(),
+      url: webUrl.trim() || scheme.trim(),
+      scheme: scheme.trim(),
+      webUrl: webUrl.trim(),
+      playStoreId: playStoreId.trim(),
+      category,
+      bgColor: selectedGradient,
+      iconUrl: useEmoji ? undefined : finalIconUrl,
+      emoji: useEmoji ? (emoji.trim() || "🚀") : emoji,
+    };
+
     if (editingAppId) {
-      // Edit existing
       const updated = apps.map((app) =>
-        app.id === editingAppId
-          ? { ...app, name: name.trim(), url: formattedUrl, emoji: emoji.trim() || "🚀", category, bgColor: selectedGradient }
-          : app
+        app.id === editingAppId ? { ...app, ...updatedShortcut } : app
       );
       saveToStorage(updated);
       toast.success("Shortcut updated!");
     } else {
-      // Create new
       const newApp: AppShortcut = {
         id: Date.now().toString(),
-        name: name.trim(),
-        url: formattedUrl,
-        emoji: emoji.trim() || "🚀",
-        category,
-        bgColor: selectedGradient,
+        ...updatedShortcut,
       };
       saveToStorage([...apps, newApp]);
       toast.success("New shortcut added!");
@@ -166,11 +364,39 @@ export default function AppsDashboard() {
     toast.success("Shortcut deleted");
   };
 
-  const handleLaunch = (url: string) => {
-    try {
-      window.open(url, "_blank", "noopener,noreferrer");
-    } catch (e) {
-      toast.error("Could not launch this shortcut. Check the format.");
+  const handleLaunch = (app: AppShortcut) => {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    
+    if (isMobile && app.scheme) {
+      // Deep link trigger for Mobile
+      const start = Date.now();
+      
+      // Try to open deep link scheme
+      window.location.href = app.scheme;
+      
+      // Fallback timer: if the app is NOT installed, standard browser stays on the page
+      setTimeout(() => {
+        // If we are still actively focused on this page after 1.5s, the app launch failed (not installed)
+        if (document.hasFocus() || Date.now() - start < 1800) {
+          toast.info(`Launching ${app.name} failed. Taking you to the Play Store/Web...`);
+          if (app.playStoreId) {
+            window.open(`https://play.google.com/store/apps/details?id=${app.playStoreId}`, "_blank", "noopener,noreferrer");
+          } else if (app.webUrl) {
+            window.open(app.webUrl, "_blank", "noopener,noreferrer");
+          }
+        }
+      }, 1500);
+    } else {
+      // Desktop / Web Fallback
+      const destUrl = app.scheme && !app.webUrl ? app.scheme : (app.webUrl || app.url);
+      try {
+        window.open(destUrl, "_blank", "noopener,noreferrer");
+      } catch (e) {
+        toast.error("Could not launch this shortcut. Launching Play Store fallback...");
+        if (app.playStoreId) {
+          window.open(`https://play.google.com/store/apps/details?id=${app.playStoreId}`, "_blank");
+        }
+      }
     }
   };
 
@@ -182,16 +408,14 @@ export default function AppsDashboard() {
     return matchesSearch && matchesCategory;
   });
 
+  const filteredTemplates = POPULAR_APPS_CATALOG.filter((tpl) =>
+    tpl.name.toLowerCase().includes(templateSearch.toLowerCase())
+  );
+
   return (
     <div className="mx-auto w-full max-w-[860px] space-y-6">
       {/* Header card with glass style */}
-      <div
-        className="glass rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6"
-        style={{
-          border: "1px solid rgba(255, 255, 255, 0.12)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.15), inset 1px 1px 0px rgba(255,255,255,0.2)",
-        }}
-      >
+      <div className="glass rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="text-xl">📱</span>
@@ -201,7 +425,7 @@ export default function AppsDashboard() {
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
-            Instantly launch and control all your desktop, web, or custom deep-link applications. Add customized local shortcuts accessible on both desktop and mobile version.
+            Type the name of any app, and let Vicissometer automatically find its logo, set up the smart mobile deep-link launcher, and direct fallbacks to the Play Store.
           </p>
         </div>
         <button
@@ -227,7 +451,7 @@ export default function AppsDashboard() {
           />
         </div>
 
-        {/* Category filters (horizontal scrollable on mobile) */}
+        {/* Category filters */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none max-w-full">
           {["All", ...CATEGORIES].map((cat) => {
             const isSelected = selectedCategory === cat;
@@ -254,33 +478,23 @@ export default function AppsDashboard() {
           <div className="w-16 h-16 rounded-2xl bg-secondary/50 flex items-center justify-center text-2xl mb-4">🔮</div>
           <h3 className="font-semibold text-lg text-foreground mb-1">No shortcuts found</h3>
           <p className="text-sm text-muted-foreground max-w-sm mb-6">
-            {searchQuery || selectedCategory !== "All"
-              ? "Try adjusting your search query or switching categories."
-              : "Start adding shortcuts to Wondershare Filmora, CapCut, Notion, YouTube, or your favorite mobile and desktop applications!"}
+            Start adding shortcuts to Wondershare Filmora, CapCut, Notion, YouTube, or your favorite mobile and desktop applications!
           </p>
-          {!searchQuery && selectedCategory === "All" && (
-            <button
-              onClick={handleOpenAdd}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold transition-all"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Create First App Shortcut</span>
-            </button>
-          )}
+          <button
+            onClick={handleOpenAdd}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground text-xs font-semibold transition-all"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Create First App Shortcut</span>
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {filteredApps.map((app) => (
             <div
               key={app.id}
-              onClick={() => handleLaunch(app.url)}
-              className="group relative flex flex-col items-center justify-between p-5 rounded-2xl cursor-pointer overflow-hidden border transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
-              style={{
-                background: "rgba(0,0,0,0.15)",
-                backdropFilter: "blur(16px)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.15), inset 1px 1px 0px rgba(255,255,255,0.06)",
-              }}
+              onClick={() => handleLaunch(app)}
+              className="glass group relative flex flex-col items-center justify-between p-5 rounded-2xl cursor-pointer overflow-hidden transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
             >
               {/* Dynamic colored background glow */}
               <div className={`absolute inset-0 bg-gradient-to-br ${app.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10`} />
@@ -306,9 +520,24 @@ export default function AppsDashboard() {
                 </button>
               </div>
 
-              {/* Emoji Badge with premium glass container */}
-              <div className="relative mt-2 mb-4 w-14 h-14 rounded-2xl bg-white/5 dark:bg-white/10 border border-white/15 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                {app.emoji}
+              {/* Icon Container (Images first, fallback to Emoji) */}
+              <div className="relative mt-2 mb-4 w-14 h-14 rounded-2xl bg-black/30 dark:bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                {app.iconUrl ? (
+                  <img
+                    src={app.iconUrl}
+                    alt={app.name}
+                    className="w-10 h-10 object-contain drop-shadow-md select-none"
+                    onError={(e) => {
+                      // fallback to emoji or letter on loading error
+                      e.currentTarget.style.display = "none";
+                      const fallback = e.currentTarget.parentElement?.querySelector(".icon-fallback");
+                      if (fallback) fallback.classList.remove("hidden");
+                    }}
+                  />
+                ) : null}
+                <span className={`icon-fallback text-3xl select-none ${app.iconUrl ? "hidden" : ""}`}>
+                  {app.emoji || app.name[0]?.toUpperCase() || "🚀"}
+                </span>
               </div>
 
               {/* Text Info */}
@@ -335,24 +564,18 @@ export default function AppsDashboard() {
       <div className="glass rounded-3xl p-5 border border-white/10 bg-secondary/15 flex gap-3.5">
         <span className="text-xl select-none">💡</span>
         <div className="space-y-1">
-          <h4 className="text-xs sm:text-sm font-semibold text-foreground">Deep Links & Local Applications Guide</h4>
+          <h4 className="text-xs sm:text-sm font-semibold text-foreground">Play Store Integration & Remote Icons</h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            You can add custom URLs for websites (e.g. <code>youtube.com</code>), or custom deep links / protocol handlers to trigger local apps on desktop or mobile. 
-            For example: Notion (<code>notion://</code>), Spotify (<code>spotify:</code>), Mail (<code>mailto:someone@example.com</code>), or custom system links.
+            Search popular applications when adding a shortcut to automatically fetch their official brand logo and configure 
+            automated redirects. If the selected app isn't installed on your device, the system triggers the <b>Play Store / App Store download page</b> automatically.
           </p>
         </div>
       </div>
 
       {/* Add/Edit Modal */}
       {isAddOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all duration-300">
-          <div
-            className="w-full max-w-md glass rounded-3xl p-6 md:p-8 space-y-5 animate-in fade-in zoom-in-95 duration-200"
-            style={{
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              boxShadow: "0 20px 50px rgba(0,0,0,0.35), inset 1px 1px 0px rgba(255,255,255,0.25)",
-            }}
-          >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all duration-300 overflow-y-auto">
+          <div className="w-full max-w-md glass rounded-3xl p-6 md:p-8 space-y-5 animate-in fade-in zoom-in-95 duration-200 my-8">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-primary" />
@@ -366,43 +589,140 @@ export default function AppsDashboard() {
               </button>
             </div>
 
+            {/* Quick Catalog / Search Database Panel (Only for New Shortcuts) */}
+            {!editingAppId && showCatalog && (
+              <div className="space-y-3 p-4 rounded-2xl bg-black/20 border border-white/5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-primary uppercase tracking-wider">Search App Catalog</span>
+                  <button
+                    onClick={() => setShowCatalog(false)}
+                    className="text-[10px] text-muted-foreground underline hover:text-foreground transition"
+                  >
+                    Custom Configuration
+                  </button>
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
+                  <input
+                    type="text"
+                    placeholder="Search CapCut, WhatsApp, Netflix..."
+                    value={templateSearch}
+                    onChange={(e) => setTemplateSearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-black/25 border border-white/5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                
+                {/* Catalog Grid results */}
+                <div className="grid grid-cols-2 gap-2 max-h-[140px] overflow-y-auto scrollbar-thin">
+                  {filteredTemplates.map((tpl) => (
+                    <button
+                      key={tpl.name}
+                      type="button"
+                      onClick={() => handleSelectTemplate(tpl)}
+                      className="flex items-center gap-2 p-2 rounded-xl bg-white/5 hover:bg-primary/20 border border-white/5 text-left transition text-xs font-medium"
+                    >
+                      <div className="w-6 h-6 rounded-lg bg-black/30 flex items-center justify-center text-sm overflow-hidden flex-shrink-0">
+                        <img
+                          src={getIconUrl(tpl.iconSlug)}
+                          alt=""
+                          className="w-4 h-4 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            const f = e.currentTarget.parentElement?.querySelector(".cat-fallback");
+                            if (f) f.classList.remove("hidden");
+                          }}
+                        />
+                        <span className="cat-fallback text-xs hidden">{tpl.emoji}</span>
+                      </div>
+                      <span className="truncate">{tpl.name}</span>
+                    </button>
+                  ))}
+                  {filteredTemplates.length === 0 && (
+                    <div className="col-span-2 text-center py-4 text-[11px] text-muted-foreground">
+                      No matching brand found. Click "Custom Configuration" below.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!showCatalog && !editingAppId && (
+              <button
+                type="button"
+                onClick={() => setShowCatalog(true)}
+                className="w-full py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-xs text-primary font-semibold hover:bg-primary/20 transition flex items-center justify-center gap-1.5"
+              >
+                <span>🔍 Open Catalog Database</span>
+              </button>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* App Name */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">App Name</label>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex justify-between items-center">
+                  <span>App Name</span>
+                  {name && !useEmoji && (
+                    <span className="text-[10px] text-primary/80 lowercase italic font-mono">
+                      auto-fetching: {getIconUrl(name.toLowerCase().replace(/\s+/g, ""))}
+                    </span>
+                  )}
+                </label>
                 <input
                   type="text"
-                  placeholder="e.g. CapCut, Notion, Photoshop"
+                  placeholder="e.g. CapCut, Notion, WhatsApp"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    // Proactively set logo search if catalog template wasn't explicitly selected
+                    if (!editingAppId && !useEmoji) {
+                      setIconUrl(getIconUrl(e.target.value.toLowerCase().replace(/\s+/g, "")));
+                    }
+                  }}
                   className="w-full px-4 py-2.5 rounded-xl bg-black/25 border border-white/10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   required
                 />
               </div>
 
-              {/* URL or Deep Link */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">URL / Shortcut Link</label>
-                <input
-                  type="text"
-                  placeholder="e.g. capcut.com, notion://, spotify:"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/25 border border-white/10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  required
-                />
-              </div>
-
-              {/* Emoji & Category row */}
+              {/* Native Scheme & Web URL */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Emoji Icon</label>
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <span>Mobile Scheme</span>
+                    <Info className="w-3 h-3 opacity-60" title="Scheme to launch the native app, e.g., whatsapp:// or capcut://" />
+                  </label>
                   <input
                     type="text"
-                    placeholder="e.g. 🚀, 🎬, 📓"
-                    value={emoji}
-                    onChange={(e) => setEmoji(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/25 border border-white/10 text-sm text-center text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="e.g. capcut://"
+                    value={scheme}
+                    onChange={(e) => setScheme(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/25 border border-white/10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Web Fallback URL</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. capcut.com"
+                    value={webUrl}
+                    onChange={(e) => setWebUrl(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/25 border border-white/10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+              </div>
+
+              {/* Package ID & Category */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                    <span>Play Store Package ID</span>
+                    <Info className="w-3 h-3 opacity-60" title="Android Package ID for redirection, e.g. com.lemon.lvoverseas" />
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. com.whatsapp"
+                    value={playStoreId}
+                    onChange={(e) => setPlayStoreId(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/25 border border-white/10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -419,6 +739,57 @@ export default function AppsDashboard() {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              {/* Icon Mode Choice */}
+              <div className="space-y-2 p-3.5 rounded-2xl bg-black/15 border border-white/5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Icon Selection Mode</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setUseEmoji(false)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition ${
+                        !useEmoji ? "bg-primary text-primary-foreground" : "bg-black/30 text-muted-foreground"
+                      }`}
+                    >
+                      Brand Logo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUseEmoji(true)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition ${
+                        useEmoji ? "bg-primary text-primary-foreground" : "bg-black/30 text-muted-foreground"
+                      }`}
+                    >
+                      Emoji
+                    </button>
+                  </div>
+                </div>
+
+                {useEmoji ? (
+                  <div className="space-y-1.5 pt-2">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">Pick Emoji</label>
+                    <input
+                      type="text"
+                      placeholder="🚀"
+                      value={emoji}
+                      onChange={(e) => setEmoji(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-black/25 border border-white/10 text-sm text-center focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 pt-2">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">Logo URL (Internet Link)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. unavatar.io/simpleicons/whatsapp"
+                      value={iconUrl}
+                      onChange={(e) => setIconUrl(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-black/25 border border-white/10 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Color Gradient Selection */}

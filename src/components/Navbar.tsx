@@ -48,15 +48,9 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
     <>
       <div className="fixed top-0 left-0 right-0 z-40 flex justify-center px-1 sm:px-2 md:px-3 mt-2 sm:mt-3 md:mt-4 pointer-events-none">
         <div className="relative w-full max-w-[1060px] pointer-events-auto">
-          <nav className="w-full flex items-center justify-between py-3.5 md:py-4 rounded-2xl px-5 sm:px-6 md:px-8"
+          <nav className="w-full flex items-center justify-between py-3.5 md:py-4 px-5 sm:px-6 md:px-8 glass"
             style={{
               position: "relative",
-              background: "transparent",
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              borderRadius: "1.35rem",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.25), inset 1px 1px 0px rgba(255,255,255,0.35), inset -1px -1px 0px rgba(0,0,0,0.2)",
             }}
           >
             <div className="flex items-center gap-1 flex-shrink-0">

@@ -8,9 +8,9 @@ export default function ParticleBackground() {
   // Physics animation frame reference
   const requestRef = useRef<number | null>(null);
 
-  // Center coordinate states (in vw/vh) for Moving Orbits
-  const [orbit1, setOrbit1] = useState({ x: 20, y: 30 }); // red
-  const [orbit2, setOrbit2] = useState({ x: 70, y: 60 }); // blue
+  // DOM references for Moving Orbits (Zero-re-render high performance updates)
+  const orbit1Ref = useRef<HTMLDivElement>(null);
+  const orbit2Ref = useRef<HTMLDivElement>(null);
 
   const physicsRef = useRef({
     r: { x: 20, y: 30, vx: 0.035, vy: 0.045 }, // Red drift velocities
@@ -81,8 +81,15 @@ export default function ParticleBackground() {
         state.b.vy = -Math.abs(state.b.vy); // Bounce up
       }
 
-      setOrbit1({ x: state.r.x, y: state.r.y });
-      setOrbit2({ x: state.b.x, y: state.b.y });
+      // High performance DOM updates - bypassed React VDOM rendering completely!
+      if (orbit1Ref.current) {
+        orbit1Ref.current.style.left = `${state.r.x}vw`;
+        orbit1Ref.current.style.top = `${state.r.y}vh`;
+      }
+      if (orbit2Ref.current) {
+        orbit2Ref.current.style.left = `${state.b.x}vw`;
+        orbit2Ref.current.style.top = `${state.b.y}vh`;
+      }
 
       requestRef.current = requestAnimationFrame(updatePhysics);
     };
@@ -108,10 +115,11 @@ export default function ParticleBackground() {
         <div className="absolute inset-0 overflow-hidden">
           {/* Red Orbit */}
           <div
+            ref={orbit1Ref}
             className="absolute rounded-full filter blur-[50px] transition-transform duration-75 select-none pointer-events-none bg-orbit-red"
             style={{
-              left: `${orbit1.x}vw`,
-              top: `${orbit1.y}vh`,
+              left: `${physicsRef.current.r.x}vw`,
+              top: `${physicsRef.current.r.y}vh`,
               transform: "translate(-50%, -50%)",
               width: "min(480px, 70vw)",
               height: "min(480px, 70vw)",
@@ -120,10 +128,11 @@ export default function ParticleBackground() {
           />
           {/* Blue Orbit */}
           <div
+            ref={orbit2Ref}
             className="absolute rounded-full filter blur-[50px] transition-transform duration-75 select-none pointer-events-none bg-orbit-blue"
             style={{
-              left: `${orbit2.x}vw`,
-              top: `${orbit2.y}vh`,
+              left: `${physicsRef.current.b.x}vw`,
+              top: `${physicsRef.current.b.y}vh`,
               transform: "translate(-50%, -50%)",
               width: "min(480px, 70vw)",
               height: "min(480px, 70vw)",
