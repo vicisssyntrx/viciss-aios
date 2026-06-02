@@ -15,6 +15,8 @@ import MobileBoostCards from "@/components/MobileBoostCards";
 import ShieldShop from "@/components/ShieldShop";
 import PowerUpOverlay from "@/components/PowerUpOverlay";
 import LoadingScreen from "@/components/LoadingScreen";
+import AccountCenter from "@/components/AccountCenter";
+import { Home, ClipboardList, User } from "lucide-react";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
 import { useUserStats } from "@/hooks/useUserStats";
@@ -62,6 +64,7 @@ export function useMidnightInvalidation() {
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
+  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "account">("dash");
 
   useLiquidPhysics();
   const { data: habits, isLoading: habitsLoading, isFetched: habitsFetched } = useHabits();
@@ -161,23 +164,18 @@ export default function Dashboard() {
             <div className="mx-auto w-full max-w-[860px] md:grid md:grid-cols-2 md:gap-4">
 
               {/* ── Mobile flow ── */}
-              <div className="space-y-3 md:hidden">
-                {/* Horizontal snap-scroll: Graph | Insights + Boost cards */}
-                <div
-                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1"
-                  style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
-                >
-                  {/* Card 1: Growth Graph */}
-                  <div className="snap-start flex-shrink-0 w-[82vw] max-w-[340px]">
+              <div className="space-y-4 md:hidden pb-28">
+                {mobileTab === "dash" && (
+                  <>
                     <GrowthGraph />
-                  </div>
-
-                  {/* Card 2: Journey Insights + compact Shields & Power-Ups below */}
-                  <div className="snap-start flex-shrink-0 w-[82vw] max-w-[340px] pr-4 flex flex-col gap-2">
                     <JourneyInsights />
+                  </>
+                )}
 
-                    {/* Compact Shields + Power-Ups row */}
-                    <div className="grid grid-cols-2 gap-2">
+                {mobileTab === "tasks" && (
+                  <>
+                    {/* Compact Shields + Power-Ups row (Tasks header) */}
+                    <div className="grid grid-cols-2 gap-2 mb-1">
                       <button
                         type="button"
                         onClick={() => setShowShields(true)}
@@ -201,29 +199,36 @@ export default function Dashboard() {
                         </div>
                       </button>
                     </div>
-                  </div>
-                </div>
 
-                <HabitList
-                  completedIds={completedIds}
-                  onToggle={toggleHabit}
-                  viewOnly={false}
-                />
+                    <HabitList
+                      completedIds={completedIds}
+                      onToggle={toggleHabit}
+                      viewOnly={false}
+                    />
 
-                <div className="dashboard-rise rise-delay-2">
-                  <BottomActionBar
-                    onSave={handleSave}
-                    onReset={handleReset}
-                    disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                    hasHabits={!!habits?.length}
-                  />
-                </div>
-                <div className="dashboard-rise rise-delay-3">
-                  <OutcomeCards />
-                </div>
+                    <div className="dashboard-rise rise-delay-2">
+                      <BottomActionBar
+                        onSave={handleSave}
+                        onReset={handleReset}
+                        disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
+                        hasHabits={!!habits?.length}
+                      />
+                    </div>
+                    <div className="dashboard-rise rise-delay-3">
+                      <OutcomeCards />
+                    </div>
+                    <div className="dashboard-rise rise-delay-4">
+                      <MobileBoostCards />
+                    </div>
+                  </>
+                )}
+
+                {mobileTab === "account" && (
+                  <AccountCenter isEmbedded={true} />
+                )}
               </div>
 
-              {/* ShieldShop + PowerUpOverlay modals (mobile) */}
+              {/* ShieldShop + PowerUpOverlay modals (mobile/desktop fallback) */}
               {showShields && <ShieldShop onClose={() => setShowShields(false)} />}
               {showPowerUps && <PowerUpOverlay onClose={() => setShowPowerUps(false)} />}
 
@@ -262,6 +267,51 @@ export default function Dashboard() {
           </div>
         </>
       </div>
+
+      {/* Floating Telegram-style Bottom Tab Bar for mobile viewports */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[290px]">
+        <div className="relative bottom-nav-bar flex items-center p-0.5 bg-black/5 dark:bg-black/55 border border-black/5 dark:border-white/10 rounded-full backdrop-blur-xl shadow-2xl overflow-hidden">
+          {/* Sliding Pill Background Indicator */}
+          <div 
+            className="absolute top-0.5 bottom-0.5 rounded-full bg-white/70 bottom-nav-pill border border-black/5 shadow-[0_2px_8px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.45)] transition-all duration-300 ease-out"
+            style={{
+              left: mobileTab === "dash" ? "2px" : mobileTab === "tasks" ? "calc(33.33% + 1px)" : "calc(66.66% + 1px)",
+              width: "calc(33.33% - 3px)",
+            }}
+          />
+          {/* Tab 1: Dash */}
+          <button
+            onClick={() => setMobileTab("dash")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
+              mobileTab === "dash" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
+            }`}
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Dash</span>
+          </button>
+          {/* Tab 2: Tasks */}
+          <button
+            onClick={() => setMobileTab("tasks")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
+              mobileTab === "tasks" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
+            }`}
+          >
+            <ClipboardList className="w-3.5 h-3.5" />
+            <span>Tasks</span>
+          </button>
+          {/* Tab 3: Account */}
+          <button
+            onClick={() => setMobileTab("account")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
+              mobileTab === "account" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
+            }`}
+          >
+            <User className="w-3.5 h-3.5" />
+            <span>Profile</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   );
 }

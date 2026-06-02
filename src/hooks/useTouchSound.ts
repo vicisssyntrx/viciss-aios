@@ -17,10 +17,19 @@ export function useTouchSound() {
     // Only register on actual touch devices to avoid running on desktop.
     if (!("ontouchstart" in window)) return;
 
-    function playTap() {
+    function playTap(e: TouchEvent) {
+      const target = e.target as HTMLElement;
+      if (!target) return;
+
+      // Filter: only play sound for toggle buttons, switches, inputs, links, or custom clickables
+      const isInteractive = target.closest(
+        "button, a, input, select, textarea, [role='button'], .cursor-pointer, [data-state], .clickable, .switch"
+      );
+      if (!isInteractive) return;
+
       // Lazily initialise AudioContext on first gesture.
       if (!ctxRef.current) {
-        ctxRef.current = new AudioContext();
+        ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
 
       const ctx = ctxRef.current;
@@ -32,50 +41,39 @@ export function useTouchSound() {
 
       const now = ctx.currentTime;
 
-      // ── Primary tone: a short, airy click ──────────────────────────────
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      // ── Tone 1: Liquid Bloop (Rising Pitch) ──────────────────────────────
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
 
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(1200, now);
-      // Slight pitch drop for a natural feel
-      osc.frequency.exponentialRampToValueAtTime(600, now + 0.04);
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(180, now);
+      osc1.frequency.exponentialRampToValueAtTime(1000, now + 0.04);
 
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
+      gain1.gain.setValueAtTime(0.18, now);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
 
-      osc.start(now);
-      osc.stop(now + 0.06);
+      osc1.start(now);
+      osc1.stop(now + 0.06);
 
-      // ── Noise burst: adds texture so it sounds tactile, not synthetic ──
-      const bufferSize = ctx.sampleRate * 0.035; // 35 ms of noise
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
+      // ── Tone 2: High Water Pop Click (Decaying Pitch) ───────────────────
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
 
-      const noiseSource = ctx.createBufferSource();
-      noiseSource.buffer = noiseBuffer;
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(1500, now);
+      osc2.frequency.exponentialRampToValueAtTime(700, now + 0.015);
 
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.06, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+      gain2.gain.setValueAtTime(0.08, now);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
 
-      // High-pass the noise so it sounds like a surface click, not a thump
-      const highPass = ctx.createBiquadFilter();
-      highPass.type = "highpass";
-      highPass.frequency.value = 3000;
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
 
-      noiseSource.connect(highPass);
-      highPass.connect(noiseGain);
-      noiseGain.connect(ctx.destination);
-
-      noiseSource.start(now);
-      noiseSource.stop(now + 0.04);
+      osc2.start(now);
+      osc2.stop(now + 0.025);
     }
 
     // Use capture phase so the sound fires before any React handler

@@ -21,9 +21,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import LoadingScreen from "./LoadingScreen";
 
-interface Props { onClose: () => void; }
+interface Props { 
+  onClose?: () => void;
+  isEmbedded?: boolean;
+}
 
-export default function AccountCenter({ onClose }: Props) {
+export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
   const { user, signOut } = useAuth();
   const qc = useQueryClient();
   const [showShields, setShowShields] = useState(false);
@@ -309,12 +312,16 @@ export default function AccountCenter({ onClose }: Props) {
     null;
   const initial = currentDisplayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
-      {resetting && <div className="fixed inset-0 z-[110]"><LoadingScreen message="Wiping account..." /></div>}
-      <div className="glass w-full sm:max-w-sm max-h-[92vh] overflow-y-auto z-10 rounded-t-3xl sm:rounded-2xl p-4 sm:p-5">
+  const content = (
+    <>
+      <div className={cn(
+        "glass w-full overflow-y-auto z-10 p-4 sm:p-5",
+        isEmbedded ? "rounded-2xl" : "sm:max-w-sm max-h-[92vh] rounded-t-3xl sm:rounded-2xl"
+      )}>
         <div className="relative mb-3">
-          <button onClick={onClose} disabled={resetting} className="popup-close absolute right-0 top-0"><X className="h-4 w-4" /></button>
+          {!isEmbedded && onClose && (
+            <button onClick={onClose} disabled={resetting} className="popup-close absolute right-0 top-0"><X className="h-4 w-4" /></button>
+          )}
           <h1 className="text-2xl font-bold text-foreground text-center">Vicissometer</h1>
           <h2 className="text-xl font-bold text-foreground text-center">Account Centre</h2>
         </div>
@@ -545,6 +552,23 @@ export default function AccountCenter({ onClose }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
+  );
+
+  if (isEmbedded) {
+    return (
+      <div className="relative w-full">
+        {resetting && <div className="fixed inset-0 z-[110]"><LoadingScreen message="Wiping account..." /></div>}
+        {content}
+      </div>
+    );
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
+      {resetting && <div className="fixed inset-0 z-[110]"><LoadingScreen message="Wiping account..." /></div>}
+      {content}
+    </div>,
+    document.body
   );
 }
