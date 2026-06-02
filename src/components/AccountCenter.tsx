@@ -661,8 +661,8 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
           </div>
 
           {/* Bulk Quote Import Feature */}
-          <div className="p-3 space-y-2 border-t border-border/40 mt-1">
-            <div className="flex items-center justify-between">
+          <div className="p-3 space-y-2 border-t border-border/40 mt-1 text-center flex flex-col items-center">
+            <div className="w-full flex items-center justify-center gap-2">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Import Bulk Quotes</span>
               <span className="text-[9px] text-muted-foreground/50 font-semibold">(Max 366)</span>
             </div>
@@ -670,7 +670,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
               value={quoteInput}
               onChange={(e) => setQuoteInput(e.target.value)}
               placeholder='["Habits build character." - Author],["Consistency is key." - Author]'
-              className="w-full h-18 text-xs bg-secondary/40 border border-border/40 rounded-xl p-2 focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-mono"
+              className="w-full h-18 text-xs bg-secondary/40 border border-border/40 rounded-xl p-2 text-center focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none font-mono"
             />
             <Button
               onClick={handleBulkImportQuotes}

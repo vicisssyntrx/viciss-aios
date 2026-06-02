@@ -61,8 +61,31 @@ export default function Greeting() {
   }, [fullGreeting]);
 
   return (
-    <div className="px-5 sm:px-6 pt-6 pb-4">
-      <div className="mx-auto w-full max-w-[860px]">
+    <div className="relative px-5 sm:px-6 pt-6 pb-4 overflow-hidden rounded-b-3xl">
+      {/* Dynamic Background Effects */}
+      <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+        {hour >= 5 && hour < 12 && (
+          /* Morning: Sunlight Glowing */
+          <div className="absolute right-0 -top-10 w-48 h-48 bg-amber-400/20 rounded-full blur-3xl animate-[pulse_4s_ease-in-out_infinite]" />
+        )}
+        {hour >= 12 && hour < 17 && (
+          /* Afternoon: Floating Clouds */
+          <div className="absolute right-0 top-0 w-full h-full opacity-40">
+            <div className="absolute top-2 right-[10%] w-24 h-8 bg-slate-300/30 rounded-full blur-xl animate-[translate-x_20s_linear_infinite]" />
+            <div className="absolute top-6 right-[40%] w-32 h-10 bg-slate-300/20 rounded-full blur-xl animate-[translate-x_25s_linear_infinite_reverse]" />
+          </div>
+        )}
+        {hour >= 17 && hour < 21 && (
+          /* Evening: Sunset Hue */
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-orange-500/10 to-transparent animate-[pulse_6s_ease-in-out_infinite]" />
+        )}
+        {hour >= 21 || hour < 5 ? (
+          /* Night: Moon Glow */
+          <div className="absolute right-8 top-4 w-32 h-32 bg-blue-600/10 rounded-full blur-3xl animate-[pulse_5s_ease-in-out_infinite]" />
+        ) : null}
+      </div>
+
+      <div className="mx-auto w-full max-w-[860px] relative z-10">
         <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight whitespace-pre-wrap">{typedGreeting}</h2>
         <p className="text-base md:text-lg text-muted-foreground mt-0.5">{message}</p>
       </div>
