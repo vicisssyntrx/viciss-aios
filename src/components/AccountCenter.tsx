@@ -317,7 +317,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
       <div className="relative w-full max-w-sm flex flex-col items-center pt-12 sm:pt-14 select-none mx-auto">
         {/* Large Centered Avatar */}
         <div 
-          className="absolute top-0 z-20 w-24 h-24 sm:w-28 h-28 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.36)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
+          className="absolute top-0 z-20 w-24 h-24 sm:w-28 sm:h-28 aspect-square rounded-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.36)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
           onClick={() => {
             if (!editingProfile) {
               setDisplayName(currentDisplayName);
@@ -326,9 +326,9 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
             }
           }}
         >
-          <Avatar className="h-full w-full">
-            {currentAvatar ? <AvatarImage src={currentAvatar} alt="Profile" /> : null}
-            <AvatarFallback className="text-primary text-3xl font-black bg-primary/10 flex items-center justify-center">{initial}</AvatarFallback>
+          <Avatar className="h-full w-full rounded-full">
+            {currentAvatar ? <AvatarImage src={currentAvatar} alt="Profile" className="object-cover h-full w-full rounded-full" /> : null}
+            <AvatarFallback className="text-primary text-3xl font-black bg-primary/10 flex items-center justify-center rounded-full">{initial}</AvatarFallback>
           </Avatar>
           
           {/* Cam overlay on hover */}
