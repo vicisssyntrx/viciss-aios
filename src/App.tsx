@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AgentDashboard from "./pages/AgentDashboard";
 import NotFound from "./pages/NotFound";
+import { useTouchSound } from "@/hooks/useTouchSound";
 
 // QueryClient is created once at the module level so it persists across re-renders.
 const queryClient = new QueryClient({
@@ -59,6 +60,9 @@ queryClient.getQueryCache().subscribe((event) => {
 });
 
 function AppInner() {
+  // Global mobile touch sound — plays a soft tap on every touchstart.
+  useTouchSound();
+
   // Stable ref so the callback identity doesn't change across renders.
   const prevUserIdRef = useRef<string | null>(null);
 

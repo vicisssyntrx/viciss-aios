@@ -91,6 +91,16 @@
 
   body {
     @apply bg-background text-foreground text-base;
+    /* Smooth brightness transition when toggling light/dark */
+    transition: filter 400ms ease;
+  }
+
+  /* Dark mode base brightness boost — doubles the rendered luminance so
+     content is clearly visible even at mid-range device brightness.
+     The device's own screen brightness still multiplies on top of this,
+     meaning higher phone brightness → even brighter result than stock. */
+  .dark body {
+    filter: brightness(2);
   }
 }
 
