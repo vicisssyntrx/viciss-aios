@@ -87,10 +87,35 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
     };
   }, [safeLogs, range]);
 
-  // Recompute "actual" deterministically from logs so backfilled edits don't create spikes/drops.
+  // Recompute "actual" deterministically from safeLogs so backfilled edits don't create spikes/drops.
+  // We calculate the running factor using the entire safeLogs array, but only map details for the active filteredLogs range.
   // 1% rule: daily multiplier is 1 + (completionRatio)*0.01
   const data = useMemo(() => {
-    const sorted = [...filteredLogs]
+    // Sort all safeLogs sequentially from day 0
+    const sortedAll = [...safeLogs]
+      .map((l) => {
+        const d = parseISO(l.date);
+        return isValid(d) ? { ...l, _d: d } : null;
+      })
+      .filter((x): x is (typeof safeLogs[number] & { _d: Date }) => !!x)
+      .sort((a, b) => a._d.getTime() - b._d.getTime());
+
+    // Build a map of date string -> computed running actual growth factor
+    let runningActual = 1.0;
+    const runningGrowthMap = new Map<string, number>();
+
+    sortedAll.forEach((l) => {
+      const effectiveCompleted = (l as any).is_recovered ? l.total_count : l.completed_count;
+      const ratio =
+        l.total_count > 0
+          ? Math.max(0, Math.min(1, effectiveCompleted / l.total_count))
+          : 0;
+      runningActual = runningActual * (1 + ratio * 0.01);
+      runningGrowthMap.set(l.date, runningActual);
+    });
+
+    // Now map the active filteredLogs to include their pre-computed chronological running actuals
+    const sortedFiltered = [...filteredLogs]
       .map((l) => {
         const d = parseISO(l.date);
         return isValid(d) ? { ...l, _d: d } : null;
@@ -98,27 +123,19 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
       .filter((x): x is (typeof filteredLogs[number] & { _d: Date }) => !!x)
       .sort((a, b) => a._d.getTime() - b._d.getTime());
 
-    let actual = 1.0;
-    return sorted.map((l) => {
+    return sortedFiltered.map((l) => {
       const dayNum = differenceInDays(l._d, programStart);
       const idealGrowth = Math.pow(1.01, Math.max(0, dayNum) + 1);
-
-      // Some flows may mark recovered gaps with negative completed_count; treat as full completion.
-      const effectiveCompleted = (l as any).is_recovered ? l.total_count : l.completed_count;
-      const ratio =
-        l.total_count > 0
-          ? Math.max(0, Math.min(1, effectiveCompleted / l.total_count))
-          : 0;
-      actual = actual * (1 + ratio * 0.01);
+      const actualVal = runningGrowthMap.get(l.date) ?? 1.0;
 
       return {
         day: Math.max(0, dayNum),
         label: format(l._d, labelFormat),
-        actual: Number(actual.toFixed(4)),
+        actual: Number(actualVal.toFixed(4)),
         ideal: Number(idealGrowth.toFixed(4)),
       };
     });
-  }, [filteredLogs, labelFormat, programStart]);
+  }, [safeLogs, filteredLogs, labelFormat, programStart]);
 
   if (!safeLogs.length) {
     return (
