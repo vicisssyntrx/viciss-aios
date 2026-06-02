@@ -113,30 +113,28 @@ export default function ParticleBackground() {
       )}
       {bgStyle === "orbit-moving" && (
         <div className="absolute inset-0 overflow-hidden">
-          {/* Red Orbit */}
+          {/* Red Orbit — uses .orbit-blob class for blend mode switching */}
           <div
             ref={orbit1Ref}
-            className="absolute rounded-full filter blur-[50px] transition-transform duration-75 select-none pointer-events-none bg-orbit-red"
+            className="orbit-blob absolute rounded-full filter blur-[50px] transition-transform duration-75 select-none pointer-events-none bg-orbit-red"
             style={{
               left: `${physicsRef.current.r.x}vw`,
               top: `${physicsRef.current.r.y}vh`,
               transform: "translate(-50%, -50%)",
               width: "min(480px, 70vw)",
               height: "min(480px, 70vw)",
-              mixBlendMode: "screen",
             }}
           />
           {/* Blue Orbit */}
           <div
             ref={orbit2Ref}
-            className="absolute rounded-full filter blur-[50px] transition-transform duration-75 select-none pointer-events-none bg-orbit-blue"
+            className="orbit-blob absolute rounded-full filter blur-[50px] transition-transform duration-75 select-none pointer-events-none bg-orbit-blue"
             style={{
               left: `${physicsRef.current.b.x}vw`,
               top: `${physicsRef.current.b.y}vh`,
               transform: "translate(-50%, -50%)",
               width: "min(480px, 70vw)",
               height: "min(480px, 70vw)",
-              mixBlendMode: "screen",
             }}
           />
         </div>

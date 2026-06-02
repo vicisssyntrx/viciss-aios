@@ -160,16 +160,21 @@
   );
 }
 
+/* Light mode hover: dark drop shadow for lift contrast */
 .glass:hover {
   box-shadow:
-    0 14px 40px rgba(0, 0, 0, 0.07),
-    inset 1px 1px 0px rgba(255, 255, 255, 0.65),
-    inset -1px -1px 0px rgba(0, 0, 0, 0.05);
+    0 12px 36px rgba(0, 0, 0, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    inset 1px 1px 0px rgba(255, 255, 255, 0.75),
+    inset -1px -1px 0px rgba(0, 0, 0, 0.04);
 }
 
+/* Dark mode hover: white glow shadow for lift contrast */
 .dark .glass:hover {
   box-shadow:
-    0 14px 40px rgba(0, 0, 0, 0.35),
+    0 0 0 0.5px rgba(255, 255, 255, 0.08),
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 2px 16px rgba(255, 255, 255, 0.04),
     inset 1px 1px 0px rgba(255, 255, 255, 0.22),
     inset -1px -1px 0px rgba(0, 0, 0, 0.15);
 }
@@ -369,26 +374,45 @@
 }
 
 /* Moving Orbits Glow Classes */
+/* Light mode: multiply blend so orbs darken against white bg */
+.orbit-blob {
+  mix-blend-mode: multiply;
+}
+.dark .orbit-blob {
+  mix-blend-mode: screen;
+}
+
+/* Light mode: stronger, more saturated colors so they're visible on white */
 .bg-orbit-red {
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.24) 0%, rgba(239, 68, 68, 0) 70%);
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.55) 0%, rgba(239, 68, 68, 0.08) 70%);
 }
 .dark .bg-orbit-red {
   background: radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, rgba(239, 68, 68, 0) 70%);
 }
 
 .bg-orbit-blue {
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, rgba(59, 130, 246, 0) 70%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, rgba(59, 130, 246, 0.06) 70%);
 }
 .dark .bg-orbit-blue {
   background: radial-gradient(circle, rgba(59, 130, 246, 0.42) 0%, rgba(59, 130, 246, 0) 70%);
 }/* Mobile-specific Lift Effect (For touch-only viewports, excluding top navbar and its items) */
 @media (hover: none) {
+  /* Light mode lift — dark shadow for contrast on white */
   .glass:active, .glass-strong:active {
-    transform: translateY(-2px) scale3d(0.99, 0.99, 1) !important;
-    box-shadow: 
-      0 12px 28px rgba(0, 0, 0, 0.22),
-      inset 1px 1px 0px rgba(255, 255, 255, 0.2) !important;
-    transition: transform 100ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 100ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transform: translateY(-3px) scale3d(0.99, 0.99, 1) !important;
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.18),
+      0 4px 10px rgba(0, 0, 0, 0.10),
+      inset 1px 1px 0px rgba(255, 255, 255, 0.7) !important;
+    transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 120ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  /* Dark mode lift — white ambient glow */
+  .dark .glass:active, .dark .glass-strong:active {
+    box-shadow:
+      0 0 0 0.5px rgba(255, 255, 255, 0.08),
+      0 14px 36px rgba(0, 0, 0, 0.55),
+      0 2px 16px rgba(255, 255, 255, 0.06),
+      inset 1px 1px 0px rgba(255, 255, 255, 0.18) !important;
   }
   
   /* Suppress lift on the nav element itself (nav has .glass class) AND all its children */

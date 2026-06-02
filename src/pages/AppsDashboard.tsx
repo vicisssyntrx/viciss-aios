@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, ExternalLink, Grid, Search, Sparkles, Check, X, Edit2, Info } from "lucide-react";
+import { Plus, Trash2, Grid, Search, Sparkles, Check, X, Edit2, Info } from "lucide-react";
 import { toast } from "sonner";
 
 interface AppShortcut {
@@ -472,7 +472,7 @@ export default function AppsDashboard() {
         </div>
       </div>
 
-      {/* Grid of Shortcut Cards */}
+      {/* App Drawer Grid — compact home screen style */}
       {filteredApps.length === 0 ? (
         <div className="glass rounded-3xl p-12 text-center flex flex-col items-center justify-center border border-dashed border-white/10">
           <div className="w-16 h-16 rounded-2xl bg-secondary/50 flex items-center justify-center text-2xl mb-4">🔮</div>
@@ -489,74 +489,73 @@ export default function AppsDashboard() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-x-3 gap-y-5">
           {filteredApps.map((app) => (
             <div
               key={app.id}
               onClick={() => handleLaunch(app)}
-              className="glass group relative flex flex-col items-center justify-between p-5 rounded-2xl cursor-pointer overflow-hidden transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
+              className="group relative flex flex-col items-center gap-1.5 cursor-pointer select-none"
             >
-              {/* Dynamic colored background glow */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${app.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10`} />
+              {/* Icon bubble */}
+              <div className={`relative w-14 h-14 rounded-[18px] bg-gradient-to-br ${app.bgColor} border border-white/20 dark:border-white/10 flex items-center justify-center overflow-hidden shadow-md group-hover:scale-[1.08] group-hover:shadow-lg active:scale-[0.93] transition-all duration-200 backdrop-blur-sm`}
+                style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.25)" }}
+              >
+                {/* Gradient fill */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${app.bgColor} opacity-80`} />
 
-              {/* Action Buttons for Custom shortcuts */}
-              <div className="absolute top-2.5 right-2.5 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenEdit(app);
-                  }}
-                  className="p-1.5 rounded-lg bg-black/45 dark:bg-white/10 hover:bg-black/60 dark:hover:bg-white/20 border border-white/5 text-muted-foreground hover:text-foreground transition-colors"
-                  title="Edit Shortcut"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={(e) => handleDelete(app.id, e)}
-                  className="p-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-500/20 text-red-400 hover:text-red-300 transition-colors"
-                  title="Delete Shortcut"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              </div>
-
-              {/* Icon Container (Images first, fallback to Emoji) */}
-              <div className="relative mt-2 mb-4 w-14 h-14 rounded-2xl bg-black/30 dark:bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                {/* Icon image / emoji */}
                 {app.iconUrl ? (
                   <img
                     src={app.iconUrl}
                     alt={app.name}
-                    className="w-10 h-10 object-contain drop-shadow-md select-none"
+                    className="relative z-10 w-9 h-9 object-contain drop-shadow select-none"
                     onError={(e) => {
-                      // fallback to emoji or letter on loading error
                       e.currentTarget.style.display = "none";
-                      const fallback = e.currentTarget.parentElement?.querySelector(".icon-fallback");
+                      const fallback = e.currentTarget.parentElement?.querySelector(".icon-fallback") as HTMLElement | null;
                       if (fallback) fallback.classList.remove("hidden");
                     }}
                   />
                 ) : null}
-                <span className={`icon-fallback text-3xl select-none ${app.iconUrl ? "hidden" : ""}`}>
+                <span className={`icon-fallback relative z-10 text-2xl select-none ${app.iconUrl ? "hidden" : ""}`}>
                   {app.emoji || app.name[0]?.toUpperCase() || "🚀"}
                 </span>
+
+                {/* Edit / Delete — shown on hover (desktop) or always visible small dot (mobile) */}
+                <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-[18px] z-20">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleOpenEdit(app); }}
+                    className="p-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition-colors"
+                    title="Edit"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={(e) => handleDelete(app.id, e)}
+                    className="p-1.5 rounded-full bg-red-500/30 hover:bg-red-500/50 text-red-200 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
 
-              {/* Text Info */}
-              <div className="text-center w-full space-y-1">
-                <h4 className="font-semibold text-sm text-foreground tracking-tight truncate px-1">
-                  {app.name}
-                </h4>
-                <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase font-mono bg-white/5 dark:bg-black/20 px-2 py-0.5 rounded-full inline-block">
-                  {app.category}
-                </p>
-              </div>
-
-              {/* Launch Link Indicator at bottom */}
-              <div className="mt-4 flex items-center gap-1 text-[10px] font-bold text-primary opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 transform translate-y-0 sm:translate-y-1 sm:group-hover:translate-y-0">
-                <span>Launch</span>
-                <ExternalLink className="w-2.5 h-2.5" />
-              </div>
+              {/* App name label */}
+              <span className="text-[10px] font-medium text-foreground/80 text-center leading-tight max-w-[56px] line-clamp-2 tracking-tight">
+                {app.name}
+              </span>
             </div>
           ))}
+
+          {/* Add new shortcut tile */}
+          <div
+            onClick={handleOpenAdd}
+            className="group flex flex-col items-center gap-1.5 cursor-pointer select-none"
+          >
+            <div className="w-14 h-14 rounded-[18px] border-2 border-dashed border-white/20 dark:border-white/10 flex items-center justify-center group-hover:border-primary/50 group-hover:bg-primary/10 active:scale-95 transition-all duration-200">
+              <Plus className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <span className="text-[10px] font-medium text-muted-foreground text-center leading-tight max-w-[56px]">Add</span>
+          </div>
         </div>
       )}
 
