@@ -56,34 +56,34 @@ export default function BottomActionBar({ onSave, onReset, disabled, hasHabits }
       )}
 
       {/* Action bar (inline; placed by parent) */}
-      <div className="glass rounded-3xl px-2.5 py-2.5 w-2/3 mx-auto">
+      <div className="glass rounded-2xl px-3 py-3">
         <div className="flex items-center gap-2">
           {/* Add/Edit Habits (Left) */}
           <button
             onClick={() => setShowManage(true)}
-            className={`flex-none flex items-center justify-center rounded-2xl h-16 w-14 transition-all ${
+            className={`flex-none flex items-center justify-center rounded-2xl h-12 w-12 transition-all ${
               !hasHabits
                 ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 border border-primary/60 animate-pulse-subtle"
                 : "glass text-muted-foreground hover:text-foreground hover:bg-secondary/60"
             }`}
           >
-            <ListPlus className="h-7 w-7" />
+            <ListPlus className="h-[22px] w-[22px]" />
           </button>
 
           {/* Reset (Middle-left) */}
           <button
             onClick={onReset}
             disabled={saving}
-            className="flex-none flex items-center justify-center glass rounded-2xl h-16 w-14 text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="flex-none flex items-center justify-center glass rounded-2xl h-12 w-12 text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
-            <RotateCcw className="h-7 w-7" />
+            <RotateCcw className="h-[22px] w-[22px]" />
           </button>
 
           {/* Save Progress (Right, fills space) */}
           <button
             onClick={handleSave}
             disabled={disabled || saving}
-            className={`flex-1 flex items-center justify-center gap-2.5 h-16 rounded-2xl font-semibold text-lg bg-primary text-primary-foreground shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl font-semibold text-base bg-primary text-primary-foreground shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
               pulsing ? "animate-red-pulse" : ""
             }`}
           >
