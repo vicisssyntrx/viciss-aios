@@ -266,8 +266,7 @@ export default function Dashboard() {
 
             {/* ══════════ MOBILE ══════════ */}
             <div className="space-y-4 md:hidden pb-32">
-
-              {/* Dash tab */}
+              {/* ── Dash tab ── */}
               {isDash && (
                 <>
                   <GrowthGraph />
@@ -278,7 +277,7 @@ export default function Dashboard() {
 
               {/* Tasks tab */}
               {isTasks && (
-                <>
+                <div className="px-2">
                   {/* Shield + Power-Up quick-access row */}
                   <div className="grid grid-cols-2 gap-3">
                     <button
@@ -313,7 +312,7 @@ export default function Dashboard() {
                     disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
                     hasHabits={!!habits?.length}
                   />
-                </>
+                </div>
               )}
 
               {/* Account tab */}
@@ -348,9 +347,6 @@ export default function Dashboard() {
               <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
                 Viciss Syntrx
               </a>
-            </p>
-            <p className="text-[10px] text-muted-foreground/50 mt-1 tracking-widest font-mono uppercase">
-              Vicissometer v0.0.2.6_6.2
             </p>
           </div>
         </div>

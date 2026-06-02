@@ -61,9 +61,6 @@ export default function Navbar() {
 
             {/* Left: Brand + Stats */}
             <div className="flex items-center gap-1 flex-shrink-0">
-              <h1 className="text-xl font-bold tracking-tight text-foreground mr-3">
-                Vicissometer
-              </h1>
               <div className="flex items-center gap-2">
                 <span className="glass rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap">
                   🪙 {stats?.coins ?? 0}

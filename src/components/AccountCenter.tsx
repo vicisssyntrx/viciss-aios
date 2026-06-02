@@ -353,12 +353,6 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
             </button>
           )}
 
-          {/* Title */}
-          <div className="text-center mb-5 mt-4 sm:mt-6">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground select-none">
-              Vicissometer
-            </h1>
-          </div>
 
           {/* Centered Profile Details Section */}
           <div className="text-center mb-4 border-b border-border/40 pb-4">
@@ -564,6 +558,18 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
           <Button onClick={handleSignOut} variant="ghost" disabled={resetting} className="w-full justify-start text-destructive hover:text-destructive text-base h-10">
             <LogOut className="h-5 w-5 mr-3" /> Sign Out
           </Button>
+
+          {/* App branding — only here, nowhere else */}
+          <div className="mt-4 pt-3 border-t border-border/30 flex flex-col items-center gap-0.5 opacity-50">
+            <p className="text-sm font-bold tracking-tight text-foreground">Vicissometer</p>
+            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+              Made with <span className="text-red-500">❤️</span> by{" "}
+              <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-100 transition-opacity">
+                Viciss Syntrx
+              </a>
+            </p>
+            <p className="text-[9px] text-muted-foreground/60 font-mono tracking-widest uppercase">v0.0.2.6_6.2</p>
+          </div>
         </div>
       </div>
     </div>
