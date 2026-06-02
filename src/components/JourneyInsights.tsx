@@ -40,42 +40,39 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
     return 365;
   }, [stats?.start_date, stats?.end_date]);
 
-  // Hill peaks [x, peakY] — vary heights for visual depth
-  // peakY is lower number = taller hill (SVG coords)
+  // Each hill: peakX = horizontal center, peakY = where ground surface is at that hill
   const hills = [
-    {
-      label: "GROWTH",
-      value: formatGrowth(stats?.current_growth),
-      color: "#fbbf24",
-      glow: "rgba(251,191,36,0.6)",
-      peakX: 50,
-      peakY: 34,   // tallest
-    },
-    {
-      label: "PERFECT",
-      value: `${completedDays}/${totalProgramDays}`,
-      color: "#4ade80",
-      glow: "rgba(74,222,128,0.6)",
-      peakX: 152,
-      peakY: 46,   // medium-tall
-    },
-    {
-      label: "ACTIVE DAYS",
-      value: String(activeDays),
-      color: "#60a5fa",
-      glow: "rgba(96,165,250,0.6)",
-      peakX: 258,
-      peakY: 40,   // medium
-    },
-    {
-      label: "MISSED",
-      value: String(missedDays),
-      color: "#f87171",
-      glow: "rgba(248,113,113,0.6)",
-      peakX: 362,
-      peakY: 52,   // shortest
-    },
+    { label: "Growth",      value: formatGrowth(stats?.current_growth), color: "#fbbf24", peakX: 50,  peakY: 52 },
+    { label: "Perfect",     value: `${completedDays}/${totalProgramDays}`, color: "#4ade80", peakX: 150, peakY: 66 },
+    { label: "Active Days", value: String(activeDays),                   color: "#60a5fa", peakX: 255, peakY: 58 },
+    { label: "Missed",      value: String(missedDays),                   color: "#f87171", peakX: 355, peakY: 74 },
   ];
+
+  // Smooth hill terrain path — hand-tuned beziers, no sharp transitions
+  const terrainD = `
+    M0,100
+    C20,100 32,54 ${hills[0].peakX},${hills[0].peakY}
+    C68,${hills[0].peakY} 80,82 102,82
+    C124,82 132,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
+    C168,${hills[1].peakY} 182,82 204,82
+    C226,82 236,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
+    C274,${hills[2].peakY} 286,82 308,82
+    C330,82 340,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
+    C370,${hills[3].peakY} 385,92 400,92
+    L400,130 L0,130 Z
+  `.trim();
+
+  const terrainEdge = `
+    M0,100
+    C20,100 32,54 ${hills[0].peakX},${hills[0].peakY}
+    C68,${hills[0].peakY} 80,82 102,82
+    C124,82 132,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
+    C168,${hills[1].peakY} 182,82 204,82
+    C226,82 236,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
+    C274,${hills[2].peakY} 286,82 308,82
+    C330,82 340,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
+    C370,${hills[3].peakY} 385,92 400,92
+  `.trim();
 
   return (
     <div className="space-y-2">
@@ -83,108 +80,58 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
         <h3 className="text-sm uppercase tracking-wider text-muted-foreground">Journey Insights</h3>
       </div>
 
-      {/* Full landscape card */}
-      <div className="glass rounded-2xl overflow-hidden" style={{ minHeight: "110px" }}>
+      <div className="glass rounded-2xl overflow-hidden">
         <svg
-          viewBox="0 0 400 110"
+          viewBox="0 0 400 128"
           preserveAspectRatio="xMidYMid meet"
-          className="w-full h-full"
-          style={{ display: "block", minHeight: "110px" }}
+          className="w-full"
+          style={{ display: "block", height: "128px" }}
         >
-          {/* ── Background sky gradient ── */}
-          <defs>
-            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="transparent" />
-              <stop offset="100%" stopColor="transparent" />
-            </linearGradient>
-            {hills.map((h) => (
-              <radialGradient key={h.label + "-glow"} id={`glow-${h.label}`} cx="50%" cy="80%" r="50%">
-                <stop offset="0%" stopColor={h.glow} stopOpacity="0.25" />
-                <stop offset="100%" stopColor={h.glow} stopOpacity="0" />
-              </radialGradient>
-            ))}
-          </defs>
-
-          {/* ── Far background hills (depth layer) ── */}
+          {/* Background depth hill */}
           <path
-            d="M0,75 Q50,55 100,68 T200,60 T300,65 T400,58 L400,110 L0,110 Z"
-            className="fill-[#1a3d2b] dark:fill-[#0a1f12]"
-            opacity="0.5"
+            d="M0,108 Q80,88 160,100 T320,94 T400,100 L400,130 L0,130 Z"
+            className="fill-[#14472e] dark:fill-[#081910]"
           />
 
-          {/* ── Main ground — single continuous terrain ── */}
-          <path
-            d={`M0,85
-              Q25,80  ${hills[0].peakX},${hills[0].peakY}
-              Q${hills[0].peakX + 50},${hills[0].peakY + 16} ${(hills[0].peakX + hills[1].peakX) / 2},${Math.max(hills[0].peakY, hills[1].peakY) + 6}
-              Q${hills[1].peakX - 30},${hills[1].peakY + 10} ${hills[1].peakX},${hills[1].peakY}
-              Q${hills[1].peakX + 50},${hills[1].peakY + 14} ${(hills[1].peakX + hills[2].peakX) / 2},${Math.max(hills[1].peakY, hills[2].peakY) + 4}
-              Q${hills[2].peakX - 30},${hills[2].peakY + 8}  ${hills[2].peakX},${hills[2].peakY}
-              Q${hills[2].peakX + 50},${hills[2].peakY + 16} ${(hills[2].peakX + hills[3].peakX) / 2},${Math.max(hills[2].peakY, hills[3].peakY) + 4}
-              Q${hills[3].peakX - 30},${hills[3].peakY + 10} ${hills[3].peakX},${hills[3].peakY}
-              Q${hills[3].peakX + 30},${hills[3].peakY + 12} 400,80
-              L400,110 L0,110 Z`}
-            className="fill-[#1e5c38] dark:fill-[#0d2e1c]"
-          />
+          {/* Main terrain */}
+          <path d={terrainD} className="fill-[#1e6b40] dark:fill-[#0d2e1c]" />
 
-          {/* ── Highlight edge (lighter top of ground) ── */}
+          {/* Soft lighter highlight along the top edge */}
           <path
-            d={`M0,85
-              Q25,80  ${hills[0].peakX},${hills[0].peakY}
-              Q${hills[0].peakX + 50},${hills[0].peakY + 16} ${(hills[0].peakX + hills[1].peakX) / 2},${Math.max(hills[0].peakY, hills[1].peakY) + 6}
-              Q${hills[1].peakX - 30},${hills[1].peakY + 10} ${hills[1].peakX},${hills[1].peakY}
-              Q${hills[1].peakX + 50},${hills[1].peakY + 14} ${(hills[1].peakX + hills[2].peakX) / 2},${Math.max(hills[1].peakY, hills[2].peakY) + 4}
-              Q${hills[2].peakX - 30},${hills[2].peakY + 8}  ${hills[2].peakX},${hills[2].peakY}
-              Q${hills[2].peakX + 50},${hills[2].peakY + 16} ${(hills[2].peakX + hills[3].peakX) / 2},${Math.max(hills[2].peakY, hills[3].peakY) + 4}
-              Q${hills[3].peakX - 30},${hills[3].peakY + 10} ${hills[3].peakX},${hills[3].peakY}
-              Q${hills[3].peakX + 30},${hills[3].peakY + 12} 400,80`}
+            d={terrainEdge}
             fill="none"
-            className="stroke-[#29784a] dark:stroke-[#14422a]"
-            strokeWidth="1.2"
+            className="stroke-[#2d9658] dark:stroke-[#165c30]"
+            strokeWidth="1.5"
           />
 
-          {/* ── Glow halos on each peak ── */}
+          {/* Values + labels grouped per hill */}
           {hills.map((h) => (
-            <ellipse
-              key={h.label + "-halo"}
-              cx={h.peakX}
-              cy={h.peakY + 2}
-              rx="28"
-              ry="10"
-              fill={`url(#glow-${h.label})`}
-            />
-          ))}
-
-          {/* ── Value labels — sitting just above each hill peak ── */}
-          {hills.map((h) => (
-            <text
-              key={h.label + "-val"}
-              x={h.peakX}
-              y={h.peakY - 4}
-              textAnchor="middle"
-              fontSize="11"
-              fontWeight="bold"
-              fill={h.color}
-              style={{ filter: `drop-shadow(0 0 4px ${h.glow})` }}
-            >
-              {h.value}
-            </text>
-          ))}
-
-          {/* ── Category labels — at the very bottom ── */}
-          {hills.map((h) => (
-            <text
-              key={h.label + "-lbl"}
-              x={h.peakX}
-              y={104}
-              textAnchor="middle"
-              fontSize="5.5"
-              fontWeight="bold"
-              letterSpacing="0.4"
-              fill="#94a3b8"
-            >
-              {h.label}
-            </text>
+            <g key={h.label}>
+              {/* Value — sits just above the hill peak */}
+              <text
+                x={h.peakX}
+                y={h.peakY - 16}
+                textAnchor="middle"
+                fontSize="15"
+                fontWeight="bold"
+                fill={h.color}
+                style={{ filter: `drop-shadow(0 1px 6px ${h.color}88)` }}
+              >
+                {h.value}
+              </text>
+              {/* Label — sits just below the value, close and tidy */}
+              <text
+                x={h.peakX}
+                y={h.peakY - 3}
+                textAnchor="middle"
+                fontSize="6.5"
+                fontWeight="600"
+                letterSpacing="0.5"
+                fill="#94a3b8"
+              >
+                {h.label.toUpperCase()}
+              </text>
+            </g>
           ))}
         </svg>
       </div>
