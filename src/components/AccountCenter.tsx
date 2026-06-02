@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useAuth } from "@/contexts/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { X, LogOut, Shield, Zap, RotateCcw, Bell, User, Calendar, Download, Moon, Compass, Waves, Sparkles, Sun } from "lucide-react";
+import { X, LogOut, Shield, Zap, RotateCcw, Bell, User, Calendar, Download, Moon, Compass, Waves, Sparkles, Sun, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn, hexToHslString } from "@/lib/utils";
 import ShieldShop from "./ShieldShop";
 import PowerUpOverlay from "./PowerUpOverlay";
 
@@ -84,6 +84,18 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
     setCustomPulseColor(hexColor);
     localStorage.setItem("vicissometer-pulse-color", hexColor);
     window.dispatchEvent(new Event("vicissometer-bg-changed"));
+  };
+
+  const [customPrimaryColor, setCustomPrimaryColor] = useState(() => {
+    return localStorage.getItem("vicissometer-primary-color") || "#ef4444";
+  });
+
+  const handlePrimaryColorChange = (hexColor: string) => {
+    setCustomPrimaryColor(hexColor);
+    localStorage.setItem("vicissometer-primary-color", hexColor);
+    document.documentElement.style.setProperty("--primary", hexToHslString(hexColor));
+    document.documentElement.style.setProperty("--ring", hexToHslString(hexColor));
+    window.dispatchEvent(new Event("vicissometer-primary-changed"));
   };
 
   const handleBulkImportQuotes = () => {
@@ -489,29 +501,56 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
           {/* Theme Mode Selector */}
           <div className="p-3 space-y-2 border-t border-border/40 mt-1">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Theme Mode</span>
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-3 gap-1.5">
               <button
                 onClick={() => handleThemeChange("light")}
                 className={cn(
-                  "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
+                  "flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] sm:text-xs font-medium border transition-all duration-300",
                   themeMode === "light" 
                     ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
                     : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
                 )}
               >
-                <Sun className="h-3.5 w-3.5" /> Light Mode
+                <Sun className="h-3.5 w-3.5" /> Light
               </button>
               <button
                 onClick={() => handleThemeChange("dark")}
                 className={cn(
-                  "flex items-center justify-center gap-2 p-2 rounded-xl text-xs font-medium border transition-all duration-300",
+                  "flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] sm:text-xs font-medium border transition-all duration-300",
                   themeMode === "dark" 
                     ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
                     : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
                 )}
               >
-                <Moon className="h-3.5 w-3.5" /> Dark Mode
+                <Moon className="h-3.5 w-3.5" /> Dark
               </button>
+              <button
+                onClick={() => handleThemeChange("system")}
+                className={cn(
+                  "flex items-center justify-center gap-1.5 p-2 rounded-xl text-[10px] sm:text-xs font-medium border transition-all duration-300",
+                  themeMode === "system" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <Monitor className="h-3.5 w-3.5" /> System
+              </button>
+            </div>
+            
+            <div className="pt-2 flex items-center justify-between">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Primary Color</span>
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-6 h-6 rounded-full border border-border shadow-inner" 
+                  style={{ backgroundColor: customPrimaryColor }} 
+                />
+                <input 
+                  type="color" 
+                  value={customPrimaryColor} 
+                  onChange={(e) => handlePrimaryColorChange(e.target.value)}
+                  className="w-8 h-8 opacity-0 absolute cursor-pointer"
+                />
+              </div>
             </div>
           </div>
 
