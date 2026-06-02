@@ -16,7 +16,8 @@ import ShieldShop from "@/components/ShieldShop";
 import PowerUpOverlay from "@/components/PowerUpOverlay";
 import LoadingScreen from "@/components/LoadingScreen";
 import AccountCenter from "@/components/AccountCenter";
-import { Home, ClipboardList, User } from "lucide-react";
+import { Home, ClipboardList } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
 import { useUserStats } from "@/hooks/useUserStats";
@@ -24,6 +25,7 @@ import { useTodayLog } from "@/hooks/useDailyLogs";
 import { useSaveProgress } from "@/hooks/useSaveProgress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 export function useMidnightInvalidation() {
   const queryClient = useQueryClient();
@@ -65,6 +67,30 @@ export function useMidnightInvalidation() {
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "account">("dash");
+  const [desktopTab, setDesktopTab] = useState<"dash" | "tasks">("dash");
+
+  // Fetch profile for avatar in bottom nav
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url")
+        .eq("user_id", user!.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const avatarUrl =
+    profile?.avatar_url ||
+    (user?.user_metadata as { avatar_url?: string } | undefined)?.avatar_url ||
+    null;
+  const displayName = profile?.display_name || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
+  const initial = displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
+
 
   useLiquidPhysics();
   const { data: habits, isLoading: habitsLoading, isFetched: habitsFetched } = useHabits();
@@ -155,7 +181,7 @@ export default function Dashboard() {
       <LightLeakBackground />
       <ParticleBackground />
       <div className="relative z-10 flex flex-col min-h-screen pt-20 sm:pt-22 md:pt-24">
-        <Navbar />
+        <Navbar desktopTab={desktopTab} onDesktopTabChange={setDesktopTab} />
 
         <>
           <Greeting />
@@ -169,6 +195,9 @@ export default function Dashboard() {
                   <>
                     <GrowthGraph />
                     <JourneyInsights />
+                    <div className="dashboard-rise rise-delay-3">
+                      <OutcomeCards />
+                    </div>
                   </>
                 )}
 
@@ -214,9 +243,6 @@ export default function Dashboard() {
                         hasHabits={!!habits?.length}
                       />
                     </div>
-                    <div className="dashboard-rise rise-delay-3">
-                      <OutcomeCards />
-                    </div>
                     <div className="dashboard-rise rise-delay-4">
                       <MobileBoostCards />
                     </div>
@@ -228,31 +254,57 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* ShieldShop + PowerUpOverlay modals (mobile/desktop fallback) */}
+              {/* ShieldShop + PowerUpOverlay modals */}
               {showShields && <ShieldShop onClose={() => setShowShields(false)} />}
               {showPowerUps && <PowerUpOverlay onClose={() => setShowPowerUps(false)} />}
 
-              {/* ── Desktop left column — Habits + Actions + Shields/Power-Ups ── */}
+              {/* ── Desktop: Tab-gated left column ── */}
               <div className="hidden md:block space-y-2">
-                <HabitList
-                  completedIds={completedIds}
-                  onToggle={toggleHabit}
-                  viewOnly={false}
-                />
-                <BottomActionBar
-                  onSave={handleSave}
-                  onReset={handleReset}
-                  disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                  hasHabits={!!habits?.length}
-                />
-                <MobileBoostCards />
+                {desktopTab === "tasks" ? (
+                  <>
+                    <HabitList
+                      completedIds={completedIds}
+                      onToggle={toggleHabit}
+                      viewOnly={false}
+                    />
+                    <BottomActionBar
+                      onSave={handleSave}
+                      onReset={handleReset}
+                      disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
+                      hasHabits={!!habits?.length}
+                    />
+                    <MobileBoostCards />
+                  </>
+                ) : (
+                  <>
+                    <GrowthGraph />
+                    <JourneyInsights />
+                  </>
+                )}
               </div>
 
-              {/* ── Desktop right column — Growth + Insights + Becoming ── */}
+              {/* ── Desktop: Tab-gated right column ── */}
               <div className="hidden md:block space-y-2">
-                <GrowthGraph />
-                <JourneyInsights />
-                <OutcomeCards />
+                {desktopTab === "tasks" ? (
+                  <>
+                    <OutcomeCards />
+                  </>
+                ) : (
+                  <>
+                    <HabitList
+                      completedIds={completedIds}
+                      onToggle={toggleHabit}
+                      viewOnly={false}
+                    />
+                    <BottomActionBar
+                      onSave={handleSave}
+                      onReset={handleReset}
+                      disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
+                      hasHabits={!!habits?.length}
+                    />
+                    <OutcomeCards />
+                  </>
+                )}
               </div>
             </div>
 
@@ -268,47 +320,46 @@ export default function Dashboard() {
         </>
       </div>
 
-      {/* Floating Telegram-style Bottom Tab Bar for mobile viewports */}
-      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[290px]">
-        <div className="relative bottom-nav-bar flex items-center p-0.5 bg-black/5 dark:bg-black/55 border border-black/5 dark:border-white/10 rounded-full backdrop-blur-xl shadow-2xl overflow-hidden">
-          {/* Sliding Pill Background Indicator */}
-          <div 
-            className="absolute top-0.5 bottom-0.5 rounded-full bg-white/70 bottom-nav-pill border border-black/5 shadow-[0_2px_8px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.45)] transition-all duration-300 ease-out"
-            style={{
-              left: mobileTab === "dash" ? "2px" : mobileTab === "tasks" ? "calc(33.33% + 1px)" : "calc(66.66% + 1px)",
-              width: "calc(33.33% - 3px)",
-            }}
-          />
+      {/* Telegram-style Bottom Tab Bar — mobile only */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+        <div className="tg-bottom-nav flex items-stretch">
+
           {/* Tab 1: Dash */}
           <button
             onClick={() => setMobileTab("dash")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
-              mobileTab === "dash" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
-            }`}
+            className="tg-tab flex-1 select-none"
           >
-            <Home className="w-3.5 h-3.5" />
-            <span>Dash</span>
+            <div className={`tg-tab-icon-wrap ${mobileTab === "dash" ? "tg-tab-active" : ""}`}>
+              <Home className="w-5 h-5" />
+            </div>
+            <span className={`tg-tab-label ${mobileTab === "dash" ? "tg-label-active" : ""}`}>Dash</span>
           </button>
+
           {/* Tab 2: Tasks */}
           <button
             onClick={() => setMobileTab("tasks")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
-              mobileTab === "tasks" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
-            }`}
+            className="tg-tab flex-1 select-none"
           >
-            <ClipboardList className="w-3.5 h-3.5" />
-            <span>Tasks</span>
+            <div className={`tg-tab-icon-wrap ${mobileTab === "tasks" ? "tg-tab-active" : ""}`}>
+              <ClipboardList className="w-5 h-5" />
+            </div>
+            <span className={`tg-tab-label ${mobileTab === "tasks" ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
-          {/* Tab 3: Account */}
+
+          {/* Tab 3: Profile — user DP */}
           <button
             onClick={() => setMobileTab("account")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-xs font-semibold relative z-10 transition-colors duration-300 select-none ${
-              mobileTab === "account" ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground/75"
-            }`}
+            className="tg-tab flex-1 select-none"
           >
-            <User className="w-3.5 h-3.5" />
-            <span>Profile</span>
+            <div className={`tg-tab-icon-wrap ${mobileTab === "account" ? "tg-tab-active" : ""}`}>
+              <Avatar className="w-6 h-6 border border-primary/40">
+                {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" /> : null}
+                <AvatarFallback className="text-primary font-semibold text-[10px] bg-primary/20">{initial}</AvatarFallback>
+              </Avatar>
+            </div>
+            <span className={`tg-tab-label ${mobileTab === "account" ? "tg-label-active" : ""}`}>Profile</span>
           </button>
+
         </div>
       </div>
 
