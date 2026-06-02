@@ -314,10 +314,10 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
   const content = (
     <>
-      <div className="relative w-full max-w-sm flex flex-col items-center pt-12 sm:pt-14 select-none mx-auto">
+      <div className="relative w-full max-w-sm flex flex-col items-center pt-20 sm:pt-24 select-none mx-auto">
         {/* Large Centered Avatar */}
         <div 
-          className="absolute top-0 z-20 w-24 h-24 sm:w-28 sm:h-28 aspect-square rounded-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.36)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
+          className="absolute top-0 left-1/2 -translate-x-1/2 z-20 w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.36)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
           onClick={() => {
             if (!editingProfile) {
               setDisplayName(currentDisplayName);
@@ -429,45 +429,6 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
             </button>
           )}
 
-          {/* Start Date */}
-          <div className="w-full flex items-center justify-between p-3 rounded-xl text-foreground text-base">
-            <span className="flex items-center gap-3"><Calendar className="h-5 w-5 text-primary" /> Start Date</span>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="text-sm text-primary hover:underline">
-                  {currentStartDate ? format(currentStartDate, "MMM d, yyyy") : "Set date"}
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 z-[60]" align="end">
-                <CalendarPicker
-                  mode="single"
-                  selected={currentStartDate}
-                  onSelect={handleSetStartDate}
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* End Date */}
-          <div className="w-full flex items-center justify-between p-3 rounded-xl text-foreground text-base">
-            <span className="flex items-center gap-3"><Calendar className="h-5 w-5 text-primary" /> End Date</span>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="text-sm text-primary hover:underline">
-                  {currentEndDate ? format(currentEndDate, "MMM d, yyyy") : "Set date"}
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 z-[60]" align="end">
-                <CalendarPicker
-                  mode="single"
-                  selected={currentEndDate}
-                  onSelect={handleSetEndDate}
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
 
           {/* Theme Mode Selector */}
           <div className="p-3 space-y-2 border-t border-border/40 mt-1">
@@ -555,20 +516,50 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
             <RotateCcw className="h-5 w-5" /> {resetting ? "Resetting..." : "Reset All Data"}
           </button>
 
+          {/* Journey dates — moved below Reset */}
+          <hr className="border-border/40 my-1" />
+          <div className="w-full flex items-center justify-between p-3 rounded-xl text-foreground text-base">
+            <span className="flex items-center gap-3"><Calendar className="h-5 w-5 text-primary" /> Start Date</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="text-sm text-primary hover:underline">
+                  {currentStartDate ? format(currentStartDate, "MMM d, yyyy") : "Set date"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 z-[60]" align="end">
+                <CalendarPicker mode="single" selected={currentStartDate} onSelect={handleSetStartDate} className={cn("p-3 pointer-events-auto")} />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="w-full flex items-center justify-between p-3 rounded-xl text-foreground text-base">
+            <span className="flex items-center gap-3"><Calendar className="h-5 w-5 text-primary" /> End Date</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="text-sm text-primary hover:underline">
+                  {currentEndDate ? format(currentEndDate, "MMM d, yyyy") : "Set date"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 z-[60]" align="end">
+                <CalendarPicker mode="single" selected={currentEndDate} onSelect={handleSetEndDate} className={cn("p-3 pointer-events-auto")} />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <hr className="border-border/40 my-1" />
+
           <Button onClick={handleSignOut} variant="ghost" disabled={resetting} className="w-full justify-start text-destructive hover:text-destructive text-base h-10">
             <LogOut className="h-5 w-5 mr-3" /> Sign Out
           </Button>
 
           {/* App branding — only here, nowhere else */}
-          <div className="mt-4 pt-3 border-t border-border/30 flex flex-col items-center gap-0.5 opacity-50">
-            <p className="text-sm font-bold tracking-tight text-foreground">Vicissometer</p>
-            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+          <div className="mt-1 pt-2 border-t border-border/30 flex flex-col items-center gap-0.5 opacity-50">
+            <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
               Made with <span className="text-red-500">❤️</span> by{" "}
-              <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-100 transition-opacity">
+              <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
                 Viciss Syntrx
               </a>
             </p>
-            <p className="text-[9px] text-muted-foreground/60 font-mono tracking-widest uppercase">v0.0.2.6_6.2</p>
+            <p className="text-[10px] text-muted-foreground/50 font-mono tracking-widest uppercase">v0.0.2.6_6.2</p>
           </div>
         </div>
       </div>

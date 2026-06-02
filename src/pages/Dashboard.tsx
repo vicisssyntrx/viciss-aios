@@ -265,7 +265,7 @@ export default function Dashboard() {
           <div className="mx-auto w-full max-w-[860px] md:grid md:grid-cols-2 md:gap-4">
 
             {/* ══════════ MOBILE ══════════ */}
-            <div className="space-y-4 md:hidden pb-32">
+            <div key={mobileTab} className="space-y-4 md:hidden pb-32 animate-in fade-in zoom-in-95 duration-300">
               {/* ── Dash tab ── */}
               {isDash && (
                 <>
@@ -277,30 +277,26 @@ export default function Dashboard() {
 
               {/* Tasks tab */}
               {isTasks && (
-                <div className="px-2">
+                <div className="px-2 space-y-5">
                   {/* Shield + Power-Up quick-access row */}
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 mt-4">
                     <button
                       type="button"
                       onClick={() => setShowShields(true)}
-                      className="glass rounded-2xl p-3 flex items-center gap-3 active:scale-95 transition-all shadow-md"
+                      className="glass rounded-2xl py-4 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all shadow-md"
                     >
-                      <span className="text-3xl leading-none">🛡️</span>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Shields</p>
-                        <p className="text-xl font-black text-foreground">{stats?.shields ?? 0}</p>
-                      </div>
+                      <span className="text-4xl leading-none">🛡️</span>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Shields</p>
+                      <p className="text-2xl font-black text-foreground leading-none">{stats?.shields ?? 0}</p>
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowPowerUps(true)}
-                      className="glass rounded-2xl p-3 flex items-center gap-3 active:scale-95 transition-all shadow-md"
+                      className="glass rounded-2xl py-4 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all shadow-md"
                     >
-                      <span className="text-3xl leading-none">⚡</span>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Power-Ups</p>
-                        <p className="text-xl font-black text-foreground">{stats?.power_ups ?? 0}</p>
-                      </div>
+                      <span className="text-4xl leading-none">⚡</span>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Power-Ups</p>
+                      <p className="text-2xl font-black text-foreground leading-none">{stats?.power_ups ?? 0}</p>
                     </button>
                   </div>
 
@@ -341,7 +337,7 @@ export default function Dashboard() {
           </div>
 
           {/* Footer — pushed above bottom nav with enough margin */}
-          <div className="mt-3 mb-24 md:mb-2 flex flex-col items-center justify-center opacity-60 transition-opacity hover:opacity-100">
+          <div className="mt-0 mb-24 md:mb-2 flex flex-col items-center justify-center opacity-60 transition-opacity hover:opacity-100">
             <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
               Made with <span className="text-red-500 hover:scale-110 transition-transform duration-300">❤️</span> by{" "}
               <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
