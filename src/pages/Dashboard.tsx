@@ -248,8 +248,8 @@ export default function Dashboard() {
         />
       )}
 
+      <Navbar />
       <div key={sunriseKey} className="page-sunrise relative z-10 flex flex-col min-h-screen pt-[4.5rem] md:pt-[5.5rem]">
-        <Navbar />
 
         {/* ── Greeting ── */}
         <div className="hidden md:block">
