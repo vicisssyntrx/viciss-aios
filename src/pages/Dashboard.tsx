@@ -12,6 +12,8 @@ import GrowthGraph from "@/components/GrowthGraph";
 import JourneyInsights from "@/components/JourneyInsights";
 import BottomActionBar from "@/components/BottomActionBar";
 import MobileBoostCards from "@/components/MobileBoostCards";
+import ShieldShop from "@/components/ShieldShop";
+import PowerUpOverlay from "@/components/PowerUpOverlay";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
@@ -67,6 +69,8 @@ export default function Dashboard() {
   const { data: todayLog, isLoading: todayLogLoading } = useTodayLog(habitsFetched);
   const { saveProgress, resetProgress } = useSaveProgress();
   const [isResetting, setIsResetting] = useState(false);
+  const [showShields, setShowShields] = useState(false);
+  const [showPowerUps, setShowPowerUps] = useState(false);
   useMidnightInvalidation();
 
   const queriesLoading = habitsLoading || statsLoading;
@@ -158,18 +162,45 @@ export default function Dashboard() {
 
               {/* ── Mobile flow ── */}
               <div className="space-y-3 md:hidden">
-                {/* Graph + Journey Insights: horizontal snap-scroll peek row */}
+                {/* Horizontal snap-scroll: Graph | Insights + Boost cards */}
                 <div
                   className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1"
                   style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
                 >
-                  {/* Graph card — slightly narrower so Insights peeks */}
+                  {/* Card 1: Growth Graph */}
                   <div className="snap-start flex-shrink-0 w-[82vw] max-w-[340px]">
                     <GrowthGraph />
                   </div>
-                  {/* Journey Insights card — peeks ~20px on the right */}
-                  <div className="snap-start flex-shrink-0 w-[82vw] max-w-[340px] pr-4">
+
+                  {/* Card 2: Journey Insights + compact Shields & Power-Ups below */}
+                  <div className="snap-start flex-shrink-0 w-[82vw] max-w-[340px] pr-4 flex flex-col gap-2">
                     <JourneyInsights />
+
+                    {/* Compact Shields + Power-Ups row */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowShields(true)}
+                        className="glass rounded-2xl p-3 flex items-center gap-3 relative transition-all active:scale-95"
+                      >
+                        <span className="text-3xl leading-none">🛡️</span>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Shields</p>
+                          <p className="text-xl font-black text-foreground">{stats?.shields ?? 0}</p>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowPowerUps(true)}
+                        className="glass rounded-2xl p-3 flex items-center gap-3 relative transition-all active:scale-95"
+                      >
+                        <span className="text-3xl leading-none">⚡</span>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Power-Ups</p>
+                          <p className="text-xl font-black text-foreground">{stats?.power_ups ?? 0}</p>
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -190,10 +221,11 @@ export default function Dashboard() {
                 <div className="dashboard-rise rise-delay-3">
                   <OutcomeCards />
                 </div>
-                <div className="dashboard-rise rise-delay-5">
-                  <MobileBoostCards />
-                </div>
               </div>
+
+              {/* ShieldShop + PowerUpOverlay modals (mobile) */}
+              {showShields && <ShieldShop onClose={() => setShowShields(false)} />}
+              {showPowerUps && <PowerUpOverlay onClose={() => setShowPowerUps(false)} />}
 
               {/* ── Desktop left column — Habits + Actions + Shields/Power-Ups ── */}
               <div className="hidden md:block space-y-2">
