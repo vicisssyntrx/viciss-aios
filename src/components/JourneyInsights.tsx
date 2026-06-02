@@ -1,9 +1,9 @@
 import { useDailyLogs, getDenseLogs } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 import { todayYmdLocal } from "@/lib/date";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { parseISO, differenceInDays } from "date-fns";
-import { RotateCw } from "lucide-react";
+
 
 interface JourneyInsightsProps {
   activeTab?: string;
@@ -32,8 +32,9 @@ export default function JourneyInsights({ activeTab }: JourneyInsightsProps) {
   const denseLogs = getDenseLogs(logs, stats?.start_date);
 
   const formatGrowth = (value: number | undefined) => {
-    if (value === undefined || Number.isNaN(value)) return "1x";
-    return Number(value.toFixed(2)).toString() + "x";
+    if (value === undefined || Number.isNaN(value)) return "1.0000x";
+    // Show 4 decimal places so values like 1.0302 are not rounded to 1.03
+    return value.toFixed(4) + "x";
   };
 
   const totalDays = denseLogs.length || 0;
