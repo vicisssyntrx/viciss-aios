@@ -178,7 +178,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
   const handleSignOut = async () => {
     await signOut();
-    onClose();
+    onClose?.();
   };
 
   const handleUpdateProfile = async () => {
@@ -347,7 +347,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
     qc.invalidateQueries({ queryKey: ["user_stats"] });
     toast.success("All data reset to defaults!");
     setResetting(false);
-    onClose();
+    onClose?.();
   };
 
   const handleInstallApp = async () => {

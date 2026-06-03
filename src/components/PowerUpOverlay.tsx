@@ -3,7 +3,7 @@ import { useUserStats } from "@/hooks/useUserStats";
 import { useAuth } from "@/contexts/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { X, Zap } from "lucide-react";
+import { X, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
@@ -20,61 +20,92 @@ export default function PowerUpOverlay({ onClose, onPurchased }: Props) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [showStreak, setShowStreak] = useState(false);
+  const [recovering, setRecovering] = useState<string | null>(null);
 
   const denseLogs = getDenseLogs(logs, stats?.start_date);
   const today = todayYmdLocal();
-  // Recoverable days = fully missed (0 completions) OR partially completed, neither shielded nor recovered, and not today
+
+  // Recoverable gaps = missed days (0 completions, no shield) OR shielded days — both lost growth
+  // Partial days are also recoverable. Exclude today and already-recovered.
   const gaps = denseLogs.filter(
-    (l) => l.completed_count < l.total_count && !l.shield_used && !l.is_recovered && l.date !== today
+    (l) =>
+      l.completed_count < l.total_count &&
+      !l.is_recovered &&
+      l.date !== today
   );
+
+  // Separate into categories for display
+  const shieldedGaps = gaps.filter((l) => l.shield_used && l.completed_count === 0);
+  const missedGaps = gaps.filter((l) => !l.shield_used && l.completed_count === 0);
+  const partialGaps = gaps.filter((l) => l.completed_count > 0 && l.completed_count < l.total_count);
 
   const recover = async (log: (typeof gaps)[number]) => {
     if (!user || !stats || stats.power_ups < 1) {
       toast.error("No power-ups available");
       return;
     }
-    
-    // Buying a gap restores the historical compound chain permanently upwards.
-    const recoveryGrowth = stats.current_growth * 1.01;
-    
-    // UPSERT with is_recovered=true (NOT completed_count=-1 which violates DB constraints)
-    const { error: logErr } = await supabase
-      .from("daily_logs")
-      .upsert({
-        user_id: user.id,
-        date: log.date,
-        completed_count: 0,
-        total_count: log.total_count,
-        shield_used: false,
-        streak_after: 0,
-        growth_before: stats.current_growth,
-        growth_after: recoveryGrowth,
-        locked: true,
-        is_recovered: true,
-      } as any, { onConflict: "user_id,date" });
-      
-    if (logErr) {
-      toast.error(logErr.message);
-      return;
-    }
 
-    const { error: statErr } = await supabase
-      .from("user_stats")
-      .update({
-        power_ups: stats.power_ups - 1,
-        current_growth: recoveryGrowth,
-      })
-      .eq("user_id", user.id);
-      
-    if (statErr) {
-      toast.error(statErr.message);
-      return;
+    setRecovering(log.date);
+    try {
+      // Use the server-side RPC for atomic, historically accurate recovery
+      const { data, error } = await supabase.rpc("recover_day_with_powerup", {
+        p_date: log.date,
+      } as any);
+
+      if (error) {
+        toast.error("Recovery failed: " + error.message);
+        return;
+      }
+
+      const result = data as { success: boolean; message: string };
+      if (!result.success) {
+        toast.error(result.message || "Recovery failed");
+        return;
+      }
+
+      qc.invalidateQueries({ queryKey: ["daily_logs"] });
+      qc.invalidateQueries({ queryKey: ["user_stats"] });
+      toast.success(`${log.shield_used ? "Shield day" : "Missed day"} recovered! +1% growth 🔥`);
+      onPurchased?.();
+    } finally {
+      setRecovering(null);
     }
-    
-    qc.invalidateQueries({ queryKey: ["daily_logs"] });
-    qc.invalidateQueries({ queryKey: ["user_stats"] });
-    toast.success("Gap recovered! 🔥");
-    onPurchased?.();
+  };
+
+  const renderGapGroup = (title: string, icon: React.ReactNode, list: typeof gaps) => {
+    if (list.length === 0) return null;
+    return (
+      <div className="mb-3">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1">
+          {icon} {title}
+        </p>
+        <div className="space-y-2">
+          {[...list].reverse().map((gap) => (
+            <div key={gap.id} className="glass rounded-xl p-3 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">{format(parseISO(gap.date), "MMM d, yyyy")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {gap.shield_used
+                    ? "Shield used — no growth earned"
+                    : gap.completed_count === 0
+                    ? "Fully missed — no growth earned"
+                    : `Partial (${gap.completed_count}/${gap.total_count} habits)`}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => recover(gap)}
+                disabled={!stats || stats.power_ups < 1 || recovering === gap.date}
+                className="bg-primary text-primary-foreground"
+              >
+                <Zap className="h-3 w-3 mr-1" />
+                {recovering === gap.date ? "..." : "Recover"}
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return createPortal(
@@ -99,34 +130,23 @@ export default function PowerUpOverlay({ onClose, onPurchased }: Props) {
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground mb-4">
-          Recover missed unshielded gaps. Each recovery uses 1 power-up.
+        <p className="text-sm text-muted-foreground mb-1">
+          Recover missed, shielded, or partial days. Each uses 1 power-up and restores +1% growth.
         </p>
-        <p className="text-xs text-muted-foreground mb-3">
-          You earn 1 power-up for every 7 consecutive streak days.
+        <p className="text-xs text-muted-foreground mb-4">
+          Earn 1 power-up for every 7 consecutive streak days.
         </p>
-        <Button type="button" variant="secondary" onClick={() => setShowStreak(true)} className="w-full mb-2">
+
+        <Button type="button" variant="secondary" onClick={() => setShowStreak(true)} className="w-full mb-4">
           Open Streak Calendar
         </Button>
+
         {gaps.length > 0 ? (
-          <div className="space-y-2">
-            {[...gaps].reverse().map((gap) => (
-              <div key={gap.id} className="glass rounded-xl p-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">{format(parseISO(gap.date), "MMM d, yyyy")}</p>
-                  <p className="text-xs text-muted-foreground">Missed day</p>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => recover(gap)}
-                  disabled={!stats || stats.power_ups < 1}
-                  className="bg-primary text-primary-foreground"
-                >
-                  <Zap className="h-3 w-3 mr-1" /> Recover
-                </Button>
-              </div>
-            ))}
-          </div>
+          <>
+            {renderGapGroup("Shielded Days (0 growth earned)", <Shield className="h-3 w-3 text-blue-400" />, shieldedGaps)}
+            {renderGapGroup("Missed Days (no shield)", <span>❌</span>, missedGaps)}
+            {renderGapGroup("Partial Days", <span>⚡</span>, partialGaps)}
+          </>
         ) : (
           <div className="text-center text-sm text-muted-foreground py-4">
             No recoverable gaps found.
