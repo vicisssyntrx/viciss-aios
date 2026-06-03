@@ -57,8 +57,8 @@ export function getDenseLogs(logs: DailyLog[] | undefined | null, startDateStr?:
             total_count: 1,
             shield_used: false,
             streak_after: 0,
-            growth_before: 1.0,
-            growth_after: 1.0,
+            growth_before: null as any,
+            growth_after: null as any,
             locked: true,
             is_recovered: false,
             created_at: new Date().toISOString()
