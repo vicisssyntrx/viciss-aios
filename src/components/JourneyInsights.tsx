@@ -26,9 +26,6 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
   const completedDays = denseLogs.filter(
     (l) => (l.completed_count === l.total_count && l.total_count > 0) || (l as any).is_recovered
   ).length || 0;
-  const activeDays = denseLogs.filter(
-    (l) => l.completed_count > 0 || (l as any).is_recovered
-  ).length || 0;
 
   const totalProgramDays = useMemo(() => {
     if (stats?.start_date && stats?.end_date) {
@@ -40,12 +37,27 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
     return 365;
   }, [stats?.start_date, stats?.end_date]);
 
+  // Days elapsed from start_date up to and including today
+  const elapsedDays = useMemo(() => {
+    if (!stats?.start_date) return 0;
+    const start = parseISO(stats.start_date);
+    const todayDate = parseISO(today);
+    const diff = differenceInDays(todayDate, start) + 1; // +1 to include today
+    return Math.max(1, diff);
+  }, [stats?.start_date, today]);
+
+  // Completion % = perfect/recovered days ÷ days elapsed so far (not total program days)
+  const journeyCompletionPct = useMemo(() => {
+    const pct = Math.round((completedDays / elapsedDays) * 100);
+    return Math.min(100, Math.max(0, pct));
+  }, [completedDays, elapsedDays]);
+
   // peakY = where the ground surface sits — pushed low so values have room above
   const hills = [
-    { label: "GROWTH",      value: formatGrowth(stats?.current_growth), color: "#fbbf24", peakX: 50,  peakY: 78 },
-    { label: "PERFECT",     value: `${completedDays}/${totalProgramDays}`, color: "#4ade80", peakX: 150, peakY: 92 },
-    { label: "ACTIVE DAYS", value: String(activeDays),                   color: "#60a5fa", peakX: 255, peakY: 83 },
-    { label: "MISSED",      value: String(missedDays),                   color: "#f87171", peakX: 355, peakY: 98 },
+    { label: "GROWTH",    value: formatGrowth(stats?.current_growth),       color: "#fbbf24", peakX: 50,  peakY: 78 },
+    { label: "PERFECT",   value: `${completedDays}/${totalProgramDays}`,     color: "#4ade80", peakX: 150, peakY: 92 },
+    { label: "COMPLETED", value: `${journeyCompletionPct}%`,                 color: "#60a5fa", peakX: 255, peakY: 83 },
+    { label: "MISSED",    value: String(missedDays),                         color: "#f87171", peakX: 355, peakY: 98 },
   ];
 
   // Smooth terrain — peaks pushed to bottom third of the card
