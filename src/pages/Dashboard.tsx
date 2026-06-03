@@ -10,7 +10,7 @@ import HabitList from "@/components/HabitList";
 import OutcomeCards from "@/components/OutcomeCards";
 import GrowthGraph from "@/components/GrowthGraph";
 import JourneyInsights from "@/components/JourneyInsights";
-import BottomActionBar from "@/components/BottomActionBar";
+import FloatingManageHabitsButton from "@/components/FloatingManageHabitsButton";
 import ShieldShop from "@/components/ShieldShop";
 import PowerUpOverlay from "@/components/PowerUpOverlay";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -104,7 +104,7 @@ export default function Dashboard() {
   const { data: habits, isLoading: habitsLoading, isFetched: habitsFetched } = useHabits();
   const { data: stats, isLoading: statsLoading, error: statsError } = useUserStats();
   const { data: todayLog, isLoading: todayLogLoading } = useTodayLog(habitsFetched);
-  const { saveProgress, resetProgress } = useSaveProgress();
+  const { saveProgress } = useSaveProgress();
   const [isResetting, setIsResetting] = useState(false);
   const [showShields, setShowShields] = useState(false);
   const [showPowerUps, setShowPowerUps] = useState(false);
@@ -185,29 +185,28 @@ export default function Dashboard() {
     if (!habits?.length) return;
     if (statsLoading || todayLogLoading) return;
 
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       // Auto save after 600ms of inactivity to prevent spam.
+      // Capture the exact state we are saving
+      const idsBeingSaved = new Set(completedIds);
+      
       // Pass silent = true to avoid success toast spam, unless it's a perfect day
-      saveProgress(habits, completedIds, todayLog, undefined, true);
-      setHasLocalEdits(false);
+      await saveProgress(habits, idsBeingSaved, todayLog, undefined, true);
+      
+      // Only clear the local edits flag if the user hasn't toggled anything else while saving
+      setCompletedIds((currentIds) => {
+        const isSame = currentIds.size === idsBeingSaved.size && 
+          [...currentIds].every(id => idsBeingSaved.has(id));
+        
+        if (isSame) {
+          setHasLocalEdits(false);
+        }
+        return currentIds;
+      });
     }, 600);
 
     return () => clearTimeout(timer);
   }, [completedIds, hasLocalEdits, habits, todayLog, statsLoading, todayLogLoading, saveProgress]);
-
-  const handleReset = async () => {
-    if (!stats || !user) return;
-    setIsResetting(true);
-    try {
-      const success = await resetProgress(todayLog);
-      if (success) {
-        setCompletedIds(new Set());
-        setHasLocalEdits(true);
-      }
-    } finally {
-      setIsResetting(false);
-    }
-  };
 
   if (loading) return <LoadingScreen message="Restoring your session…" />;
   if (!user) return <Navigate to="/auth" replace />;
@@ -307,11 +306,6 @@ export default function Dashboard() {
                   <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
 
                   <div className="-mx-2 sm:-mx-4">
-                    <BottomActionBar
-                      onReset={handleReset}
-                      disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                      hasHabits={!!habits?.length}
-                    />
                   </div>
                 </div>
               )}
@@ -324,11 +318,6 @@ export default function Dashboard() {
             {/* Left column */}
             <div className="hidden md:block space-y-2">
               <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
-              <BottomActionBar
-                onReset={handleReset}
-                disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
-                hasHabits={!!habits?.length}
-              />
               <MobileBoostCards />
             </div>
 
@@ -393,6 +382,7 @@ export default function Dashboard() {
         </div>
       </div>
 
+      <FloatingManageHabitsButton />
     </div>
   );
 }

@@ -96,9 +96,11 @@ export function useSaveProgress() {
       return;
     }
 
-    qc.invalidateQueries({ queryKey: ["user_stats"], exact: false });
-    qc.invalidateQueries({ queryKey: ["daily_logs"], exact: false });
-    qc.invalidateQueries({ queryKey: ["daily_log_today"], exact: false });
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["user_stats"], exact: false }),
+      qc.invalidateQueries({ queryKey: ["daily_logs"], exact: false }),
+      qc.invalidateQueries({ queryKey: ["daily_log_today"], exact: false })
+    ]);
 
     // Toast feedback
     const wasPreviouslyLocked = !!todayLog?.locked;
