@@ -58,10 +58,10 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
 
   // Hill definitions — peakX and peakY (SVG coords, low Y = tall hill)
   const hills = [
-    { label: "GROWTH",      value: formatGrowth(finalGrowth), color: "#fbbf24", peakX: 68,  peakY: 72 },
-    { label: "PERFECT",     value: `${completedDays}/${totalProgramDays}`, color: "#4ade80", peakX: 152, peakY: 88 },
-    { label: "COMPLETED",   value: `${journeyCompletionPct}%`,             color: "#60a5fa", peakX: 258, peakY: 80 },
-    { label: "MISSED",      value: String(missedDays),                   color: "#f87171", peakX: 358, peakY: 94 },
+    { label: "GROWTH",      value: formatGrowth(finalGrowth), color: "#fbbf24", peakX: 74,  peakY: 72 },
+    { label: "PERFECT",     value: `${completedDays}/${totalProgramDays}`, color: "#4ade80", peakX: 160, peakY: 88 },
+    { label: "COMPLETED",   value: `${journeyCompletionPct}%`,             color: "#60a5fa", peakX: 254, peakY: 80 },
+    { label: "MISSED",      value: String(missedDays),                   color: "#f87171", peakX: 334, peakY: 94 },
   ];
 
   // Valley Y between adjacent hills
@@ -71,13 +71,13 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
   const terrainPath = `
     M0,118
     C28,118 42,74 ${hills[0].peakX},${hills[0].peakY}
-    C90,${hills[0].peakY} 95,${v(hills[0].peakY, hills[1].peakY)} 110,${v(hills[0].peakY, hills[1].peakY)}
-    C124,${v(hills[0].peakY, hills[1].peakY)} 132,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
-    C172,${hills[1].peakY} 184,${v(hills[1].peakY, hills[2].peakY)} 205,${v(hills[1].peakY, hills[2].peakY)}
+    C90,${hills[0].peakY} 98,${v(hills[0].peakY, hills[1].peakY)} 116,${v(hills[0].peakY, hills[1].peakY)}
+    C134,${v(hills[0].peakY, hills[1].peakY)} 142,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
+    C182,${hills[1].peakY} 190,${v(hills[1].peakY, hills[2].peakY)} 208,${v(hills[1].peakY, hills[2].peakY)}
     C226,${v(hills[1].peakY, hills[2].peakY)} 238,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
-    C278,${hills[2].peakY} 290,${v(hills[2].peakY, hills[3].peakY)} 308,${v(hills[2].peakY, hills[3].peakY)}
-    C326,${v(hills[2].peakY, hills[3].peakY)} 342,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
-    C374,${hills[3].peakY} 390,110 400,110
+    C274,${hills[2].peakY} 282,${v(hills[2].peakY, hills[3].peakY)} 296,${v(hills[2].peakY, hills[3].peakY)}
+    C310,${v(hills[2].peakY, hills[3].peakY)} 322,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
+    C354,${hills[3].peakY} 380,110 400,110
     L400,150 L0,150 Z
   `.trim();
 
@@ -134,7 +134,7 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
                 x={h.peakX}
                 y={h.peakY - 22}
                 textAnchor="middle"
-                fontSize="22"
+                fontSize="24"
                 fontWeight="800"
                 fill={h.color}
                 fontFamily="inherit"
@@ -147,7 +147,7 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
                 x={h.peakX}
                 y={h.peakY - 6}
                 textAnchor="middle"
-                fontSize="7"
+                fontSize="8.5"
                 fontWeight="600"
                 letterSpacing="0.5"
                 fill="#64748b"
