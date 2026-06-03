@@ -189,7 +189,14 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
                         tickLine={false}
                         tickFormatter={(v) => String(v)}
                       />
-                      <YAxis tick={{ fill: "hsl(0,0%,55%)", fontSize: 11 }} axisLine={false} tickLine={false} domain={["dataMin", "auto"]} width={44} />
+                      <YAxis 
+                        tick={{ fill: "hsl(0,0%,55%)", fontSize: 11 }} 
+                        axisLine={false} 
+                        tickLine={false} 
+                        domain={["dataMin", (dataMax: number) => Math.max(dataMax, 1.05)]} 
+                        tickCount={6}
+                        width={44} 
+                      />
                       <Tooltip
                         labelFormatter={(v, payload) => {
                           const first = payload?.[0]?.payload as { label?: string } | undefined;

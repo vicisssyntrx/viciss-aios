@@ -1,33 +1,17 @@
 import { useState } from "react";
-import { Save, RotateCcw, ListPlus } from "lucide-react";
+import { RotateCcw, ListPlus } from "lucide-react";
 import HabitCreation from "./HabitCreation";
 import HabitEditList from "./HabitEditList";
 import { createPortal } from "react-dom";
 
 interface Props {
-  onSave: () => Promise<boolean | undefined>;
   onReset: () => void;
   disabled: boolean;
   hasHabits: boolean;
 }
 
-export default function BottomActionBar({ onSave, onReset, disabled, hasHabits }: Props) {
-  const [saving, setSaving] = useState(false);
-  const [pulsing, setPulsing] = useState(false);
+export default function BottomActionBar({ onReset, disabled, hasHabits }: Props) {
   const [showManage, setShowManage] = useState(false);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const result = await onSave();
-      if (result) {
-        setPulsing(true);
-        setTimeout(() => setPulsing(false), 1500);
-      }
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <>
@@ -57,42 +41,31 @@ export default function BottomActionBar({ onSave, onReset, disabled, hasHabits }
 
       {/* Action bar (inline; placed by parent) */}
       <div className="glass rounded-2xl px-3 py-3">
-        <div className="flex items-center gap-2">
-          {/* Add/Edit Habits (Left) */}
+        <div className="flex items-center justify-center gap-4">
+          {/* Add/Edit Habits */}
           <button
             onClick={() => setShowManage(true)}
-            className={`flex-none flex items-center justify-center rounded-2xl h-12 w-12 transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 rounded-2xl h-12 font-medium transition-all ${
               !hasHabits
                 ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 border border-primary/60 animate-pulse-subtle"
-                : "glass text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                : "bg-white/5 border border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/10"
             }`}
           >
-            <ListPlus className="h-[22px] w-[22px]" />
+            <ListPlus className="h-[20px] w-[20px]" />
+            Add Habits
           </button>
 
-          {/* Reset (Middle-left) */}
+          {/* Reset */}
           <button
             onClick={onReset}
-            disabled={saving}
-            className="flex-none flex items-center justify-center glass rounded-2xl h-12 w-12 text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            disabled={disabled}
+            className="flex-1 flex items-center justify-center gap-2 rounded-2xl h-12 font-medium bg-white/5 border border-white/10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
-            <RotateCcw className="h-[22px] w-[22px]" />
-          </button>
-
-          {/* Save Progress (Right, fills space) */}
-          <button
-            onClick={handleSave}
-            disabled={disabled || saving}
-            className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl font-semibold text-base bg-primary text-primary-foreground shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
-              pulsing ? "animate-red-pulse" : ""
-            }`}
-          >
-            <Save className="h-6 w-6" />
-            {saving ? "Saving…" : "Save Progress"}
+            <RotateCcw className="h-[18px] w-[18px]" />
+            Reset
           </button>
         </div>
       </div>
-
     </>
   );
 }

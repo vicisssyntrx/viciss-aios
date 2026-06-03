@@ -171,25 +171,29 @@ export default function Dashboard() {
     setHasLocalEdits(true);
   };
 
-  const handleSave = async () => {
-    if (isTodayLocked) {
-      toast.info("Today's progress is already saved.");
+  // Auto-save logic
+  const isInitialMount = useRef(true);
+  
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
       return;
     }
-    if (todayLogLoading) {
-      toast.info("Please wait, checking today's status...");
-      return;
-    }
-    if (statsLoading) {
-      toast.info("Please wait, loading stats...");
-      return;
-    }
-    if (!habits?.length) {
-      toast.error("No habits found.");
-      return;
-    }
-    return saveProgress(habits, completedIds, todayLog);
-  };
+    
+    // Only auto-save if we actually made local edits
+    if (!hasLocalEdits) return;
+    if (!habits?.length) return;
+    if (statsLoading || todayLogLoading) return;
+
+    const timer = setTimeout(() => {
+      // Auto save after 600ms of inactivity to prevent spam.
+      // Pass silent = true to avoid success toast spam, unless it's a perfect day
+      saveProgress(habits, completedIds, todayLog, undefined, true);
+      setHasLocalEdits(false);
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [completedIds, hasLocalEdits, habits, todayLog, statsLoading, todayLogLoading, saveProgress]);
 
   const handleReset = async () => {
     if (!stats || !user) return;
@@ -304,7 +308,6 @@ export default function Dashboard() {
 
                   <div className="-mx-2 sm:-mx-4">
                     <BottomActionBar
-                      onSave={handleSave}
                       onReset={handleReset}
                       disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
                       hasHabits={!!habits?.length}
@@ -322,7 +325,6 @@ export default function Dashboard() {
             <div className="hidden md:block space-y-2">
               <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
               <BottomActionBar
-                onSave={handleSave}
                 onReset={handleReset}
                 disabled={!habits?.length || statsLoading || todayLogLoading || !!statsError || isTodayLocked}
                 hasHabits={!!habits?.length}

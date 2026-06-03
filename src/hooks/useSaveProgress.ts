@@ -30,7 +30,8 @@ export function useSaveProgress() {
     habits: Habit[],
     completedIds: Set<string>,
     todayLog: DailyLog | null | undefined,
-    dateOverride?: string
+    dateOverride?: string,
+    silent = false
   ) => {
     if (!user) return;
 
@@ -72,7 +73,7 @@ export function useSaveProgress() {
       qc.invalidateQueries({ queryKey: ["daily_logs"], exact: false });
       qc.invalidateQueries({ queryKey: ["daily_log_today"], exact: false });
       qc.invalidateQueries({ queryKey: ["daily_log_date"], exact: false });
-      toast.success("Progress saved!");
+      if (!silent) toast.success("Progress saved!");
       return true;
     }
 
@@ -99,15 +100,18 @@ export function useSaveProgress() {
     qc.invalidateQueries({ queryKey: ["daily_logs"], exact: false });
     qc.invalidateQueries({ queryKey: ["daily_log_today"], exact: false });
 
-    // Toast feedback — we don't know the exact outcome anymore (server computed it),
-    // so infer from the inputs.
+    // Toast feedback
     const wasPreviouslyLocked = !!todayLog?.locked;
     if (completed === total) {
-      toast.success(wasPreviouslyLocked ? "Progress updated!" : "Perfect day! +10 coins 🪙");
-    } else if (completed === 0) {
-      toast.warning("Day saved. Streak may have reset.");
+      // Only announce perfect day if it wasn't already locked, or if not silent
+      if (!wasPreviouslyLocked) {
+        toast.success("Perfect day! +10 coins 🪙");
+      }
     } else {
-      toast.success("Progress saved!");
+      if (!silent) {
+        if (completed === 0) toast.warning("Day saved. Streak may have reset.");
+        else toast.success("Progress saved!");
+      }
     }
 
     return true;
