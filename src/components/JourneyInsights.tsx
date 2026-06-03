@@ -26,6 +26,9 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
   const completedDays = denseLogs.filter(
     (l) => (l.completed_count === l.total_count && l.total_count > 0) || (l as any).is_recovered
   ).length || 0;
+  const activeDays = denseLogs.filter(
+    (l) => l.completed_count > 0 || (l as any).is_recovered
+  ).length || 0;
 
   const totalProgramDays = useMemo(() => {
     if (stats?.start_date && stats?.end_date) {
@@ -37,53 +40,41 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
     return 365;
   }, [stats?.start_date, stats?.end_date]);
 
-  // Days elapsed from start_date up to and including today
-  const elapsedDays = useMemo(() => {
-    if (!stats?.start_date) return 0;
-    const start = parseISO(stats.start_date);
-    const todayDate = parseISO(today);
-    const diff = differenceInDays(todayDate, start) + 1; // +1 to include today
-    return Math.max(1, diff);
-  }, [stats?.start_date, today]);
-
-  // Completion % = perfect/recovered days ÷ days elapsed so far (not total program days)
-  const journeyCompletionPct = useMemo(() => {
-    const pct = Math.round((completedDays / elapsedDays) * 100);
-    return Math.min(100, Math.max(0, pct));
-  }, [completedDays, elapsedDays]);
-
-  // peakY = where the ground surface sits — pushed low so values have room above
+  // Hill definitions — peakX and peakY (SVG coords, low Y = tall hill)
   const hills = [
-    { label: "GROWTH",    value: formatGrowth(stats?.current_growth),       color: "#fbbf24", peakX: 50,  peakY: 78 },
-    { label: "PERFECT",   value: `${completedDays}/${totalProgramDays}`,     color: "#4ade80", peakX: 150, peakY: 92 },
-    { label: "COMPLETED", value: `${journeyCompletionPct}%`,                 color: "#60a5fa", peakX: 255, peakY: 83 },
-    { label: "MISSED",    value: String(missedDays),                         color: "#f87171", peakX: 355, peakY: 98 },
+    { label: "GROWTH",      value: formatGrowth(stats?.current_growth), color: "#fbbf24", peakX: 50,  peakY: 72 },
+    { label: "PERFECT",     value: `${completedDays}/${totalProgramDays}`, color: "#4ade80", peakX: 152, peakY: 88 },
+    { label: "ACTIVE DAYS", value: String(activeDays),                   color: "#60a5fa", peakX: 258, peakY: 80 },
+    { label: "MISSED",      value: String(missedDays),                   color: "#f87171", peakX: 358, peakY: 94 },
   ];
 
-  // Smooth terrain — peaks pushed to bottom third of the card
-  const terrain = `
+  // Valley Y between adjacent hills
+  const v = (a: number, b: number) => Math.max(a, b) + 20;
+
+  // Smooth terrain path through all 4 peaks
+  const terrainPath = `
     M0,118
-    C22,118 34,80 ${hills[0].peakX},${hills[0].peakY}
-    C66,${hills[0].peakY} 78,110 102,110
-    C126,110 134,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
-    C166,${hills[1].peakY} 180,110 204,110
-    C228,110 238,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
-    C272,${hills[2].peakY} 284,110 308,110
-    C332,110 342,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
-    C368,${hills[3].peakY} 384,114 400,114
-    L400,145 L0,145 Z
+    C22,118 34,74 ${hills[0].peakX},${hills[0].peakY}
+    C66,${hills[0].peakY} 78,${v(hills[0].peakY, hills[1].peakY)} 101,${v(hills[0].peakY, hills[1].peakY)}
+    C124,${v(hills[0].peakY, hills[1].peakY)} 132,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
+    C172,${hills[1].peakY} 184,${v(hills[1].peakY, hills[2].peakY)} 205,${v(hills[1].peakY, hills[2].peakY)}
+    C226,${v(hills[1].peakY, hills[2].peakY)} 238,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
+    C278,${hills[2].peakY} 290,${v(hills[2].peakY, hills[3].peakY)} 308,${v(hills[2].peakY, hills[3].peakY)}
+    C326,${v(hills[2].peakY, hills[3].peakY)} 342,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
+    C374,${hills[3].peakY} 390,110 400,110
+    L400,150 L0,150 Z
   `.trim();
 
-  const terrainEdge = `
-    M0,118
-    C22,118 34,80 ${hills[0].peakX},${hills[0].peakY}
-    C66,${hills[0].peakY} 78,110 102,110
-    C126,110 134,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
-    C166,${hills[1].peakY} 180,110 204,110
-    C228,110 238,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
-    C272,${hills[2].peakY} 284,110 308,110
-    C332,110 342,${hills[3].peakY} ${hills[3].peakX},${hills[3].peakY}
-    C368,${hills[3].peakY} 384,114 400,114
+  const edgePath = terrainPath.replace(/L400,150 L0,150 Z/, "");
+
+  // Background depth layer path — gentler, lower hills
+  const bgPath = `
+    M0,125 Q60,108 120,118 T240,112 T360,118 T400,120 L400,150 L0,150 Z
+  `.trim();
+
+  // Deepest shadow layer
+  const shadowPath = `
+    M0,132 Q80,122 160,128 T320,124 T400,130 L400,150 L0,150 Z
   `.trim();
 
   return (
@@ -92,54 +83,57 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
         <h3 className="text-sm uppercase tracking-wider text-muted-foreground">Journey Insights</h3>
       </div>
 
-      <div className="glass rounded-2xl overflow-hidden">
+      {/* Card: fixed height, overflow-hidden to clip SVG to rounded corners */}
+      <div
+        className="glass rounded-2xl overflow-hidden w-full"
+        style={{ height: "148px" }}
+      >
         <svg
-          viewBox="0 0 400 140"
-          preserveAspectRatio="xMidYMid meet"
-          className="w-full"
-          style={{ display: "block", height: "140px" }}
+          viewBox="0 0 400 148"
+          preserveAspectRatio="xMidYMid slice"
+          className="block w-full h-full"
         >
-          {/* Background depth hill */}
-          <path
-            d="M0,122 Q80,104 160,116 T320,110 T400,118 L400,145 L0,145 Z"
-            className="fill-[#14472e] dark:fill-[#081910]"
-          />
+          {/* ── Deepest shadow (darkest, furthest back) ── */}
+          <path d={shadowPath} className="fill-[#091a0f] dark:fill-[#04100a]" />
 
-          {/* Main terrain */}
-          <path d={terrain} className="fill-[#1e6b40] dark:fill-[#0d2e1c]" />
+          {/* ── Mid background hills (depth layer) ── */}
+          <path d={bgPath} className="fill-[#12331d] dark:fill-[#071509]" />
 
-          {/* Highlight edge */}
+          {/* ── Main terrain (foreground hills) ── */}
+          <path d={terrainPath} className="fill-[#1e6b40] dark:fill-[#0d2e1c]" />
+
+          {/* ── Soft highlight edge ── */}
           <path
-            d={terrainEdge}
+            d={edgePath}
             fill="none"
-            className="stroke-[#2d9658] dark:stroke-[#165c30]"
-            strokeWidth="1.5"
+            className="stroke-[#2d9658] dark:stroke-[#14422a]"
+            strokeWidth="1.2"
           />
 
-          {/* Values + labels per hill */}
+          {/* ── Value + label grouped per hill ── */}
           {hills.map((h) => (
             <g key={h.label}>
-              {/* Value — large, sits well above the hill peak */}
+              {/* Value — large bold, sits above peak */}
               <text
                 x={h.peakX}
-                y={h.peakY - 20}
+                y={h.peakY - 22}
                 textAnchor="middle"
-                fontSize="19"
+                fontSize="22"
                 fontWeight="800"
                 fill={h.color}
                 fontFamily="inherit"
-                style={{ filter: `drop-shadow(0 1px 8px ${h.color}99)` }}
+                style={{ filter: `drop-shadow(0 1px 10px ${h.color}bb)` }}
               >
                 {h.value}
               </text>
-              {/* Label — immediately below the value, tight spacing */}
+              {/* Label — just below the value, 14px gap */}
               <text
                 x={h.peakX}
                 y={h.peakY - 6}
                 textAnchor="middle"
                 fontSize="7"
                 fontWeight="600"
-                letterSpacing="0.6"
+                letterSpacing="0.5"
                 fill="#64748b"
                 fontFamily="inherit"
               >

@@ -7,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserStats } from "@/hooks/useUserStats";
 import { Home, ClipboardList } from "lucide-react";
-import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -36,13 +35,11 @@ export default function Navbar() {
     null;
   const initial = displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
   const displayStreak = stats?.streak || 0;
-  const scrollDirection = useScrollDirection();
-  const isHidden = scrollDirection === "down";
 
   return (
     <>
-      {/* ── Mobile: full glass navbar ── */}
-      <div className={`md:hidden fixed top-0 left-0 right-0 z-40 justify-center px-3 mt-4 transition-all duration-500 ease-in-out ${isHidden ? "-translate-y-[150%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
+      {/* ── Mobile: sticky glass navbar — always visible ── */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 px-3 pt-3 pb-1">
         <nav className="w-full flex items-center justify-between py-3 px-5 glass !transform-none pointer-events-auto">
           <h1 className="text-lg font-bold tracking-tight text-foreground ml-1">
             Vicissometer

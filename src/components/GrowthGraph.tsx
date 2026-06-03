@@ -87,34 +87,10 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
     };
   }, [safeLogs, range]);
 
-  // Recompute "actual" deterministically from safeLogs so backfilled edits don't create spikes/drops.
-  // We calculate the running factor using the entire safeLogs array, but only map details for the active filteredLogs range.
-  // 1% rule: daily multiplier is 1 + (completionRatio)*0.01
+  // Use stored growth_after from the DB for actual — this is the authoritative server-computed value.
+  // For placeholder days (gaps filled by getDenseLogs that have no real log entry), carry forward
+  // the last known growth value so the line stays flat rather than resetting to 1.0.
   const data = useMemo(() => {
-    // Sort all safeLogs sequentially from day 0
-    const sortedAll = [...safeLogs]
-      .map((l) => {
-        const d = parseISO(l.date);
-        return isValid(d) ? { ...l, _d: d } : null;
-      })
-      .filter((x): x is (typeof safeLogs[number] & { _d: Date }) => !!x)
-      .sort((a, b) => a._d.getTime() - b._d.getTime());
-
-    // Build a map of date string -> computed running actual growth factor
-    let runningActual = 1.0;
-    const runningGrowthMap = new Map<string, number>();
-
-    sortedAll.forEach((l) => {
-      const effectiveCompleted = (l as any).is_recovered ? l.total_count : l.completed_count;
-      const ratio =
-        l.total_count > 0
-          ? Math.max(0, Math.min(1, effectiveCompleted / l.total_count))
-          : 0;
-      runningActual = runningActual * (1 + ratio * 0.01);
-      runningGrowthMap.set(l.date, runningActual);
-    });
-
-    // Now map the active filteredLogs to include their pre-computed chronological running actuals
     const sortedFiltered = [...filteredLogs]
       .map((l) => {
         const d = parseISO(l.date);
@@ -123,18 +99,43 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
       .filter((x): x is (typeof filteredLogs[number] & { _d: Date }) => !!x)
       .sort((a, b) => a._d.getTime() - b._d.getTime());
 
-    return sortedFiltered.map((l) => {
-      const dayNum = differenceInDays(l._d, programStart);
-      const idealGrowth = Math.pow(1.01, Math.max(0, dayNum) + 1);
-      const actualVal = runningGrowthMap.get(l.date) ?? 1.0;
+    if (sortedFiltered.length === 0) return [];
+
+    // Find the last known growth_after before the filtered range starts (for carry-forward seed)
+    const rangeStart = sortedFiltered[0]._d;
+    const seedLog = [...safeLogs]
+      .filter((l) => {
+        const d = parseISO(l.date);
+        return isValid(d) && d < rangeStart && (l as any).growth_after != null;
+      })
+      .sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime())[0];
+
+    let lastKnownActual: number = (seedLog as any)?.growth_after ?? 1.0;
+
+    // Prepend a day-0 anchor so the graph always starts at a known baseline
+    const firstDayNum = differenceInDays(sortedFiltered[0]._d, programStart);
+    const anchor = firstDayNum > 0
+      ? [{ day: 0, label: format(programStart, labelFormat), actual: 1.0, ideal: 1.0 }]
+      : [];
+
+    const points = sortedFiltered.map((l) => {
+      const dayNum = Math.max(0, differenceInDays(l._d, programStart));
+      // Ideal: 1.01^dayNum means "if you completed every day perfectly since day 0"
+      const idealGrowth = Math.pow(1.01, dayNum + 1);
+      // Use server-stored growth_after; fall back to last known if gap/placeholder day
+      const storedAfter = (l as any).growth_after as number | null | undefined;
+      const actualVal = storedAfter != null && storedAfter > 0 ? storedAfter : lastKnownActual;
+      if (storedAfter != null && storedAfter > 0) lastKnownActual = storedAfter;
 
       return {
-        day: Math.max(0, dayNum),
+        day: dayNum,
         label: format(l._d, labelFormat),
         actual: Number(actualVal.toFixed(4)),
         ideal: Number(idealGrowth.toFixed(4)),
       };
     });
+
+    return [...anchor, ...points];
   }, [safeLogs, filteredLogs, labelFormat, programStart]);
 
   if (!safeLogs.length) {
