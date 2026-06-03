@@ -99,18 +99,11 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
       .filter((x): x is (typeof filteredLogs[number] & { _d: Date }) => !!x)
       .sort((a, b) => a._d.getTime() - b._d.getTime());
 
-    if (sortedFiltered.length === 0) return [];
-
-    // Prepend a day-0 anchor so the graph always starts at a known baseline of 1.0
-    const firstDayNum = differenceInDays(sortedFiltered[0]._d, programStart);
-    const anchor = firstDayNum > 0
-      ? [{ day: 0, label: format(programStart, labelFormat), actual: 1.0, ideal: 1.0 }]
-      : [];
-
+    // getDenseLogs generates logs from programStart, so the first log is always day 0.
     const points = sortedFiltered.map((l) => {
       const dayNum = Math.max(0, differenceInDays(l._d, programStart));
-      // Ideal: 1.01^dayNum ensures Day 0 starts at 1.0 (1.01^0), matching the baseline.
-      const idealGrowth = Math.pow(1.01, dayNum);
+      // Ideal: 1.01^(dayNum+1). By the end of day 0 (the first day), ideal is 1.01.
+      const idealGrowth = Math.pow(1.01, dayNum + 1);
       const actualVal = growthMap.get(l.date) ?? 1.0;
 
       return {
@@ -121,7 +114,7 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
       };
     });
 
-    return [...anchor, ...points];
+    return points;
   }, [safeLogs, filteredLogs, labelFormat, programStart]);
 
   if (!safeLogs.length) {
