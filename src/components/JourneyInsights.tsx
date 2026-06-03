@@ -16,8 +16,8 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
   const { finalGrowth } = useMemo(() => computeDeterministicGrowth(denseLogs), [denseLogs]);
 
   const formatGrowth = (value: number | undefined) => {
-    if (value === undefined || Number.isNaN(value)) return "1.00x";
-    return value.toFixed(2) + "x";
+    if (value === undefined || Number.isNaN(value)) return "1.0000x";
+    return value.toFixed(4) + "x";
   };
 
   const today = todayYmdLocal();
@@ -41,11 +41,26 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
     return 365;
   }, [stats?.start_date, stats?.end_date]);
 
+  // Days elapsed from start_date up to and including today
+  const elapsedDays = useMemo(() => {
+    if (!stats?.start_date) return 0;
+    const start = parseISO(stats.start_date);
+    const todayDate = parseISO(today);
+    const diff = differenceInDays(todayDate, start) + 1; // +1 to include today
+    return Math.max(1, diff);
+  }, [stats?.start_date, today]);
+
+  // Completion % = perfect/recovered days ÷ days elapsed so far (not total program days)
+  const journeyCompletionPct = useMemo(() => {
+    const pct = Math.round((completedDays / elapsedDays) * 100);
+    return Math.min(100, Math.max(0, pct));
+  }, [completedDays, elapsedDays]);
+
   // Hill definitions — peakX and peakY (SVG coords, low Y = tall hill)
   const hills = [
-    { label: "GROWTH",      value: formatGrowth(finalGrowth), color: "#fbbf24", peakX: 50,  peakY: 72 },
+    { label: "GROWTH",      value: formatGrowth(finalGrowth), color: "#fbbf24", peakX: 68,  peakY: 72 },
     { label: "PERFECT",     value: `${completedDays}/${totalProgramDays}`, color: "#4ade80", peakX: 152, peakY: 88 },
-    { label: "ACTIVE DAYS", value: String(activeDays),                   color: "#60a5fa", peakX: 258, peakY: 80 },
+    { label: "COMPLETED",   value: `${journeyCompletionPct}%`,             color: "#60a5fa", peakX: 258, peakY: 80 },
     { label: "MISSED",      value: String(missedDays),                   color: "#f87171", peakX: 358, peakY: 94 },
   ];
 
@@ -55,8 +70,8 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
   // Smooth terrain path through all 4 peaks
   const terrainPath = `
     M0,118
-    C22,118 34,74 ${hills[0].peakX},${hills[0].peakY}
-    C66,${hills[0].peakY} 78,${v(hills[0].peakY, hills[1].peakY)} 101,${v(hills[0].peakY, hills[1].peakY)}
+    C28,118 42,74 ${hills[0].peakX},${hills[0].peakY}
+    C90,${hills[0].peakY} 95,${v(hills[0].peakY, hills[1].peakY)} 110,${v(hills[0].peakY, hills[1].peakY)}
     C124,${v(hills[0].peakY, hills[1].peakY)} 132,${hills[1].peakY} ${hills[1].peakX},${hills[1].peakY}
     C172,${hills[1].peakY} 184,${v(hills[1].peakY, hills[2].peakY)} 205,${v(hills[1].peakY, hills[2].peakY)}
     C226,${v(hills[1].peakY, hills[2].peakY)} 238,${hills[2].peakY} ${hills[2].peakX},${hills[2].peakY}
