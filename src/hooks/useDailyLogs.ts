@@ -74,6 +74,27 @@ export function getDenseLogs(logs: DailyLog[] | undefined | null, startDateStr?:
   return dense;
 }
 
+export function computeDeterministicGrowth(denseLogs: DailyLog[]): { finalGrowth: number; growthMap: Map<string, number> } {
+  let runningGrowth = 1.0;
+  const growthMap = new Map<string, number>();
+
+  for (const log of denseLogs) {
+    if (log.id.startsWith("synthetic-")) {
+      growthMap.set(log.date, runningGrowth);
+      continue;
+    }
+    const effectiveCompleted = log.is_recovered ? log.total_count : log.completed_count;
+    if (effectiveCompleted > 0 && log.total_count > 0) {
+      const ratio = Math.max(0, Math.min(1, effectiveCompleted / log.total_count));
+      runningGrowth = runningGrowth * (1.0 + ratio * 0.01);
+    }
+    // Note: shielded days and 0-completion days do not change runningGrowth
+    growthMap.set(log.date, runningGrowth);
+  }
+
+  return { finalGrowth: runningGrowth, growthMap };
+}
+
 export function useDailyLogs() {
   const { user } = useAuth();
   return useQuery({

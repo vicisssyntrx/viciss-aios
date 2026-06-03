@@ -1,4 +1,4 @@
-import { useDailyLogs, getDenseLogs } from "@/hooks/useDailyLogs";
+import { useDailyLogs, getDenseLogs, computeDeterministicGrowth } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 import { todayYmdLocal } from "@/lib/date";
 import { useMemo } from "react";
@@ -13,6 +13,7 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
   const { data: stats } = useUserStats();
 
   const denseLogs = getDenseLogs(logs, stats?.start_date);
+  const { finalGrowth } = useMemo(() => computeDeterministicGrowth(denseLogs), [denseLogs]);
 
   const formatGrowth = (value: number | undefined) => {
     if (value === undefined || Number.isNaN(value)) return "1.00x";
@@ -42,7 +43,7 @@ export default function JourneyInsights({ activeTab: _activeTab }: JourneyInsigh
 
   // Hill definitions — peakX and peakY (SVG coords, low Y = tall hill)
   const hills = [
-    { label: "GROWTH",      value: formatGrowth(stats?.current_growth), color: "#fbbf24", peakX: 50,  peakY: 72 },
+    { label: "GROWTH",      value: formatGrowth(finalGrowth), color: "#fbbf24", peakX: 50,  peakY: 72 },
     { label: "PERFECT",     value: `${completedDays}/${totalProgramDays}`, color: "#4ade80", peakX: 152, peakY: 88 },
     { label: "ACTIVE DAYS", value: String(activeDays),                   color: "#60a5fa", peakX: 258, peakY: 80 },
     { label: "MISSED",      value: String(missedDays),                   color: "#f87171", peakX: 358, peakY: 94 },

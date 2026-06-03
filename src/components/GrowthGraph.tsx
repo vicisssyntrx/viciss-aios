@@ -1,4 +1,4 @@
-import { useDailyLogs, getDenseLogs } from "@/hooks/useDailyLogs";
+import { useDailyLogs, getDenseLogs, computeDeterministicGrowth } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useMemo, useState, useEffect } from "react";
@@ -87,10 +87,10 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
     };
   }, [safeLogs, range]);
 
-  // Use stored growth_after from the DB for actual — this is the authoritative server-computed value.
-  // For placeholder days (gaps filled by getDenseLogs that have no real log entry), carry forward
-  // the last known growth value so the line stays flat rather than resetting to 1.0.
   const data = useMemo(() => {
+    // Generate the chronological actual curve from day 0 to today
+    const { growthMap } = computeDeterministicGrowth(safeLogs);
+
     const sortedFiltered = [...filteredLogs]
       .map((l) => {
         const d = parseISO(l.date);
@@ -101,18 +101,7 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
 
     if (sortedFiltered.length === 0) return [];
 
-    // Find the last known growth_after before the filtered range starts (for carry-forward seed)
-    const rangeStart = sortedFiltered[0]._d;
-    const seedLog = [...safeLogs]
-      .filter((l) => {
-        const d = parseISO(l.date);
-        return isValid(d) && d < rangeStart && (l as any).growth_after != null;
-      })
-      .sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime())[0];
-
-    let lastKnownActual: number = (seedLog as any)?.growth_after ?? 1.0;
-
-    // Prepend a day-0 anchor so the graph always starts at a known baseline
+    // Prepend a day-0 anchor so the graph always starts at a known baseline of 1.0
     const firstDayNum = differenceInDays(sortedFiltered[0]._d, programStart);
     const anchor = firstDayNum > 0
       ? [{ day: 0, label: format(programStart, labelFormat), actual: 1.0, ideal: 1.0 }]
@@ -120,12 +109,9 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
 
     const points = sortedFiltered.map((l) => {
       const dayNum = Math.max(0, differenceInDays(l._d, programStart));
-      // Ideal: 1.01^dayNum means "if you completed every day perfectly since day 0"
-      const idealGrowth = Math.pow(1.01, dayNum + 1);
-      // Use server-stored growth_after; fall back to last known if gap/placeholder day
-      const storedAfter = (l as any).growth_after as number | null | undefined;
-      const actualVal = storedAfter != null && storedAfter > 0 ? storedAfter : lastKnownActual;
-      if (storedAfter != null && storedAfter > 0) lastKnownActual = storedAfter;
+      // Ideal: 1.01^dayNum ensures Day 0 starts at 1.0 (1.01^0), matching the baseline.
+      const idealGrowth = Math.pow(1.01, dayNum);
+      const actualVal = growthMap.get(l.date) ?? 1.0;
 
       return {
         day: dayNum,
