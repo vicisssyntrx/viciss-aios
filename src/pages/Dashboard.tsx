@@ -348,13 +348,14 @@ export default function Dashboard() {
           </div>
 
           {/* Footer — desktop only */}
-          <div className="hidden md:flex mt-4 mb-2 flex-col items-center justify-center opacity-60 transition-opacity hover:opacity-100">
+          <div className="hidden md:flex mt-4 mb-2 flex-col items-center justify-center opacity-60 transition-opacity hover:opacity-100 gap-1">
             <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
               Made with <span className="text-red-500 hover:scale-110 transition-transform duration-300">❤️</span> by{" "}
               <a href="https://linktr.ee/vicisssyntrx" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
                 Viciss Syntrx
               </a>
             </p>
+            <p className="text-[10px] text-muted-foreground/60 font-mono tracking-widest uppercase">v0.0.2.6_6.4 • June 4, 2026</p>
           </div>
         </div>
       </div>
