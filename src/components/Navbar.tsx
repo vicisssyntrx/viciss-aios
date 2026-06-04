@@ -102,9 +102,9 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => window.dispatchEvent(new Event("open-ai-chat"))}
-                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-primary hover:text-primary whitespace-nowrap flex items-center gap-2 hover:bg-secondary/60 transition-colors"
+                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap flex items-center gap-2 hover:bg-secondary/60 transition-colors"
                 >
-                  <Sparkles className="w-4 h-4 text-primary" /> AI
+                  <Sparkles className="w-4 h-4 text-foreground" /> AI
                 </button>
 
                 <button

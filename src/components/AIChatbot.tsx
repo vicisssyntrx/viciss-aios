@@ -79,6 +79,12 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
       return;
     }
 
+    const modelId = localStorage.getItem("openrouter-model");
+    if (!modelId) {
+      toast.error("Please add a Model ID in Profile settings first.");
+      return;
+    }
+
     const userMessage = input.trim();
     setInput("");
     
@@ -115,7 +121,7 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
       
       const apiMessages = [systemPrompt, ...messageHistory, newMessageObj];
 
-      const reply = await sendMessageToOpenRouter(apiMessages, apiKey);
+      const reply = await sendMessageToOpenRouter(apiMessages, apiKey, modelId);
 
       const assistantMsg: ChatMessage = { role: "assistant", content: reply };
       
@@ -173,7 +179,7 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
         
         {/* History Sidebar / Drawer */}
         <div className={cn(
-          "absolute inset-y-0 left-0 w-64 glass-strong z-30 flex flex-col transition-transform duration-300 border-r border-border/50",
+          "absolute inset-y-0 left-0 w-64 bg-background/95 backdrop-blur-md z-30 flex flex-col transition-transform duration-300 border-r border-border/50",
           showHistory ? "translate-x-0" : "-translate-x-full"
         )}>
           <div className="p-4 border-b border-border/30 flex items-center justify-between">
@@ -223,8 +229,8 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
                   <div className={cn(
                     "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm",
                     msg.role === "user" 
-                      ? "bg-primary text-primary-foreground rounded-br-sm" 
-                      : "glass-strong text-foreground rounded-bl-sm border border-border/50"
+                      ? "bg-primary text-primary-foreground rounded-br-sm shadow-md" 
+                      : "bg-secondary/80 text-foreground rounded-bl-sm border border-border/50 shadow-sm"
                   )}>
                     <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                   </div>
@@ -234,7 +240,7 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
             
             {isLoading && (
               <div className="flex w-full justify-start">
-                <div className="max-w-[85%] rounded-2xl px-4 py-3 glass-strong text-foreground rounded-bl-sm border border-border/50 flex items-center gap-2">
+                <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-secondary/80 text-foreground rounded-bl-sm border border-border/50 flex items-center gap-2 shadow-sm">
                   <span className="flex gap-1">
                     <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -247,8 +253,8 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Input Area */}
-          <div className="flex-none p-3 glass border-t border-border/40">
-            <div className="flex items-end gap-2 bg-secondary/30 rounded-2xl border border-border/50 p-1 pl-4 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50 transition-all">
+          <div className="flex-none p-3 bg-background/80 backdrop-blur-md border-t border-border/40">
+            <div className="flex items-end gap-2 bg-secondary/50 rounded-2xl border border-border/50 p-1 pl-4 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50 transition-all shadow-inner">
               <textarea
                 value={input}
                 onChange={e => setInput(e.target.value)}

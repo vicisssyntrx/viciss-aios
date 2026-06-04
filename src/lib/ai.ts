@@ -1,5 +1,4 @@
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = "google/gemini-pro";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -9,17 +8,20 @@ export interface ChatMessage {
 export async function sendMessageToOpenRouter(
   messages: ChatMessage[],
   apiKey: string,
-  model = DEFAULT_MODEL
+  model: string
 ): Promise<string> {
   if (!apiKey) {
     throw new Error("No OpenRouter API key found. Please add it in your Account Settings.");
+  }
+  if (!model) {
+    throw new Error("No Model ID provided. Please add it in your Account Settings.");
   }
 
   const response = await fetch(OPENROUTER_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
+      "Authorization": `Bearer ${apiKey.trim()}`,
       "HTTP-Referer": window.location.origin, // Optional, for OpenRouter rankings
       "X-Title": "Vicissometer Habit Tracker", // Optional
     },

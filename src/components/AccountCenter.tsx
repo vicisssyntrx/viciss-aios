@@ -57,11 +57,27 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
   };
 
   const [openRouterKey, setOpenRouterKey] = useState(() => localStorage.getItem("openrouter-key") || "");
+  const [openRouterModuleId, setOpenRouterModuleId] = useState(() => localStorage.getItem("openrouter-model") || "");
 
-  const handleOpenRouterKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setOpenRouterKey(val);
-    localStorage.setItem("openrouter-key", val);
+  const [tempApiKey, setTempApiKey] = useState(openRouterKey);
+  const [tempModelId, setTempModelId] = useState(openRouterModuleId);
+
+  const handleSaveAISettings = () => {
+    setOpenRouterKey(tempApiKey);
+    setOpenRouterModuleId(tempModelId);
+    localStorage.setItem("openrouter-key", tempApiKey);
+    localStorage.setItem("openrouter-model", tempModelId);
+    toast.success("AI Settings Saved!");
+  };
+
+  const handleResetAISettings = () => {
+    setTempApiKey("");
+    setTempModelId("");
+    setOpenRouterKey("");
+    setOpenRouterModuleId("");
+    localStorage.removeItem("openrouter-key");
+    localStorage.removeItem("openrouter-model");
+    toast.success("AI Settings Reset!");
   };
 
   const [orbitStyle, setOrbitStyle] = useState(() => {
@@ -539,15 +555,44 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
               />
             </div>
             
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">OpenRouter API Key</span>
-              <Input 
-                type="password"
-                placeholder="sk-or-v1-..."
-                value={openRouterKey}
-                onChange={handleOpenRouterKeyChange}
-                className="h-8 text-xs bg-secondary/40 border-border/40 focus-visible:ring-1 focus-visible:ring-primary/50"
-              />
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">OpenRouter API Key</span>
+                <Input 
+                  type="password"
+                  placeholder="sk-or-v1-..."
+                  value={tempApiKey}
+                  onChange={(e) => setTempApiKey(e.target.value)}
+                  className="h-8 text-xs bg-secondary/40 border-border/40 focus-visible:ring-1 focus-visible:ring-primary/50"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">Model ID</span>
+                <Input 
+                  type="text"
+                  placeholder="e.g. meta-llama/llama-3-8b-instruct:free"
+                  value={tempModelId}
+                  onChange={(e) => setTempModelId(e.target.value)}
+                  className="h-8 text-xs bg-secondary/40 border-border/40 focus-visible:ring-1 focus-visible:ring-primary/50"
+                />
+              </div>
+              
+              <div className="flex gap-2 pt-1">
+                <Button 
+                  onClick={handleSaveAISettings}
+                  className="flex-1 h-8 text-xs bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg"
+                >
+                  Save
+                </Button>
+                <Button 
+                  onClick={handleResetAISettings}
+                  variant="outline"
+                  className="flex-1 h-8 text-xs border-destructive text-destructive hover:bg-destructive/10 rounded-lg"
+                >
+                  Reset
+                </Button>
+              </div>
+
               <p className="text-[9px] text-muted-foreground leading-tight">
                 Required for AI chat and contextual motivation. Stored securely on your device.
               </p>

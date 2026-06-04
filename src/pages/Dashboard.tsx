@@ -382,7 +382,7 @@ export default function Dashboard() {
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className="tg-tab-icon-wrap">
-              <Sparkles className="w-6.5 h-6.5 text-primary" />
+              <Sparkles className="w-6.5 h-6.5" />
             </div>
             <span className="tg-tab-label">AI</span>
           </button>
