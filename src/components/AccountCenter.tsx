@@ -50,11 +50,12 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
     return localStorage.getItem("vicissometer-bg-style") || "solid";
   });
 
-  const [rabitMode, setRabitMode] = useState(() => localStorage.getItem("rabit-mode") || "on");
+  const [rabbitMode, setRabbitMode] = useState(() => localStorage.getItem("rabbit-mode") || localStorage.getItem("rabit-mode") || "on");
 
-  const handleRabitModeChange = (mode: string) => {
-    setRabitMode(mode);
-    localStorage.setItem("rabit-mode", mode);
+  const handleRabbitModeChange = (mode: string) => {
+    setRabbitMode(mode);
+    localStorage.setItem("rabbit-mode", mode);
+    window.dispatchEvent(new Event("rabbit-mode-changed"));
     window.dispatchEvent(new Event("rabit-mode-changed"));
   };
 
@@ -582,8 +583,8 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
                 <Wand2 className="w-4 h-4 text-primary" /> Virtual Assistant (Rabbit)
               </span>
               <Switch 
-                checked={rabitMode === "vector"} 
-                onCheckedChange={(checked) => handleRabitModeChange(checked ? "vector" : "off")} 
+                checked={rabbitMode === "vector"} 
+                onCheckedChange={(checked) => handleRabbitModeChange(checked ? "vector" : "off")} 
               />
             </div>
 
@@ -592,7 +593,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
                 <span className="text-sm font-bold text-foreground flex items-center gap-2">
                   <Bell className="w-4 h-4 text-primary" /> Allow Notifications
                 </span>
-                <span className="text-[10px] text-muted-foreground mt-1">Get scheduled reminders from Rabit</span>
+                <span className="text-[10px] text-muted-foreground mt-1">Get scheduled reminders from Rabbit</span>
               </div>
               <Switch 
                 checked={permission === "granted"} 

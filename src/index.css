@@ -639,9 +639,9 @@
    ════════════════════════════════════════════════ */
 
 /* Inputs inside the glass-strong sheet get solid white backgrounds in light mode */
-.glass-strong input,
-.glass-strong textarea,
-.glass-strong select {
+.glass-strong input:not(.bg-transparent),
+.glass-strong textarea:not(.bg-transparent),
+.glass-strong select:not(.bg-transparent) {
   background: rgba(255, 255, 255, 0.95) !important;
   border-color: rgba(0, 0, 0, 0.15) !important;
   color: #111111 !important;
@@ -654,9 +654,9 @@
 }
 
 /* Dark mode — keep existing feel */
-.dark .glass-strong input,
-.dark .glass-strong textarea,
-.dark .glass-strong select {
+.dark .glass-strong input:not(.bg-transparent),
+.dark .glass-strong textarea:not(.bg-transparent),
+.dark .glass-strong select:not(.bg-transparent) {
   background: rgba(30, 30, 38, 0.85) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
   color: #eeeeee !important;

@@ -4,8 +4,8 @@ import { useTodayLog } from "@/hooks/useDailyLogs";
 import { useNotifications } from "@/hooks/useNotifications";
 import { sendMessageToAI, AIProvider } from "@/lib/ai";
 
-export default function RabitAssistant() {
-  const [enabled, setEnabled] = useState(() => (localStorage.getItem("rabit-mode") || "on") !== "off");
+export default function RabbitAssistant() {
+  const [enabled, setEnabled] = useState(() => (localStorage.getItem("rabbit-mode") || localStorage.getItem("rabit-mode") || "on") !== "off");
   const { data: todayLog } = useTodayLog();
   const [chatMessage, setChatMessage] = useState<string | null>(null);
   
@@ -16,10 +16,14 @@ export default function RabitAssistant() {
 
   useEffect(() => {
     const handleStorageChange = () => {
-      setEnabled((localStorage.getItem("rabit-mode") || "on") !== "off");
+      setEnabled((localStorage.getItem("rabbit-mode") || localStorage.getItem("rabit-mode") || "on") !== "off");
     };
+    window.addEventListener("rabbit-mode-changed", handleStorageChange);
     window.addEventListener("rabit-mode-changed", handleStorageChange);
-    return () => window.removeEventListener("rabit-mode-changed", handleStorageChange);
+    return () => {
+      window.removeEventListener("rabbit-mode-changed", handleStorageChange);
+      window.removeEventListener("rabit-mode-changed", handleStorageChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -37,7 +41,7 @@ export default function RabitAssistant() {
     if (!enabled) return;
 
     const checkAndNotify = async () => {
-      const lastNotified = parseInt(localStorage.getItem("rabit-last-notified") || "0");
+      const lastNotified = parseInt(localStorage.getItem("rabbit-last-notified") || localStorage.getItem("rabit-last-notified") || "0");
       const twoHours = 2 * 60 * 60 * 1000;
       
       // Check if 2 hours have passed since last notification
@@ -56,12 +60,12 @@ export default function RabitAssistant() {
         const reply = await sendMessageToAI([
           { 
             role: "system", 
-            content: `You are Rabit, a witty AI accountability partner. The user has ${pendingTasks} pending tasks today. Write a SINGLE very short, punchy, and motivational push notification (under 15 words) to remind them.` 
+            content: `You are Rabbit, a witty AI accountability partner. The user has ${pendingTasks} pending tasks today. Write a SINGLE very short, punchy, and motivational push notification (under 15 words) to remind them.` 
           }
         ], provider, apiKey, modelId);
         
-        await sendNotification("Rabit Reminder 🥕", reply);
-        localStorage.setItem("rabit-last-notified", Date.now().toString());
+        await sendNotification("Rabbit Reminder 🥕", reply);
+        localStorage.setItem("rabbit-last-notified", Date.now().toString());
         setChatMessage(reply);
         setTimeout(() => setChatMessage(null), 5000);
       } catch (e) {
@@ -137,14 +141,14 @@ export default function RabitAssistant() {
 
       {/* Render Vector Mode */}
       <div className="w-20 h-20 relative drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]">
-        <VectorRabit eyeX={eyeX} eyeY={eyeY} />
+        <VectorRabbit eyeX={eyeX} eyeY={eyeY} />
       </div>
     </motion.div>
   );
 }
 
 // Vector Rabbit (Tracks eyes using Framer Motion)
-function VectorRabit({ eyeX, eyeY }: { eyeX: any; eyeY: any }) {
+function VectorRabbit({ eyeX, eyeY }: { eyeX: any; eyeY: any }) {
   return (
     <svg viewBox="0 0 100 100" className="w-full h-full text-foreground fill-current drop-shadow-md">
       {/* Ears */}

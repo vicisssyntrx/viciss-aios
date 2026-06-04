@@ -17,7 +17,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import AccountCenter from "@/components/AccountCenter";
 import AchievementToast, { AchievementType } from "@/components/AchievementToast";
 import MobileBoostCards from "@/components/MobileBoostCards";
-import RabitAssistant from "@/components/RabitAssistant";
+import RabbitAssistant from "@/components/RabbitAssistant";
 import AIChatbot from "@/components/AIChatbot";
 import { Home, ClipboardList, Shield, Zap, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -384,7 +384,7 @@ export default function Dashboard() {
             <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
 
-          {/* Tab 3: Rabit AI Chat */}
+          {/* Tab 3: Rabbit AI Chat */}
           <button
             onClick={() => setMobileTab("chat")}
             className="tg-tab flex-1 select-none py-1.5"
@@ -411,7 +411,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <RabitAssistant />
+      <RabbitAssistant />
       {isChatOpen && <AIChatbot isModal={true} onClose={() => setIsChatOpen(false)} />}
       {(isDash || isTasks) && <FloatingManageHabitsButton />}
     </div>

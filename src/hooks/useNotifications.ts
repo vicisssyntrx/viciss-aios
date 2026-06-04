@@ -14,7 +14,7 @@ export function useNotifications() {
 
   // Load from local storage
   useEffect(() => {
-    const saved = localStorage.getItem("rabit-notification-logs");
+    const saved = localStorage.getItem("rabbit-notification-logs") || localStorage.getItem("rabit-notification-logs");
     if (saved) {
       try {
         setLogs(JSON.parse(saved));
@@ -31,7 +31,7 @@ export function useNotifications() {
 
   // Sync to local storage
   useEffect(() => {
-    localStorage.setItem("rabit-notification-logs", JSON.stringify(logs));
+    localStorage.setItem("rabbit-notification-logs", JSON.stringify(logs));
   }, [logs]);
 
   const requestPermission = async () => {
@@ -49,7 +49,7 @@ export function useNotifications() {
     if (permission === "granted") {
       new Notification(title, {
         body,
-        icon: "/rabit-avatar.svg", 
+        icon: "/rabbit-avatar.svg", 
       });
     }
 

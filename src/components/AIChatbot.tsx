@@ -62,7 +62,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
       }
 
       if (!loaded) {
-        const saved = localStorage.getItem("rabit-ai-threads");
+        const saved = localStorage.getItem("rabbit-ai-threads") || localStorage.getItem("rabit-ai-threads");
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
@@ -88,7 +88,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
     
     const saveThreads = async () => {
       const jsonStr = JSON.stringify(threads);
-      localStorage.setItem("rabit-ai-threads", jsonStr);
+      localStorage.setItem("rabbit-ai-threads", jsonStr);
       
       if (user?.id) {
         try {
@@ -127,7 +127,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
   };
 
   const handleSend = async () => {
-    if (!input.trim() || !activeThreadId) return;
+    if (!input.trim()) return;
 
     const provider = (localStorage.getItem("ai-provider") || "openrouter") as AIProvider;
     
@@ -155,17 +155,31 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
     const userMessage = input.trim();
     setInput("");
     
+    let currentThreadId = activeThreadId;
+    
     // Optimistically add user message
     const newMessageObj: ChatMessage = { role: "user", content: userMessage };
     
-    setThreads(prev => prev.map(t => {
-      if (t.id === activeThreadId) {
-        // Auto-generate title for new threads based on first message
-        const title = t.messages.length === 0 ? userMessage.slice(0, 30) + (userMessage.length > 30 ? "..." : "") : t.title;
-        return { ...t, title, updatedAt: Date.now(), messages: [...t.messages, newMessageObj] };
-      }
-      return t;
-    }));
+    if (!currentThreadId) {
+      currentThreadId = Date.now().toString();
+      const newThread: ChatThread = {
+        id: currentThreadId,
+        title: userMessage.slice(0, 30) + (userMessage.length > 30 ? "..." : ""),
+        messages: [newMessageObj],
+        updatedAt: Date.now(),
+      };
+      setThreads(prev => [newThread, ...prev]);
+      setActiveThreadId(currentThreadId);
+    } else {
+      setThreads(prev => prev.map(t => {
+        if (t.id === currentThreadId) {
+          // Auto-generate title for new threads based on first message
+          const title = t.messages.length === 0 ? userMessage.slice(0, 30) + (userMessage.length > 30 ? "..." : "") : t.title;
+          return { ...t, title, updatedAt: Date.now(), messages: [...t.messages, newMessageObj] };
+        }
+        return t;
+      }));
+    }
 
     setIsLoading(true);
 
@@ -174,7 +188,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
       const completedTasks = todayLog?.completed_habits?.length || 0;
       const systemPrompt: ChatMessage = {
         role: "system",
-        content: `You are Rabit, a witty, motivating, and highly intelligent AI accountability partner for a productivity app called Vicissometer. 
+        content: `You are Rabbit, a witty, motivating, and highly intelligent AI accountability partner for a productivity app called Vicissometer. 
         Context about the user right now: 
         - Current Streak: ${stats?.streak || 0} days
         - Total Coins: ${stats?.coins || 0}
@@ -184,7 +198,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
       };
 
       // Get history of the active thread (including the one we just added)
-      const currentThread = threads.find(t => t.id === activeThreadId);
+      const currentThread = threads.find(t => t.id === currentThreadId);
       const messageHistory = currentThread ? currentThread.messages : [];
       
       const apiMessages = [systemPrompt, ...messageHistory, newMessageObj];
@@ -194,7 +208,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
       const assistantMsg: ChatMessage = { role: "assistant", content: reply };
       
       setThreads(prev => prev.map(t => {
-        if (t.id === activeThreadId) {
+        if (t.id === currentThreadId) {
           return { ...t, updatedAt: Date.now(), messages: [...t.messages, assistantMsg] };
         }
         return t;
@@ -236,9 +250,9 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
             </button>
             <div className="flex flex-col">
               <span className="font-bold text-foreground flex items-center gap-1.5">
-                <img src="/rabit-avatar.svg" alt="Rabit" className="w-5 h-5 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
+                <img src="/rabbit-avatar.svg" alt="Rabbit" className="w-5 h-5 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
                 <Wand2 className="w-4 h-4 text-primary hidden" />
-                Rabit AI
+                Rabbit AI
               </span>
               <span className="text-[10px] text-muted-foreground">Powered by {localStorage.getItem("ai-provider") === "google" ? "Google AI Studio" : "OpenRouter"}</span>
             </div>
@@ -314,10 +328,10 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
                   )}
                 >
                   <div className={cn(
-                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:bg-black/20 prose-pre:text-foreground",
+                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm prose prose-sm prose-p:my-0 prose-headings:my-0 prose-p:text-inherit prose-headings:text-inherit prose-strong:text-inherit prose-code:text-inherit prose-ul:text-inherit prose-ol:text-inherit prose-li:text-inherit prose-p:leading-relaxed prose-pre:bg-black/20 prose-pre:text-foreground",
                     msg.role === "user" 
                       ? "bg-primary text-primary-foreground rounded-br-sm shadow-md" 
-                      : "bg-secondary/80 text-foreground rounded-bl-sm border border-border/50 shadow-sm"
+                      : "bg-secondary/80 text-foreground rounded-bl-sm border border-border/50 shadow-sm dark:prose-invert"
                   )}>
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
@@ -351,7 +365,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
                     handleSend();
                   }
                 }}
-                placeholder="Ask Rabit anything..."
+                placeholder="Ask Rabbit anything..."
                 className="flex-1 max-h-32 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none py-3"
                 rows={1}
                 style={{ minHeight: "44px" }}
