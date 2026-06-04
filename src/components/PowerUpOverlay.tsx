@@ -113,7 +113,7 @@ export default function PowerUpOverlay({ onClose, onPurchased }: Props) {
       <div className="glass w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-6 max-h-[88vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <span style={{ filter: "drop-shadow(0 0 10px hsl(var(--primary))) drop-shadow(0 0 15px hsl(var(--primary)))" }}>⚡</span>
+            <Zap className="w-6 h-6 text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.8)]" />
             Power-Ups
           </h2>
           <button onClick={onClose} className="popup-close"><X className="h-4 w-4" /></button>
@@ -144,8 +144,8 @@ export default function PowerUpOverlay({ onClose, onPurchased }: Props) {
         {gaps.length > 0 ? (
           <>
             {renderGapGroup("Shielded Days (0 growth earned)", <Shield className="h-3 w-3 text-blue-400" />, shieldedGaps)}
-            {renderGapGroup("Missed Days (no shield)", <span>❌</span>, missedGaps)}
-            {renderGapGroup("Partial Days", <span>⚡</span>, partialGaps)}
+            {renderGapGroup("Missed Days (no shield)", <X className="h-3 w-3 text-red-500" />, missedGaps)}
+            {renderGapGroup("Partial Days", <Zap className="h-3 w-3 text-primary" />, partialGaps)}
           </>
         ) : (
           <div className="text-center text-sm text-muted-foreground py-4">

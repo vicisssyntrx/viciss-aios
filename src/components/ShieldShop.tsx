@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { X, Shield } from "lucide-react";
+import { X, Shield, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { createPortal } from "react-dom";
@@ -58,18 +58,18 @@ export default function ShieldShop({ onClose, onPurchased }: Props) {
       <div className="glass w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <span style={{ filter: "drop-shadow(0 0 10px hsl(var(--primary))) drop-shadow(0 0 15px hsl(var(--primary)))" }}>🛡️</span>
+            <Shield className="w-6 h-6 text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.8)]" />
             Shield Shop
           </h2>
           <button onClick={onClose} className="popup-close"><X className="h-4 w-4" /></button>
         </div>
         <div className="text-center mb-6">
           <p className="text-3xl font-bold text-foreground">
-            <span style={{ filter: "drop-shadow(0 0 10px hsl(var(--primary)))" }}>🪙</span> {stats?.coins || 0}
+            <Coins className="w-8 h-8 text-[#fbbf24] drop-shadow-[0_0_8px_rgba(251,191,36,0.6)] inline-block align-bottom mr-1" /> {stats?.coins || 0}
           </p>
           <p className="text-xs text-muted-foreground mt-1">Your coins</p>
           <p className="text-lg font-semibold text-foreground mt-2 flex items-center justify-center gap-2">
-            <span style={{ filter: "drop-shadow(0 0 10px hsl(var(--primary))) drop-shadow(0 0 15px hsl(var(--primary)))" }}>🛡️</span>
+            <Shield className="w-5 h-5 text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.8)]" />
             {stats?.shields || 0} owned
           </p>
         </div>

@@ -17,7 +17,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import AccountCenter from "@/components/AccountCenter";
 import AchievementToast, { AchievementType } from "@/components/AchievementToast";
 import MobileBoostCards from "@/components/MobileBoostCards";
-import { Home, ClipboardList } from "lucide-react";
+import { Home, ClipboardList, Shield, Zap } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
@@ -288,7 +288,7 @@ export default function Dashboard() {
                       onClick={() => setShowShields(true)}
                       className="glass rounded-2xl py-4 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all shadow-md"
                     >
-                      <span className="text-4xl leading-none">🛡️</span>
+                      <Shield className="w-10 h-10 text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Shields</p>
                       <p className="text-2xl font-black text-foreground leading-none">{stats?.shields ?? 0}</p>
                     </button>
@@ -297,7 +297,7 @@ export default function Dashboard() {
                       onClick={() => setShowPowerUps(true)}
                       className="glass rounded-2xl py-4 flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all shadow-md"
                     >
-                      <span className="text-4xl leading-none">⚡</span>
+                      <Zap className="w-10 h-10 text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Power-Ups</p>
                       <p className="text-2xl font-black text-foreground leading-none">{stats?.power_ups ?? 0}</p>
                     </button>

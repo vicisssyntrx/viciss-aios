@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { Flame, Zap, Shield } from "lucide-react";
 
 export type AchievementType =
   | { kind: "streak"; streak: number }
@@ -93,7 +94,7 @@ function AchievementCard({ item, onClose }: { item: AchievementType; onClose: ()
     switch (item.kind) {
       case "streak":
         return {
-          emoji: "🔥",
+          icon: <Flame className="w-12 h-12 text-white drop-shadow-md" />,
           title: item.streak % 7 === 0 && item.streak > 0
             ? `${item.streak}-Day Streak!`
             : `${item.streak} Day Streak!`,
@@ -113,7 +114,7 @@ function AchievementCard({ item, onClose }: { item: AchievementType; onClose: ()
         };
       case "powerup_earned":
         return {
-          emoji: "⚡",
+          icon: <Zap className="w-12 h-12 text-white drop-shadow-md" />,
           title: "Power-Up Unlocked!",
           subtitle: `7-day streak bonus! You now have ${item.powerUps} power-up${item.powerUps !== 1 ? "s" : ""}. Use them to recover missed days.`,
           color: "from-yellow-500 to-orange-500",
@@ -122,7 +123,7 @@ function AchievementCard({ item, onClose }: { item: AchievementType; onClose: ()
         };
       case "powerup_purchased":
         return {
-          emoji: "⚡",
+          icon: <Zap className="w-12 h-12 text-white drop-shadow-md" />,
           title: "Power-Up Purchased!",
           subtitle: "Spend wisely — each power-up recovers one missed day.",
           color: "from-blue-500 to-violet-600",
@@ -131,7 +132,7 @@ function AchievementCard({ item, onClose }: { item: AchievementType; onClose: ()
         };
       case "shield_purchased":
         return {
-          emoji: "🛡️",
+          icon: <Shield className="w-12 h-12 text-white drop-shadow-md" />,
           title: "Shield Activated!",
           subtitle: "Your streak is protected for one missed day.",
           color: "from-sky-500 to-blue-600",
@@ -177,9 +178,9 @@ function AchievementCard({ item, onClose }: { item: AchievementType; onClose: ()
             style={{ animationDuration: "1.2s" }}
           />
           <div
-            className={`relative w-24 h-24 rounded-full bg-gradient-to-br ${cfg.color} flex items-center justify-center text-5xl shadow-xl`}
+            className={`relative w-24 h-24 rounded-full bg-gradient-to-br ${cfg.color} flex items-center justify-center shadow-xl`}
           >
-            {cfg.emoji}
+            {cfg.icon}
           </div>
         </div>
 

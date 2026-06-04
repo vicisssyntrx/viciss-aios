@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserStats } from "@/hooks/useUserStats";
-import { Home, ClipboardList } from "lucide-react";
+import { Home, ClipboardList, Coins, Flame } from "lucide-react";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -45,15 +45,15 @@ export default function Navbar() {
             Vicissometer
           </h1>
           <div className="flex items-center gap-2">
-            <span className="glass !transform-none rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap">
-              🪙 {stats?.coins ?? 0}
+            <span className="glass !transform-none rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap flex items-center gap-1.5">
+              <Coins className="w-3.5 h-3.5 text-[#fbbf24] drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]" /> {stats?.coins ?? 0}
             </span>
             <button
               type="button"
               onClick={() => setShowStreak(true)}
-              className="glass !transform-none rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 active:scale-95 transition-all"
+              className="glass !transform-none rounded-full px-3 py-1 text-sm font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 active:scale-95 transition-all flex items-center gap-1.5"
             >
-              🔥 {displayStreak}
+              <Flame className="w-3.5 h-3.5 text-[#f97316] drop-shadow-[0_0_4px_rgba(249,115,22,0.5)]" /> {displayStreak}
             </button>
           </div>
         </nav>
@@ -74,15 +74,15 @@ export default function Navbar() {
             {/* Right: Stats & Avatar */}
             <div className="flex items-center gap-4 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <span className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap">
-                  🪙 {stats?.coins ?? 0}
+                <span className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap flex items-center gap-2">
+                  <Coins className="w-4 h-4 text-[#fbbf24] drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]" /> {stats?.coins ?? 0}
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowStreak(true)}
-                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 transition-colors"
+                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 transition-colors flex items-center gap-2"
                 >
-                  🔥 {displayStreak}
+                  <Flame className="w-4 h-4 text-[#f97316] drop-shadow-[0_0_4px_rgba(249,115,22,0.5)]" /> {displayStreak}
                 </button>
               </div>
 

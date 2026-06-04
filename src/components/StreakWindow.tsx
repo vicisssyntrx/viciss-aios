@@ -1,5 +1,5 @@
 import { useDailyLogs, getDenseLogs } from "@/hooks/useDailyLogs";
-import { X } from "lucide-react";
+import { X, Flame } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { parseISO } from "date-fns";
 import { useUserStats } from "@/hooks/useUserStats";
@@ -41,7 +41,10 @@ export default function StreakWindow({ onClose }: Props) {
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
       <div className="glass w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-3 sm:p-4 max-h-[88vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-bold text-foreground">🔥 Streak Calendar</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <Flame className="w-6 h-6 text-[#f97316] drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]" /> 
+            Streak Calendar
+          </h2>
           <button onClick={onClose} className="popup-close"><X className="h-4 w-4" /></button>
         </div>
 
