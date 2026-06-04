@@ -2,7 +2,7 @@ import { useHabits } from "@/hooks/useHabits";
 import { useDailyLogs, getDenseLogs } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 import { useMemo } from "react";
-import { parseISO, differenceInDays, addYears, subDays } from "date-fns";
+import { parseISO, differenceInCalendarDays, addYears, subDays } from "date-fns";
 
 export default function OutcomeCards() {
   const { data: habits } = useHabits();
@@ -30,7 +30,7 @@ export default function OutcomeCards() {
     if (stats?.start_date && stats?.end_date) {
       const start = parseISO(stats.start_date);
       const end = parseISO(stats.end_date);
-      const diff = differenceInDays(end, start);
+      const diff = differenceInCalendarDays(end, start);
       if (diff > 0) totalProgramDays = diff;
     }
 

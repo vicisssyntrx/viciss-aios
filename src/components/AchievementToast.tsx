@@ -160,7 +160,7 @@ function AchievementCard({ item, onClose }: { item: AchievementType; onClose: ()
       {/* Card */}
       <div
         className={`
-          relative z-10 glass rounded-3xl p-8 flex flex-col items-center text-center max-w-sm w-full
+          relative z-10 bg-card text-card-foreground border border-border shadow-2xl rounded-3xl p-8 flex flex-col items-center text-center max-w-sm w-full
           ${cfg.glow}
           transition-all duration-350 ease-out
         `}

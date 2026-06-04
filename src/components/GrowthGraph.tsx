@@ -6,13 +6,14 @@ import ThoughtOfDay from "./ThoughtOfDay";
 import {
   format,
   parseISO,
-  differenceInDays,
   isValid,
   startOfWeek,
   endOfWeek,
   startOfMonth,
+  startOfMonth,
   endOfMonth,
   isWithinInterval,
+  differenceInCalendarDays,
 } from "date-fns";
 
 interface GrowthGraphProps {
@@ -101,7 +102,7 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
 
     // getDenseLogs generates logs from programStart, so the first log is always day 0.
     const points = sortedFiltered.map((l) => {
-      const dayNum = Math.max(0, differenceInDays(l._d, programStart)) + 1; // 1-indexed (Day 1 = end of first day)
+      const dayNum = Math.max(0, differenceInCalendarDays(l._d, programStart)) + 1; // 1-indexed (Day 1 = end of first day)
       const idealGrowth = Math.pow(1.01, dayNum);
       const actualVal = growthMap.get(l.date) ?? 1.0;
 
@@ -204,8 +205,8 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
                         }}
                         contentStyle={{ background: "hsl(0,0%,12%)", border: "1px solid hsl(0,0%,20%)", borderRadius: 8, color: "#fff", fontSize: 12 }}
                       />
-                      <Line type="monotone" dataKey="ideal" stroke="hsl(0,0%,35%)" strokeDasharray="4 4" dot={false} strokeWidth={1} name="Ideal (1%/day)" />
                       <Line type="monotone" dataKey="actual" stroke="hsl(0,72%,51%)" dot={false} strokeWidth={2} name="Your Growth" />
+                      <Line type="monotone" dataKey="ideal" stroke="hsl(0,0%,35%)" strokeDasharray="4 4" dot={false} strokeWidth={1} name="Ideal (1%/day)" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

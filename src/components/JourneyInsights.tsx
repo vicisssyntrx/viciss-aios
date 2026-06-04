@@ -2,7 +2,7 @@ import { useDailyLogs, getDenseLogs, computeDeterministicGrowth } from "@/hooks/
 import { useUserStats } from "@/hooks/useUserStats";
 import { todayYmdLocal } from "@/lib/date";
 import { useMemo } from "react";
-import { parseISO, differenceInDays } from "date-fns";
+import { parseISO, differenceInCalendarDays } from "date-fns";
 
 export default function JourneyInsights() {
   const { data: logs } = useDailyLogs();
@@ -25,7 +25,7 @@ export default function JourneyInsights() {
     if (stats?.start_date && stats?.end_date) {
       const start = parseISO(stats.start_date);
       const end = parseISO(stats.end_date);
-      const diff = differenceInDays(end, start);
+      const diff = differenceInCalendarDays(end, start);
       return diff > 0 ? diff : 365;
     }
     return 365;
@@ -36,7 +36,7 @@ export default function JourneyInsights() {
     if (!stats?.start_date) return 0;
     const start = parseISO(stats.start_date);
     const todayDate = parseISO(today);
-    const diff = differenceInDays(todayDate, start) + 1; // +1 to include today
+    const diff = differenceInCalendarDays(todayDate, start) + 1; // +1 to include today
     return Math.max(1, diff);
   }, [stats?.start_date, today]);
 

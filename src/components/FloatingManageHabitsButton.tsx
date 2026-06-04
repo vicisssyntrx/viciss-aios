@@ -16,7 +16,7 @@ export default function FloatingManageHabitsButton() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowManage(false)}
           />
-          <div className="relative w-full glass-strong rounded-t-2xl p-4 pb-8 space-y-4 max-h-[80vh] overflow-y-auto">
+          <div className="relative w-full bg-card text-card-foreground border-t border-border shadow-2xl rounded-t-2xl p-4 pb-8 space-y-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-lg font-bold text-foreground">Manage Habits</h3>
               <button
