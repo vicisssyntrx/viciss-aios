@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useAuth } from "@/contexts/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { X, LogOut, Shield, Zap, RotateCcw, Bell, User, Calendar, Download, Moon, Compass, Waves, Sparkles, Sun, Monitor } from "lucide-react";
+import { X, LogOut, Shield, Zap, RotateCcw, Bell, User, Calendar, Download, Moon, Compass, Waves, Sparkles, Sun, Monitor, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -47,6 +47,14 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
   const [bgStyle, setBgStyle] = useState(() => {
     return localStorage.getItem("vicissometer-bg-style") || "solid";
   });
+
+  const [rabitMode, setRabitMode] = useState(() => localStorage.getItem("rabit-mode") || "vector");
+
+  const handleRabitModeChange = (mode: string) => {
+    setRabitMode(mode);
+    localStorage.setItem("rabit-mode", mode);
+    window.dispatchEvent(new Event("rabit-mode-changed"));
+  };
 
   const [orbitStyle, setOrbitStyle] = useState(() => {
     return localStorage.getItem("vicissometer-orbit-style") || "red-blue";
@@ -393,7 +401,12 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
   const content = (
     <>
-      <div className="relative w-full max-w-sm flex flex-col items-center pt-[5rem] sm:pt-[5.5rem] select-none mx-auto mt-8 sm:mt-0">
+      <div 
+        className="relative w-full max-w-sm flex flex-col items-center pt-[5rem] sm:pt-[5.5rem] select-none mx-auto mt-8 sm:mt-0"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Mobile Pull Bar */}
+        {!isEmbedded && <div className="sm:hidden absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full z-30" />}
         {/* Large Centered Avatar */}
         <div 
           className="absolute top-6 left-1/2 -translate-x-1/2 z-20 w-32 h-32 sm:w-36 sm:h-36 shrink-0 rounded-full overflow-hidden shadow-[0_24px_60px_-12px_rgba(0,0,0,0.85),0_12px_24px_-8px_rgba(0,0,0,0.6)] border-4 border-background bg-secondary/80 flex items-center justify-center cursor-pointer group hover:scale-[1.02] active:scale-95 transition-all duration-300"
@@ -671,6 +684,57 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
             )}
           </div>
 
+          {/* Virtual Assistant Selector */}
+          <div className="p-3 space-y-2 border-t border-border/40 mt-1">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block flex items-center gap-1"><Wand2 className="w-3.5 h-3.5" /> Virtual Assistant (Rabit)</span>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                onClick={() => handleRabitModeChange("vector")}
+                className={cn(
+                  "flex flex-col items-center justify-center p-2 rounded-xl text-[10px] font-medium border transition-all duration-300",
+                  rabitMode === "vector" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <span>Vector (Tracking)</span>
+              </button>
+              <button
+                onClick={() => handleRabitModeChange("sprite")}
+                className={cn(
+                  "flex flex-col items-center justify-center p-2 rounded-xl text-[10px] font-medium border transition-all duration-300",
+                  rabitMode === "sprite" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <span>Retro Sprite</span>
+              </button>
+              <button
+                onClick={() => handleRabitModeChange("lottie")}
+                className={cn(
+                  "flex flex-col items-center justify-center p-2 rounded-xl text-[10px] font-medium border transition-all duration-300",
+                  rabitMode === "lottie" 
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(239,68,68,0.25)]" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <span>Lottie (Premium)</span>
+              </button>
+              <button
+                onClick={() => handleRabitModeChange("off")}
+                className={cn(
+                  "flex flex-col items-center justify-center p-2 rounded-xl text-[10px] font-medium border transition-all duration-300",
+                  rabitMode === "off" 
+                    ? "bg-destructive border-destructive text-destructive-foreground" 
+                    : "bg-secondary/40 border-border/40 text-foreground hover:bg-secondary/70 hover:border-border"
+                )}
+              >
+                <div className="flex items-center gap-1"><X className="w-3 h-3" /> <span>Off</span></div>
+              </button>
+            </div>
+          </div>
+
           {/* Bulk Quote Import Feature */}
           <div className="p-3 space-y-2 border-t border-border/40 mt-1 text-center flex flex-col items-center">
             <div className="w-full flex items-center justify-center gap-2">
@@ -785,7 +849,10 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
+    <div 
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4"
+      onClick={onClose}
+    >
       {resetting && <div className="fixed inset-0 z-[110]"><LoadingScreen message="Wiping account..." /></div>}
       {content}
     </div>,

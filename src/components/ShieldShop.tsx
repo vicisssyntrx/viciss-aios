@@ -54,8 +54,10 @@ export default function ShieldShop({ onClose, onPurchased }: Props) {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
-      <div className="glass w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl p-6">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4" onClick={onClose}>
+      <div className="glass w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
+        {/* Mobile Pull Bar */}
+        <div className="sm:hidden w-12 h-1.5 bg-muted-foreground/20 rounded-full mx-auto mb-5" />
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             <Shield className="w-6 h-6 text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.8)]" />

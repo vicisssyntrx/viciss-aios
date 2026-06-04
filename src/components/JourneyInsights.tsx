@@ -57,13 +57,20 @@ export default function JourneyInsights() {
     <div className="space-y-2">
       <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Journey Insights</h3>
       <div className="glass rounded-2xl p-4 md:p-5 min-h-[96px] flex flex-col justify-center">
-        <div className="grid grid-cols-4 gap-3 md:gap-4">
-        {items.map((item) => (
-          <div key={item.label} className="text-center">
-            <p className={`text-xl md:text-2xl font-black ${item.colorClass}`}>{item.value}</p>
-            <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-wider leading-tight mt-1">{item.label}</p>
+        <div className="flex items-center">
+          <div className="flex-shrink-0 pr-2 md:pr-4 text-center">
+            <p className={`text-xl md:text-3xl font-black ${items[0].colorClass}`}>{items[0].value}</p>
+            <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-wider leading-tight mt-1">{items[0].label}</p>
           </div>
-        ))}
+          <div className="w-px h-12 md:h-14 bg-border/40 mx-2 md:mx-4 flex-shrink-0" />
+          <div className="flex-1 grid grid-cols-3 gap-1 md:gap-3 pl-1 md:pl-2">
+            {items.slice(1).map((item) => (
+              <div key={item.label} className="text-center">
+                <p className={`text-lg md:text-2xl font-black ${item.colorClass}`}>{item.value}</p>
+                <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-wider leading-tight mt-1">{item.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

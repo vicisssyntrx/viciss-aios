@@ -38,8 +38,10 @@ export default function StreakWindow({ onClose }: Props) {
   const displayStreak = stats?.streak || 0;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4">
-      <div className="glass w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-3 sm:p-4 max-h-[88vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-background/80 backdrop-blur-sm sm:p-4" onClick={onClose}>
+      <div className="glass w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-3 sm:p-4 max-h-[88vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        {/* Mobile Pull Bar */}
+        <div className="sm:hidden w-12 h-1.5 bg-muted-foreground/20 rounded-full mx-auto mb-4" />
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             <Flame className="w-6 h-6 text-[#f97316] drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]" /> 

@@ -17,6 +17,8 @@ export default function FloatingManageHabitsButton() {
             onClick={() => setShowManage(false)}
           />
           <div className="relative w-full bg-card text-card-foreground border-t border-border shadow-2xl rounded-t-2xl p-4 pb-8 space-y-4 max-h-[80vh] overflow-y-auto">
+            {/* Mobile Pull Bar */}
+            <div className="sm:hidden w-12 h-1.5 bg-muted-foreground/20 rounded-full mx-auto mb-2" />
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-lg font-bold text-foreground">Manage Habits</h3>
               <button

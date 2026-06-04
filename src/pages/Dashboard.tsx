@@ -17,6 +17,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import AccountCenter from "@/components/AccountCenter";
 import AchievementToast, { AchievementType } from "@/components/AchievementToast";
 import MobileBoostCards from "@/components/MobileBoostCards";
+import RabitAssistant from "@/components/RabitAssistant";
 import { Home, ClipboardList, Shield, Zap } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
@@ -307,6 +308,9 @@ export default function Dashboard() {
 
                   <div className="-mx-2 sm:-mx-4">
                   </div>
+                  
+                  {/* Rabit Assistant (Mobile Only, Tasks Tab Only) */}
+                  <RabitAssistant />
                 </div>
               )}
 
