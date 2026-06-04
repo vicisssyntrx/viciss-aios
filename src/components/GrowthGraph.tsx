@@ -3,6 +3,7 @@ import { useUserStats } from "@/hooks/useUserStats";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useMemo, useState, useEffect } from "react";
 import ThoughtOfDay from "./ThoughtOfDay";
+import { Loader2 } from "lucide-react";
 import {
   format,
   parseISO,
@@ -21,8 +22,9 @@ interface GrowthGraphProps {
 }
 
 export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
-  const { data: rawLogs } = useDailyLogs();
-  const { data: stats } = useUserStats();
+  const { data: rawLogs, isFetching: isLogsFetching } = useDailyLogs();
+  const { data: stats, isFetching: isStatsFetching } = useUserStats();
+  const isFetching = isLogsFetching || isStatsFetching;
   const [range, setRange] = useState<"week" | "month" | "all">("all");
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -131,7 +133,10 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
   if (!safeLogs.length) {
     return (
       <div className="space-y-2">
-        <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Growth</h3>
+        <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
+          Growth
+          {isFetching && <Loader2 className="w-3.5 h-3.5 animate-spin text-primary/70" />}
+        </h3>
         <div className="glass rounded-2xl p-4">
           <div className="h-36 flex items-center justify-center text-muted-foreground text-base">
             Save your first day to see growth
@@ -143,7 +148,10 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Growth</h3>
+      <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
+        Growth
+        {isFetching && <Loader2 className="w-3.5 h-3.5 animate-spin text-primary/70" />}
+      </h3>
       <div className="flip-card-container h-[264px] md:h-[276px]">
         <div className={`flip-card-inner h-full ${isFlipped ? "flipped" : ""}`}>
           
