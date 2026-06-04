@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { useAuth } from "@/contexts/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface ChatThread {
   id: string;
@@ -16,8 +17,9 @@ interface ChatThread {
   updatedAt: number;
 }
 
-export default function AIChatbot({ onClose, isModal = false }: { onClose?: () => void, isModal?: boolean }) {
+export default function AIChatbot({ onClose, isModal = false, isOpen = true }: { onClose?: () => void, isModal?: boolean, isOpen?: boolean }) {
   const { user } = useAuth();
+  const { sendNotification } = useNotifications();
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -33,6 +35,8 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
 
   // Load from Supabase or fallback to local storage
   useEffect(() => {
+    if (!isOpen) return;
+    
     const loadThreads = async () => {
       let loaded = false;
       if (user?.id) {
@@ -48,7 +52,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
               const parsed = data.ai_chat_threads as any as ChatThread[];
               if (Array.isArray(parsed)) {
                 setThreads(parsed);
-                if (parsed.length > 0) setActiveThreadId(parsed[0].id);
+                if (parsed.length > 0 && !activeThreadId) setActiveThreadId(parsed[0].id);
                 loaded = true;
               }
             }
@@ -67,7 +71,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
           try {
             const parsed = JSON.parse(saved);
             setThreads(parsed);
-            if (parsed.length > 0) setActiveThreadId(parsed[0].id);
+            if (parsed.length > 0 && !activeThreadId) setActiveThreadId(parsed[0].id);
             loaded = true;
           } catch (e) {
             console.error("Failed to parse chat threads", e);
@@ -75,12 +79,12 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
         }
       }
       
-      if (!loaded) {
+      if (!loaded && threads.length === 0) {
         createNewThread();
       }
     };
     loadThreads();
-  }, [user]);
+  }, [user, isOpen]);
 
   // Save to Supabase and local storage whenever threads change
   useEffect(() => {
@@ -194,7 +198,8 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
         - Total Coins: ${stats?.coins || 0}
         - Tasks completed today: ${completedTasks}
         ${aiMemory ? `\nLong-term Memories about the User:\n${aiMemory}\n` : ""}
-        Keep your responses concise, helpful, and formatted beautifully in markdown. Act like a friend who wants them to succeed.`
+        Keep your responses concise, helpful, and formatted beautifully in markdown. Act like a friend who wants them to succeed.
+        IMPORTANT: If the user asks you to remind them about something, or if you feel like sending them a push notification, output the exact text of the notification inside a <notify> tag. Example: <notify>Don't forget to drink water!</notify>. You can also include normal conversational text alongside the tag.`
       };
 
       // Get history of the active thread (including the one we just added)
@@ -204,8 +209,21 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
       const apiMessages = [systemPrompt, ...messageHistory, newMessageObj];
 
       const reply = await sendMessageToAI(apiMessages, provider, apiKey, modelId);
+      
+      let finalContent = reply;
+      const notifyMatch = reply.match(/<notify>(.*?)<\/notify>/s);
+      
+      if (notifyMatch && notifyMatch[1]) {
+        const notificationText = notifyMatch[1].trim();
+        sendNotification("Rabbit says...", notificationText);
+        // Remove the notify tag from the displayed message
+        finalContent = reply.replace(/<notify>.*?<\/notify>/s, "").trim();
+        if (!finalContent) {
+          finalContent = "Notification sent! 🥕";
+        }
+      }
 
-      const assistantMsg: ChatMessage = { role: "assistant", content: reply };
+      const assistantMsg: ChatMessage = { role: "assistant", content: finalContent };
       
       setThreads(prev => prev.map(t => {
         if (t.id === currentThreadId) {
@@ -390,7 +408,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-end md:justify-center p-0 md:p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className={cn("fixed inset-0 z-[100] flex flex-col items-center justify-end md:justify-center p-0 md:p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300", !isOpen && "hidden")}>
       {innerContent}
     </div>
   );

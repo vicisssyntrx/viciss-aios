@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { useTodayLog } from "@/hooks/useDailyLogs"; 
 import { useNotifications } from "@/hooks/useNotifications";
 import { sendMessageToAI, AIProvider } from "@/lib/ai";
@@ -100,9 +100,24 @@ export default function RabbitAssistant() {
     return () => window.removeEventListener('resize', updateConstraints);
   }, []);
 
-  // Eye tracking for vector mode
-  const eyeX = useTransform(x, [-150, 150], [-4, 4]);
-  const eyeY = useTransform(y, [-300, 300], [-4, 4]);
+  // Eye tracking for vector mode (lifelike animation)
+  const eyeX = useMotionValue(0);
+  const eyeY = useMotionValue(0);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const interval = setInterval(() => {
+      // 30% chance to look center, 70% chance to dart around randomly
+      const lookForward = Math.random() < 0.3;
+      const targetX = lookForward ? 0 : (Math.random() - 0.5) * 8;
+      const targetY = lookForward ? 0 : (Math.random() - 0.5) * 8;
+      
+      animate(eyeX, targetX, { type: "spring", stiffness: 400, damping: 25 });
+      animate(eyeY, targetY, { type: "spring", stiffness: 400, damping: 25 });
+    }, 2000 + Math.random() * 2500);
+
+    return () => clearInterval(interval);
+  }, [enabled, eyeX, eyeY]);
 
   if (!enabled) return null;
 
