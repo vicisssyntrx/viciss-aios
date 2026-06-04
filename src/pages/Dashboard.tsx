@@ -18,7 +18,8 @@ import AccountCenter from "@/components/AccountCenter";
 import AchievementToast, { AchievementType } from "@/components/AchievementToast";
 import MobileBoostCards from "@/components/MobileBoostCards";
 import RabitAssistant from "@/components/RabitAssistant";
-import { Home, ClipboardList, Shield, Zap } from "lucide-react";
+import AIChatbot from "@/components/AIChatbot";
+import { Home, ClipboardList, Shield, Zap, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
@@ -217,6 +218,7 @@ export default function Dashboard() {
   const isDash = mobileTab === "dash";
   const isTasks = mobileTab === "tasks";
   const isAccount = mobileTab === "account";
+  const isChat = mobileTab === "chat";
 
   // ── Sunrise animation: replay on mount + every time tab becomes visible ──
   const [sunriseKey, setSunriseKey] = useState(0);
@@ -316,6 +318,9 @@ export default function Dashboard() {
 
               {/* Account tab */}
               {isAccount && <AccountCenter isEmbedded={true} />}
+
+              {/* Chat tab */}
+              {isChat && <AIChatbot />}
             </div>
 
             {/* ══════════ DESKTOP ══════════ */}
@@ -346,7 +351,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Floating Mobile Tab Bar ─────────────────────────────────────────── */}
-      <div className="md:hidden fixed bottom-7 left-1/2 -translate-x-1/2 z-50 w-[70%] max-w-[240px]">
+      <div className="md:hidden fixed bottom-7 left-1/2 -translate-x-1/2 z-50 w-[85%] max-w-[300px]">
         <div className="flex items-stretch rounded-full overflow-hidden floating-nav-pill w-full px-1 py-0.5">
           {/* Tab 1: Dash */}
           <button
@@ -370,7 +375,18 @@ export default function Dashboard() {
             <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
 
-          {/* Tab 3: Profile */}
+          {/* Tab 3: Rabit AI Chat */}
+          <button
+            onClick={() => setMobileTab("chat")}
+            className="tg-tab flex-1 select-none py-1.5"
+          >
+            <div className={`tg-tab-icon-wrap ${isChat ? "tg-tab-active" : ""}`}>
+              <Sparkles className="w-6.5 h-6.5 text-primary" />
+            </div>
+            <span className={`tg-tab-label ${isChat ? "tg-label-active" : ""}`}>AI</span>
+          </button>
+
+          {/* Tab 4: Profile */}
           <button
             onClick={() => setMobileTab("account")}
             className="tg-tab flex-1 select-none py-1.5"
