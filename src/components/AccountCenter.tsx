@@ -410,7 +410,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
   const content = (
     <>
       <div 
-        className={cn("relative w-full max-w-sm flex flex-col items-center select-none mx-auto mt-8 sm:mt-0", !isEmbedded && "max-h-[88vh] overflow-y-auto no-scrollbar")}
+        className={cn("relative w-full max-w-sm flex flex-col items-center select-none mx-auto mt-8 sm:mt-0 pt-[5rem] sm:pt-[5.5rem]", !isEmbedded && "max-h-[88vh] overflow-y-auto no-scrollbar")}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Mobile Pull Bar */}
