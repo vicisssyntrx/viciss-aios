@@ -318,6 +318,7 @@ export default function Dashboard() {
             {/* Left column */}
             <div className="hidden md:block space-y-2">
               <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
+              <OutcomeCards />
               <MobileBoostCards />
             </div>
 
@@ -325,7 +326,6 @@ export default function Dashboard() {
             <div className="hidden md:block space-y-2">
               <GrowthGraph activeTab="dash" />
               <JourneyInsights activeTab="dash" />
-              <OutcomeCards />
             </div>
           </div>
 
