@@ -784,8 +784,8 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
         </div>
       </div>
-    </div>
       
+
       <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
         <AlertDialogContent className="glass border-destructive/30 max-w-sm">
           <AlertDialogHeader>

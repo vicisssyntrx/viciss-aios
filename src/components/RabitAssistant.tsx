@@ -31,8 +31,24 @@ export default function RabitAssistant() {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
+  // Dynamic constraints to limit movement with a gap on all sides
+  const [constraints, setConstraints] = useState({ left: -300, right: 20, top: -500, bottom: 20 });
+
+  useEffect(() => {
+    const updateConstraints = () => {
+      setConstraints({
+        left: -window.innerWidth + 100,
+        right: 20,
+        top: -window.innerHeight + 180,
+        bottom: 20
+      });
+    };
+    updateConstraints();
+    window.addEventListener('resize', updateConstraints);
+    return () => window.removeEventListener('resize', updateConstraints);
+  }, []);
+
   // Eye tracking for vector mode
-  // The pupils will move slightly based on where Rabit is dragged on screen
   const eyeX = useTransform(x, [-150, 150], [-4, 4]);
   const eyeY = useTransform(y, [-300, 300], [-4, 4]);
 
@@ -43,10 +59,10 @@ export default function RabitAssistant() {
       drag
       dragMomentum={false}
       dragElastic={0.1}
-      // Keep within bounds of the screen approximately
-      dragConstraints={{ left: -20, right: window.innerWidth - 100, top: -400, bottom: -20 }}
-      className="fixed z-[9999] cursor-grab active:cursor-grabbing touch-none"
-      style={{ x, y, bottom: 120, right: 30 }}
+      dragConstraints={constraints}
+      onTap={() => window.dispatchEvent(new Event("open-ai-chat"))}
+      className="fixed z-[9999] cursor-grab active:cursor-grabbing touch-none bottom-[178px] md:bottom-[132px] right-3 md:right-[calc(max(2rem,calc(50%-38rem))-12px)]"
+      style={{ x, y }}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ type: "spring", stiffness: 260, damping: 20 }}

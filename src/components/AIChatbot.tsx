@@ -13,7 +13,7 @@ interface ChatThread {
   updatedAt: number;
 }
 
-export default function AIChatbot() {
+export default function AIChatbot({ onClose }: { onClose: () => void }) {
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -135,28 +135,38 @@ export default function AIChatbot() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] relative overflow-hidden bg-background/50 rounded-3xl border border-border/50 shadow-inner">
-      {/* Header */}
-      <div className="flex flex-none items-center justify-between p-4 border-b border-border/40 glass z-20">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setShowHistory(!showHistory)}
-            className="p-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
-          >
-            <Menu className="w-5 h-5 text-foreground" />
-          </button>
-          <div className="flex flex-col">
-            <span className="font-bold text-foreground flex items-center gap-1.5"><Wand2 className="w-4 h-4 text-primary" /> Rabit AI</span>
-            <span className="text-[10px] text-muted-foreground">Powered by OpenRouter</span>
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-end md:justify-center p-0 md:p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="w-full h-[90vh] md:h-[85vh] md:max-w-3xl flex flex-col relative overflow-hidden bg-background/90 md:bg-background/80 rounded-t-3xl md:rounded-3xl border-t md:border border-border/50 shadow-2xl glass-strong animate-in slide-in-from-bottom-10 duration-300">
+        
+        {/* Header */}
+        <div className="flex flex-none items-center justify-between p-4 border-b border-border/40 glass z-20">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setShowHistory(!showHistory)}
+              className="p-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+            >
+              <Menu className="w-5 h-5 text-foreground" />
+            </button>
+            <div className="flex flex-col">
+              <span className="font-bold text-foreground flex items-center gap-1.5"><Wand2 className="w-4 h-4 text-primary" /> Rabit AI</span>
+              <span className="text-[10px] text-muted-foreground">Powered by OpenRouter</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={createNewThread}
+              className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center gap-1 text-xs font-semibold"
+            >
+              <Plus className="w-4 h-4" /> New
+            </button>
+            <button 
+              onClick={onClose}
+              className="p-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+            >
+              <X className="w-4 h-4 text-foreground" />
+            </button>
           </div>
         </div>
-        <button 
-          onClick={createNewThread}
-          className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center gap-1 text-xs font-semibold"
-        >
-          <Plus className="w-4 h-4" /> New
-        </button>
-      </div>
 
       {/* Main Content Area */}
       <div className="flex flex-1 relative overflow-hidden">
@@ -262,6 +272,8 @@ export default function AIChatbot() {
               </button>
             </div>
           </div>
+        </div>
+
         </div>
 
       </div>

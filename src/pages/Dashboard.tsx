@@ -218,7 +218,14 @@ export default function Dashboard() {
   const isDash = mobileTab === "dash";
   const isTasks = mobileTab === "tasks";
   const isAccount = mobileTab === "account";
-  const isChat = mobileTab === "chat";
+
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenChat = () => setIsChatOpen(true);
+    window.addEventListener("open-ai-chat", handleOpenChat);
+    return () => window.removeEventListener("open-ai-chat", handleOpenChat);
+  }, []);
 
   // ── Sunrise animation: replay on mount + every time tab becomes visible ──
   const [sunriseKey, setSunriseKey] = useState(0);
@@ -310,17 +317,11 @@ export default function Dashboard() {
 
                   <div className="-mx-2 sm:-mx-4">
                   </div>
-                  
-                  {/* Rabit Assistant (Mobile Only, Tasks Tab Only) */}
-                  <RabitAssistant />
                 </div>
               )}
 
               {/* Account tab */}
               {isAccount && <AccountCenter isEmbedded={true} />}
-
-              {/* Chat tab */}
-              {isChat && <AIChatbot />}
             </div>
 
             {/* ══════════ DESKTOP ══════════ */}
@@ -375,15 +376,15 @@ export default function Dashboard() {
             <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
 
-          {/* Tab 3: Rabit AI Chat */}
+          {/* Tab 3: Rabit AI Chat (Opens Modal) */}
           <button
-            onClick={() => setMobileTab("chat")}
+            onClick={() => window.dispatchEvent(new Event("open-ai-chat"))}
             className="tg-tab flex-1 select-none py-1.5"
           >
-            <div className={`tg-tab-icon-wrap ${isChat ? "tg-tab-active" : ""}`}>
+            <div className="tg-tab-icon-wrap">
               <Sparkles className="w-6.5 h-6.5 text-primary" />
             </div>
-            <span className={`tg-tab-label ${isChat ? "tg-label-active" : ""}`}>AI</span>
+            <span className="tg-tab-label">AI</span>
           </button>
 
           {/* Tab 4: Profile */}
@@ -403,6 +404,12 @@ export default function Dashboard() {
       </div>
 
       <FloatingManageHabitsButton />
+      
+      {/* Rabit Assistant (Global) */}
+      <RabitAssistant />
+
+      {/* AI Chatbot Modal */}
+      {isChatOpen && <AIChatbot onClose={() => setIsChatOpen(false)} />}
     </div>
   );
 }

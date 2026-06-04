@@ -38,7 +38,7 @@ export default function FloatingManageHabitsButton() {
       {/* Floating Action Button */}
       <button
         onClick={() => setShowManage(true)}
-        className="fixed bottom-24 right-6 z-40 flex items-center justify-center rounded-full h-14 w-14 shadow-2xl glass hover:scale-105 active:scale-95 transition-all group"
+        className="fixed bottom-[110px] md:bottom-16 right-6 md:right-[max(2rem,calc(50%-38rem))] z-40 flex items-center justify-center rounded-full h-14 w-14 shadow-2xl glass hover:scale-105 active:scale-95 transition-all group"
         aria-label="Manage Habits"
       >
         <PenLine className="h-6 w-6 text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)] group-hover:drop-shadow-[0_0_12px_rgba(var(--primary),0.8)] transition-all" />

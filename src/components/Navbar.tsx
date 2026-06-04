@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserStats } from "@/hooks/useUserStats";
-import { Home, ClipboardList, Coins, Flame } from "lucide-react";
+import { Home, ClipboardList, Coins, Flame, Sparkles } from "lucide-react";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -98,15 +98,25 @@ export default function Navbar() {
                 </button>
               </div>
 
-              <button
-                onClick={() => setShowAccount(true)}
-                className="w-10 h-10 rounded-full overflow-hidden hover:opacity-90 transition-opacity flex-shrink-0"
-              >
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new Event("open-ai-chat"))}
+                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-primary hover:text-primary whitespace-nowrap flex items-center gap-2 hover:bg-secondary/60 transition-colors"
+                >
+                  <Sparkles className="w-4 h-4 text-primary" /> AI
+                </button>
+
+                <button
+                  onClick={() => setShowAccount(true)}
+                  className="w-10 h-10 rounded-full overflow-hidden hover:opacity-90 transition-opacity flex-shrink-0"
+                >
                 <Avatar className="h-full w-full border border-primary/40 bg-primary/20">
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" /> : null}
                   <AvatarFallback className="text-primary font-semibold text-sm">{initial}</AvatarFallback>
                 </Avatar>
               </button>
+              </div>
             </div>
           </nav>
         </div>
