@@ -355,7 +355,7 @@ export default function Dashboard() {
                 Viciss Syntrx
               </a>
             </p>
-            <p className="text-[10px] text-muted-foreground/60 font-mono tracking-widest uppercase">v0.0.2.6_6.4 • June 4, 2026</p>
+            <p className="text-[10px] text-muted-foreground/60 font-mono tracking-widest uppercase">v0.0.2.6_6.4</p>
           </div>
         </div>
       </div>
