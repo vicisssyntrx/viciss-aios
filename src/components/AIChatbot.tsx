@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { sendMessageToOpenRouter, ChatMessage } from "@/lib/ai";
+import { sendMessageToAI, ChatMessage, AIProvider } from "@/lib/ai";
 import { Send, Plus, MessageSquare, Menu, X, Wand2, ArrowLeft } from "lucide-react";
 import { useTodayLog } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
@@ -73,15 +73,26 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
   const handleSend = async () => {
     if (!input.trim() || !activeThreadId) return;
 
-    const apiKey = localStorage.getItem("openrouter-key");
+    const provider = (localStorage.getItem("ai-provider") || "openrouter") as AIProvider;
+    
+    let apiKey = "";
+    let modelId = "";
+
+    if (provider === "google") {
+      apiKey = localStorage.getItem("google-ai-key") || "";
+      modelId = localStorage.getItem("google-ai-model") || "";
+    } else {
+      apiKey = localStorage.getItem("openrouter-key") || "";
+      modelId = localStorage.getItem("openrouter-model") || "";
+    }
+
     if (!apiKey) {
-      toast.error("Please add your OpenRouter API key in Profile settings first.");
+      toast.error(`Please add your ${provider === "google" ? "Google AI" : "OpenRouter"} API key in Profile settings first.`);
       return;
     }
 
-    const modelId = localStorage.getItem("openrouter-model");
     if (!modelId) {
-      toast.error("Please add a Model ID in Profile settings first.");
+      toast.error(`Please add a Model ID for ${provider === "google" ? "Google AI" : "OpenRouter"} in Profile settings first.`);
       return;
     }
 
@@ -121,7 +132,7 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
       
       const apiMessages = [systemPrompt, ...messageHistory, newMessageObj];
 
-      const reply = await sendMessageToOpenRouter(apiMessages, apiKey, modelId);
+      const reply = await sendMessageToAI(apiMessages, provider, apiKey, modelId);
 
       const assistantMsg: ChatMessage = { role: "assistant", content: reply };
       
@@ -155,7 +166,7 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
             </button>
             <div className="flex flex-col">
               <span className="font-bold text-foreground flex items-center gap-1.5"><Wand2 className="w-4 h-4 text-primary" /> Rabit AI</span>
-              <span className="text-[10px] text-muted-foreground">Powered by OpenRouter</span>
+            <span className="text-[10px] text-muted-foreground">Powered by {localStorage.getItem("ai-provider") === "google" ? "Google AI Studio" : "OpenRouter"}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">

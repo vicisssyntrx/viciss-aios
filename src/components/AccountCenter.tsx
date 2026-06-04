@@ -56,28 +56,58 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
     window.dispatchEvent(new Event("rabit-mode-changed"));
   };
 
+  const [aiProvider, setAiProvider] = useState<"openrouter" | "google">(
+    () => (localStorage.getItem("ai-provider") as "openrouter" | "google") || "openrouter"
+  );
   const [openRouterKey, setOpenRouterKey] = useState(() => localStorage.getItem("openrouter-key") || "");
   const [openRouterModuleId, setOpenRouterModuleId] = useState(() => localStorage.getItem("openrouter-model") || "");
+  const [googleKey, setGoogleKey] = useState(() => localStorage.getItem("google-ai-key") || "");
+  const [googleModelId, setGoogleModelId] = useState(() => localStorage.getItem("google-ai-model") || "");
 
-  const [tempApiKey, setTempApiKey] = useState(openRouterKey);
-  const [tempModelId, setTempModelId] = useState(openRouterModuleId);
+  const [tempProvider, setTempProvider] = useState(aiProvider);
+  const [tempApiKey, setTempApiKey] = useState(aiProvider === "google" ? googleKey : openRouterKey);
+  const [tempModelId, setTempModelId] = useState(aiProvider === "google" ? googleModelId : openRouterModuleId);
+
+  // Sync temp inputs when provider tab changes
+  const handleProviderSwitch = (provider: "openrouter" | "google") => {
+    setTempProvider(provider);
+    setTempApiKey(provider === "google" ? googleKey : openRouterKey);
+    setTempModelId(provider === "google" ? googleModelId : openRouterModuleId);
+  };
 
   const handleSaveAISettings = () => {
-    setOpenRouterKey(tempApiKey);
-    setOpenRouterModuleId(tempModelId);
-    localStorage.setItem("openrouter-key", tempApiKey);
-    localStorage.setItem("openrouter-model", tempModelId);
+    setAiProvider(tempProvider);
+    localStorage.setItem("ai-provider", tempProvider);
+
+    if (tempProvider === "google") {
+      setGoogleKey(tempApiKey);
+      setGoogleModelId(tempModelId);
+      localStorage.setItem("google-ai-key", tempApiKey);
+      localStorage.setItem("google-ai-model", tempModelId);
+    } else {
+      setOpenRouterKey(tempApiKey);
+      setOpenRouterModuleId(tempModelId);
+      localStorage.setItem("openrouter-key", tempApiKey);
+      localStorage.setItem("openrouter-model", tempModelId);
+    }
     toast.success("AI Settings Saved!");
   };
 
   const handleResetAISettings = () => {
     setTempApiKey("");
     setTempModelId("");
-    setOpenRouterKey("");
-    setOpenRouterModuleId("");
-    localStorage.removeItem("openrouter-key");
-    localStorage.removeItem("openrouter-model");
-    toast.success("AI Settings Reset!");
+    if (tempProvider === "google") {
+      setGoogleKey("");
+      setGoogleModelId("");
+      localStorage.removeItem("google-ai-key");
+      localStorage.removeItem("google-ai-model");
+    } else {
+      setOpenRouterKey("");
+      setOpenRouterModuleId("");
+      localStorage.removeItem("openrouter-key");
+      localStorage.removeItem("openrouter-model");
+    }
+    toast.success(`${tempProvider === "google" ? "Google AI" : "OpenRouter"} Settings Reset!`);
   };
 
   const [orbitStyle, setOrbitStyle] = useState(() => {
@@ -556,11 +586,36 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
             </div>
             
             <div className="space-y-3">
+              <div className="flex bg-secondary/30 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => handleProviderSwitch("openrouter")}
+                  className={cn(
+                    "flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-colors",
+                    tempProvider === "openrouter" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  OpenRouter
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleProviderSwitch("google")}
+                  className={cn(
+                    "flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-colors",
+                    tempProvider === "google" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Google Studio
+                </button>
+              </div>
+
               <div className="space-y-1.5">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">OpenRouter API Key</span>
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
+                  {tempProvider === "google" ? "Google AI API Key" : "OpenRouter API Key"}
+                </span>
                 <Input 
                   type="password"
-                  placeholder="sk-or-v1-..."
+                  placeholder={tempProvider === "google" ? "AIzaSy..." : "sk-or-v1-..."}
                   value={tempApiKey}
                   onChange={(e) => setTempApiKey(e.target.value)}
                   className="h-8 text-xs bg-secondary/40 border-border/40 focus-visible:ring-1 focus-visible:ring-primary/50"
@@ -570,7 +625,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">Model ID</span>
                 <Input 
                   type="text"
-                  placeholder="e.g. meta-llama/llama-3-8b-instruct:free"
+                  placeholder={tempProvider === "google" ? "e.g. gemini-2.5-flash" : "e.g. meta-llama/llama-3-8b-instruct:free"}
                   value={tempModelId}
                   onChange={(e) => setTempModelId(e.target.value)}
                   className="h-8 text-xs bg-secondary/40 border-border/40 focus-visible:ring-1 focus-visible:ring-primary/50"
@@ -594,7 +649,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
               </div>
 
               <p className="text-[9px] text-muted-foreground leading-tight">
-                Required for AI chat and contextual motivation. Stored securely on your device.
+                Required for AI chat. Model settings will automatically apply when active provider is selected and saved.
               </p>
             </div>
           </div>
