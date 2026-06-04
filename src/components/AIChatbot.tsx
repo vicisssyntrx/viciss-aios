@@ -5,6 +5,9 @@ import { useTodayLog } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
+import { useAuth } from "@/contexts/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ChatThread {
   id: string;
@@ -13,7 +16,8 @@ interface ChatThread {
   updatedAt: number;
 }
 
-export default function AIChatbot({ onClose }: { onClose: () => void }) {
+export default function AIChatbot({ onClose, isModal = false }: { onClose?: () => void, isModal?: boolean }) {
+  const { user } = useAuth();
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -26,30 +30,76 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
   const { data: todayLog } = useTodayLog();
   const { data: stats } = useUserStats();
 
-  // Load from local storage
+  // Load from Supabase or fallback to local storage
   useEffect(() => {
-    const saved = localStorage.getItem("rabit-ai-threads");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setThreads(parsed);
-        if (parsed.length > 0) {
-          setActiveThreadId(parsed[0].id);
+    const loadThreads = async () => {
+      let loaded = false;
+      if (user?.id) {
+        try {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("ai_chat_threads")
+            .eq("user_id", user.id)
+            .single();
+          
+          if (!error && data?.ai_chat_threads) {
+            const parsed = data.ai_chat_threads as any as ChatThread[];
+            if (Array.isArray(parsed)) {
+              setThreads(parsed);
+              if (parsed.length > 0) setActiveThreadId(parsed[0].id);
+              loaded = true;
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load threads from Supabase", e);
         }
-      } catch (e) {
-        console.error("Failed to parse chat threads", e);
       }
-    } else {
-      createNewThread();
-    }
-  }, []);
 
-  // Save to local storage whenever threads change
+      if (!loaded) {
+        const saved = localStorage.getItem("rabit-ai-threads");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            setThreads(parsed);
+            if (parsed.length > 0) setActiveThreadId(parsed[0].id);
+            loaded = true;
+          } catch (e) {
+            console.error("Failed to parse chat threads", e);
+          }
+        }
+      }
+      
+      if (!loaded) {
+        createNewThread();
+      }
+    };
+    loadThreads();
+  }, [user]);
+
+  // Save to Supabase and local storage whenever threads change
   useEffect(() => {
-    if (threads.length > 0) {
-      localStorage.setItem("rabit-ai-threads", JSON.stringify(threads));
-    }
-  }, [threads]);
+    if (threads.length === 0) return;
+    
+    const saveThreads = async () => {
+      const jsonStr = JSON.stringify(threads);
+      localStorage.setItem("rabit-ai-threads", jsonStr);
+      
+      if (user?.id) {
+        try {
+          await supabase
+            .from("profiles")
+            .update({ ai_chat_threads: JSON.parse(jsonStr) })
+            .eq("user_id", user.id);
+        } catch (e) {
+          console.error("Failed to sync threads to Supabase", e);
+        }
+      }
+    };
+    
+    // Debounce save to avoid too many writes
+    const timeoutId = setTimeout(saveThreads, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [threads, user]);
 
   // Scroll to bottom when active thread's messages change
   useEffect(() => {
@@ -151,9 +201,11 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-end md:justify-center p-0 md:p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="w-full h-[90vh] md:h-[85vh] md:max-w-3xl flex flex-col relative overflow-hidden bg-background/90 md:bg-background/80 rounded-t-3xl md:rounded-3xl border-t md:border border-border/50 shadow-2xl glass-strong animate-in slide-in-from-bottom-10 duration-300">
+  const innerContent = (
+    <div className={cn(
+      "w-full flex flex-col relative overflow-hidden bg-background/90 md:bg-background/80 shadow-2xl glass-strong border-border/50",
+      isModal ? "h-[90vh] md:h-[85vh] md:max-w-3xl rounded-t-3xl md:rounded-3xl border-t md:border animate-in slide-in-from-bottom-10 duration-300" : "h-[calc(100vh-140px)] rounded-3xl border animate-in fade-in zoom-in-95 duration-300"
+    )}>
         
         {/* Header */}
         <div className="flex flex-none items-center justify-between p-4 border-b border-border/40 glass z-20">
@@ -165,8 +217,12 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
               <Menu className="w-5 h-5 text-foreground" />
             </button>
             <div className="flex flex-col">
-              <span className="font-bold text-foreground flex items-center gap-1.5"><Wand2 className="w-4 h-4 text-primary" /> Rabit AI</span>
-            <span className="text-[10px] text-muted-foreground">Powered by {localStorage.getItem("ai-provider") === "google" ? "Google AI Studio" : "OpenRouter"}</span>
+              <span className="font-bold text-foreground flex items-center gap-1.5">
+                <img src="/rabit-avatar.svg" alt="Rabit" className="w-5 h-5 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
+                <Wand2 className="w-4 h-4 text-primary hidden" />
+                Rabit AI
+              </span>
+              <span className="text-[10px] text-muted-foreground">Powered by {localStorage.getItem("ai-provider") === "google" ? "Google AI Studio" : "OpenRouter"}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -176,12 +232,14 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
             >
               <Plus className="w-4 h-4" /> New
             </button>
-            <button 
-              onClick={onClose}
-              className="p-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
-            >
-              <X className="w-4 h-4 text-foreground" />
-            </button>
+            {isModal && onClose && (
+              <button 
+                onClick={onClose}
+                className="p-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+              >
+                <X className="w-4 h-4 text-foreground" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -238,12 +296,12 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
                   )}
                 >
                   <div className={cn(
-                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm",
+                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:bg-black/20 prose-pre:text-foreground",
                     msg.role === "user" 
                       ? "bg-primary text-primary-foreground rounded-br-sm shadow-md" 
                       : "bg-secondary/80 text-foreground rounded-bl-sm border border-border/50 shadow-sm"
                   )}>
-                    <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 </div>
               ))
@@ -292,8 +350,16 @@ export default function AIChatbot({ onClose }: { onClose: () => void }) {
         </div>
 
         </div>
-
       </div>
+  );
+
+  if (!isModal) {
+    return innerContent;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-end md:justify-center p-0 md:p-6 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+      {innerContent}
     </div>
   );
 }

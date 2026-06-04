@@ -53,3 +53,26 @@ export async function sendMessageToAI(
   const data = await response.json();
   return data.choices[0].message.content;
 }
+
+export async function summarizeMemory(
+  provider: AIProvider,
+  apiKey: string,
+  model: string,
+  existingMemory: string,
+  recentMessages: ChatMessage[]
+): Promise<string> {
+  const systemPrompt = `You are an AI tasked with maintaining a user's long-term memory for an accountability app.
+Your job is to read the current memory and the recent chat history, then extract any new, important facts, goals, preferences, or personal details about the user.
+Update the memory with these new facts. The output must be concise and beautifully formatted in Markdown.
+CRITICAL INSTRUCTION:
+- If the memory gets too long, compress older facts into dense bullet points.
+- The user's database has limited space, so keep the summary as short as possible while retaining the core facts spanning up to 2 years.
+- Only output the updated markdown memory. Do not include any conversational filler like "Here is the memory:".`;
+
+  const messages: ChatMessage[] = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: `CURRENT MEMORY:\n${existingMemory || "No existing memory."}\n\nRECENT CHAT HISTORY:\n${recentMessages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n")}` }
+  ];
+
+  return await sendMessageToAI(messages, provider, apiKey, model);
+}

@@ -67,7 +67,7 @@ export function useMidnightInvalidation() {
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
-  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "account">("dash");
+  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account">("dash");
 
   // Achievement animation queue
   const [achievementQueue, setAchievementQueue] = useState<AchievementType[]>([]);
@@ -217,6 +217,7 @@ export default function Dashboard() {
 
   const isDash = mobileTab === "dash";
   const isTasks = mobileTab === "tasks";
+  const isChat = mobileTab === "chat";
   const isAccount = mobileTab === "account";
 
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -320,6 +321,13 @@ export default function Dashboard() {
                 </div>
               )}
 
+              {/* Chat tab */}
+              {isChat && (
+                <div className="h-[calc(100vh-160px)] px-2 pt-2">
+                  <AIChatbot isModal={false} />
+                </div>
+              )}
+
               {/* Account tab */}
               {isAccount && <AccountCenter isEmbedded={true} />}
             </div>
@@ -376,15 +384,15 @@ export default function Dashboard() {
             <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
 
-          {/* Tab 3: Rabit AI Chat (Opens Modal) */}
+          {/* Tab 3: Rabit AI Chat */}
           <button
-            onClick={() => window.dispatchEvent(new Event("open-ai-chat"))}
+            onClick={() => setMobileTab("chat")}
             className="tg-tab flex-1 select-none py-1.5"
           >
-            <div className="tg-tab-icon-wrap">
+            <div className={`tg-tab-icon-wrap ${isChat ? "tg-tab-active" : ""}`}>
               <Sparkles className="w-6.5 h-6.5" />
             </div>
-            <span className="tg-tab-label">AI</span>
+            <span className={`tg-tab-label ${isChat ? "tg-label-active" : ""}`}>AI</span>
           </button>
 
           {/* Tab 4: Profile */}
@@ -403,13 +411,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <FloatingManageHabitsButton />
-      
-      {/* Rabit Assistant (Global) */}
       <RabitAssistant />
-
-      {/* AI Chatbot Modal */}
-      {isChatOpen && <AIChatbot onClose={() => setIsChatOpen(false)} />}
+      {isChatOpen && <AIChatbot isModal={true} onClose={() => setIsChatOpen(false)} />}
+      <FloatingManageHabitsButton />
     </div>
   );
 }

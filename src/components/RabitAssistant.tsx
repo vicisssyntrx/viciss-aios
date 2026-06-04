@@ -10,6 +10,7 @@ export default function RabitAssistant() {
   // Track tasks completion to trigger chats
   const completedCount = todayLog?.completed_habits?.length || 0;
   const prevCompletedCount = useRef(completedCount);
+  const isDragging = useRef(false);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -60,7 +61,15 @@ export default function RabitAssistant() {
       dragMomentum={false}
       dragElastic={0.1}
       dragConstraints={constraints}
-      onTap={() => window.dispatchEvent(new Event("open-ai-chat"))}
+      onDragStart={() => (isDragging.current = true)}
+      onDragEnd={() => {
+        setTimeout(() => (isDragging.current = false), 150);
+      }}
+      onTap={() => {
+        if (!isDragging.current) {
+          window.dispatchEvent(new Event("open-ai-chat"));
+        }
+      }}
       className="fixed z-[9999] cursor-grab active:cursor-grabbing touch-none bottom-[178px] md:bottom-[132px] right-3 md:right-[calc(max(2rem,calc(50%-38rem))-12px)]"
       style={{ x, y }}
       initial={{ scale: 0, opacity: 0 }}
