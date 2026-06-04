@@ -48,7 +48,7 @@ export default function JourneyInsights() {
 
   const items = [
     { label: "Growth", value: formatGrowth(finalGrowth), colorClass: "text-[#fbbf24] drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" },
-    { label: "Perfect", value: <><span className="text-[#4ade80]">{completedDays}</span><span className="text-foreground text-sm md:text-base ml-1 font-medium">/ {totalProgramDays}</span></>, colorClass: "" },
+    { label: "Perfect", value: <><span className="text-[#4ade80]">{completedDays}</span><span className="text-foreground text-sm md:text-lg ml-1 font-bold">/ {totalProgramDays}</span></>, colorClass: "" },
     { label: "Missed", value: missedDays, colorClass: "text-[#f87171]" },
     { label: "Completed", value: `${journeyCompletionPct}%`, colorClass: "text-foreground" },
   ];
@@ -60,7 +60,7 @@ export default function JourneyInsights() {
         <div className="grid grid-cols-4 gap-3 md:gap-4">
         {items.map((item) => (
           <div key={item.label} className="text-center">
-            <p className={`text-[17px] md:text-xl font-bold ${item.colorClass}`}>{item.value}</p>
+            <p className={`text-xl md:text-2xl font-black ${item.colorClass}`}>{item.value}</p>
             <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-wider leading-tight mt-1">{item.label}</p>
           </div>
         ))}
