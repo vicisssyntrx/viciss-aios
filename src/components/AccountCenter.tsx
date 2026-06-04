@@ -20,6 +20,7 @@ import { getInstallLabel, isMobileDevice, isRunningStandalone } from "@/lib/pwa"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import LoadingScreen from "./LoadingScreen";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface Props { 
   onClose?: () => void;
@@ -38,6 +39,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
   const [resetting, setResetting] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [resetToken, setResetToken] = useState("");
+  const { permission, requestPermission } = useNotifications();
   const [installing, setInstalling] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const installLabel = useMemo(() => getInstallLabel(), []);
@@ -582,6 +584,24 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
               <Switch 
                 checked={rabitMode === "vector"} 
                 onCheckedChange={(checked) => handleRabitModeChange(checked ? "vector" : "off")} 
+              />
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-border/30">
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-primary" /> Allow Notifications
+                </span>
+                <span className="text-[10px] text-muted-foreground mt-1">Get scheduled reminders from Rabit</span>
+              </div>
+              <Switch 
+                checked={permission === "granted"} 
+                disabled={permission === "denied" || permission === "granted"}
+                onCheckedChange={async (checked) => {
+                  if (checked && permission !== "granted") {
+                    await requestPermission();
+                  }
+                }} 
               />
             </div>
             

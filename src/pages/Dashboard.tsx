@@ -413,7 +413,7 @@ export default function Dashboard() {
 
       <RabitAssistant />
       {isChatOpen && <AIChatbot isModal={true} onClose={() => setIsChatOpen(false)} />}
-      <FloatingManageHabitsButton />
+      {(isDash || isTasks) && <FloatingManageHabitsButton />}
     </div>
   );
 }

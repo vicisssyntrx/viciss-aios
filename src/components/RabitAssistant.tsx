@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useTodayLog } from "@/hooks/useDailyLogs"; 
+import { useNotifications } from "@/hooks/useNotifications";
+import { sendMessageToAI, AIProvider } from "@/lib/ai";
 
 export default function RabitAssistant() {
   const [enabled, setEnabled] = useState(() => (localStorage.getItem("rabit-mode") || "on") !== "off");
@@ -27,6 +29,51 @@ export default function RabitAssistant() {
     }
     prevCompletedCount.current = completedCount;
   }, [completedCount]);
+
+  const { sendNotification } = useNotifications();
+
+  // "Cron job" background scheduler for reminders
+  useEffect(() => {
+    if (!enabled) return;
+
+    const checkAndNotify = async () => {
+      const lastNotified = parseInt(localStorage.getItem("rabit-last-notified") || "0");
+      const twoHours = 2 * 60 * 60 * 1000;
+      
+      // Check if 2 hours have passed since last notification
+      if (Date.now() - lastNotified < twoHours) return;
+
+      const pendingTasks = (todayLog?.habits?.length || 0) - (todayLog?.completed_habits?.length || 0);
+      if (pendingTasks <= 0) return; // No need to remind if all tasks done!
+
+      const provider = (localStorage.getItem("ai-provider") || "openrouter") as AIProvider;
+      const apiKey = provider === "google" ? localStorage.getItem("google-ai-key") : localStorage.getItem("openrouter-key");
+      const modelId = provider === "google" ? localStorage.getItem("google-ai-model") : localStorage.getItem("openrouter-model");
+
+      if (!apiKey || !modelId) return; // Can't send AI notifications if not configured
+
+      try {
+        const reply = await sendMessageToAI([
+          { 
+            role: "system", 
+            content: `You are Rabit, a witty AI accountability partner. The user has ${pendingTasks} pending tasks today. Write a SINGLE very short, punchy, and motivational push notification (under 15 words) to remind them.` 
+          }
+        ], provider, apiKey, modelId);
+        
+        await sendNotification("Rabit Reminder 🥕", reply);
+        localStorage.setItem("rabit-last-notified", Date.now().toString());
+        setChatMessage(reply);
+        setTimeout(() => setChatMessage(null), 5000);
+      } catch (e) {
+        console.error("Scheduled AI notification failed:", e);
+      }
+    };
+
+    // Check immediately on mount, then every 30 minutes
+    checkAndNotify();
+    const interval = setInterval(checkAndNotify, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [enabled, todayLog?.habits?.length, todayLog?.completed_habits?.length, sendNotification]);
 
   // Framer Motion Drag values
   const x = useMotionValue(0);

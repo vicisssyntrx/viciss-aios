@@ -7,8 +7,10 @@ import ShieldShop from "./ShieldShop";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNotifications } from "@/hooks/useNotifications";
+import NotificationsModal from "./NotificationsModal";
 import { useUserStats } from "@/hooks/useUserStats";
-import { Home, ClipboardList, Coins, Flame, Sparkles } from "lucide-react";
+import { Coins, Flame, Sparkles, Bell } from "lucide-react";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -17,6 +19,9 @@ export default function Navbar() {
   const [showStreak, setShowStreak] = useState(false);
   const [showCoins, setShowCoins] = useState(false);
   const [showShieldShop, setShowShieldShop] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  
+  const { unreadCount } = useNotifications();
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -108,6 +113,17 @@ export default function Navbar() {
                 </button>
 
                 <button
+                  type="button"
+                  onClick={() => setShowNotifications(true)}
+                  className="glass relative !transform-none rounded-full w-10 h-10 flex items-center justify-center hover:bg-secondary/60 transition-colors"
+                >
+                  <Bell className="w-5 h-5 text-foreground" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 w-3 h-3 bg-destructive rounded-full border-2 border-background" />
+                  )}
+                </button>
+
+                <button
                   onClick={() => setShowAccount(true)}
                   className="w-10 h-10 rounded-full overflow-hidden hover:opacity-90 transition-opacity flex-shrink-0"
                 >
@@ -126,6 +142,7 @@ export default function Navbar() {
       {showAccount && <AccountCenter onClose={() => setShowAccount(false)} />}
       {showCoins && <CoinsWindow onClose={() => setShowCoins(false)} onOpenShieldShop={() => setShowShieldShop(true)} />}
       {showShieldShop && <ShieldShop onClose={() => setShowShieldShop(false)} />}
+      {showNotifications && <NotificationsModal onClose={() => setShowNotifications(false)} />}
     </>
   );
 }

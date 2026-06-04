@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { sendMessageToAI, ChatMessage, AIProvider } from "@/lib/ai";
-import { Send, Plus, MessageSquare, Menu, X, Wand2, ArrowLeft } from "lucide-react";
+import { sendMessageToAI, summarizeMemory, ChatMessage, AIProvider } from "@/lib/ai";
+import { Send, Plus, MessageSquare, Menu, X, Wand2 } from "lucide-react";
 import { useTodayLog } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [aiMemory, setAiMemory] = useState<string>("");
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -38,16 +39,21 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
         try {
           const { data, error } = await supabase
             .from("profiles")
-            .select("ai_chat_threads")
+            .select("ai_chat_threads, ai_memory")
             .eq("user_id", user.id)
             .single();
           
-          if (!error && data?.ai_chat_threads) {
-            const parsed = data.ai_chat_threads as any as ChatThread[];
-            if (Array.isArray(parsed)) {
-              setThreads(parsed);
-              if (parsed.length > 0) setActiveThreadId(parsed[0].id);
-              loaded = true;
+          if (!error && data) {
+            if (data.ai_chat_threads) {
+              const parsed = data.ai_chat_threads as any as ChatThread[];
+              if (Array.isArray(parsed)) {
+                setThreads(parsed);
+                if (parsed.length > 0) setActiveThreadId(parsed[0].id);
+                loaded = true;
+              }
+            }
+            if (data.ai_memory) {
+              setAiMemory(data.ai_memory);
             }
           }
         } catch (e) {
@@ -173,6 +179,7 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
         - Current Streak: ${stats?.streak || 0} days
         - Total Coins: ${stats?.coins || 0}
         - Tasks completed today: ${completedTasks}
+        ${aiMemory ? `\nLong-term Memories about the User:\n${aiMemory}\n` : ""}
         Keep your responses concise, helpful, and formatted beautifully in markdown. Act like a friend who wants them to succeed.`
       };
 
@@ -192,6 +199,17 @@ export default function AIChatbot({ onClose, isModal = false }: { onClose?: () =
         }
         return t;
       }));
+
+      // Background Memory Summarization
+      const userMessageCount = messageHistory.filter(m => m.role === "user").length + 1;
+      if (userMessageCount % 5 === 0 && user?.id) {
+        summarizeMemory(provider, apiKey, modelId, aiMemory, [...messageHistory, newMessageObj, assistantMsg])
+          .then(async (newMemory) => {
+            setAiMemory(newMemory);
+            await supabase.from("profiles").update({ ai_memory: newMemory }).eq("user_id", user.id);
+          })
+          .catch(err => console.error("Background summarization failed:", err));
+      }
 
     } catch (err: any) {
       console.error(err);
