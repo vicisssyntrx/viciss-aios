@@ -11,7 +11,6 @@ import {
   startOfWeek,
   endOfWeek,
   startOfMonth,
-  startOfMonth,
   endOfMonth,
   isWithinInterval,
   differenceInCalendarDays,
