@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/useAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AccountCenter from "./AccountCenter";
 import StreakWindow from "./StreakWindow";
 import CoinsWindow from "./CoinsWindow";
@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNotifications } from "@/hooks/useNotifications";
 import NotificationsModal from "./NotificationsModal";
 import { useUserStats } from "@/hooks/useUserStats";
-import { Coins, Flame, Sparkles, Bell } from "lucide-react";
+import { Coins, Flame, Sparkles, Bell, Monitor } from "lucide-react";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -20,6 +20,24 @@ export default function Navbar() {
   const [showCoins, setShowCoins] = useState(false);
   const [showShieldShop, setShowShieldShop] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  
+  const [showRainbow, setShowRainbow] = useState(true);
+  const [rainbowFade, setRainbowFade] = useState(false);
+
+  useEffect(() => {
+    const fadeTimeout = setTimeout(() => {
+      setRainbowFade(true);
+    }, 3500); // Start fade out after 3.5s
+
+    const removeTimeout = setTimeout(() => {
+      setShowRainbow(false);
+    }, 4500); // Fully unmount after 4.5s
+
+    return () => {
+      clearTimeout(fadeTimeout);
+      clearTimeout(removeTimeout);
+    };
+  }, []);
   
   const { unreadCount } = useNotifications();
 
@@ -49,9 +67,21 @@ export default function Navbar() {
     <>
       {/* ── Mobile: sticky glass navbar — always visible ── */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 px-3 pt-3 pb-1">
-        <nav className="w-full flex items-center justify-between py-3 px-5 glass !transform-none pointer-events-auto">
-          <h1 className="text-lg font-bold tracking-tight text-foreground ml-1">
-            Vicissometer
+        <nav className="relative w-full flex items-center justify-between py-3 px-5 glass !transform-none pointer-events-auto">
+          {showRainbow && (
+            <div 
+              className={`google-rainbow-border-container transition-opacity duration-1000 ${
+                rainbowFade ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              <div className="google-rainbow-border-spinner" />
+            </div>
+          )}
+          <h1 
+            className="text-lg font-bold tracking-tight text-gold-gradient ml-1 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => window.dispatchEvent(new Event("go-to-dash"))}
+          >
+            Viciss AIOS
           </h1>
           <div className="flex items-center gap-2">
             <button
@@ -75,12 +105,24 @@ export default function Navbar() {
       {/* ── Desktop: full glass navbar ── */}
       <div className="hidden md:flex fixed top-0 left-0 right-0 z-40 justify-center px-3 mt-4 pointer-events-none">
         <div className="relative w-full max-w-[1060px] pointer-events-auto">
-          <nav className="w-full flex items-center justify-between py-4 px-8 glass !transform-none !shadow-[0_12px_40px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08),inset_1px_1px_0px_rgba(255,255,255,0.8),inset_-1px_-1px_0px_rgba(0,0,0,0.04)] dark:!shadow-[0_8px_32px_rgba(0,0,0,0.07),inset_1px_1px_0px_rgba(255,255,255,0.05),inset_-1px_-1px_0px_rgba(0,0,0,0.2)] dark:border dark:border-white/10">
+          <nav className="relative w-full flex items-center justify-between py-4 px-8 glass !transform-none !shadow-[0_12px_40px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08),inset_1px_1px_0px_rgba(255,255,255,0.8),inset_-1px_-1px_0px_rgba(0,0,0,0.04)] dark:!shadow-[0_8px_32px_rgba(0,0,0,0.07),inset_1px_1px_0px_rgba(255,255,255,0.05),inset_-1px_-1px_0px_rgba(0,0,0,0.2)] dark:border dark:border-white/10">
+            {showRainbow && (
+              <div 
+                className={`google-rainbow-border-container transition-opacity duration-1000 ${
+                  rainbowFade ? "opacity-0" : "opacity-100"
+                }`}
+              >
+                <div className="google-rainbow-border-spinner" />
+              </div>
+            )}
 
             {/* Left: Brand */}
             <div className="flex items-center gap-1 flex-shrink-0">
-              <h1 className="text-xl font-bold tracking-tight text-foreground">
-                Vicissometer
+              <h1 
+                className="text-xl font-bold tracking-tight text-gold-gradient cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => window.dispatchEvent(new Event("go-to-dash"))}
+              >
+                Viciss AIOS
               </h1>
             </div>
 
@@ -104,6 +146,14 @@ export default function Navbar() {
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new Event("open-edits-tracker"))}
+                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap flex items-center gap-2 hover:bg-secondary/60 transition-colors"
+                >
+                  <Monitor className="w-4 h-4 text-foreground" /> Edits
+                </button>
+
                 <button
                   type="button"
                   onClick={() => window.dispatchEvent(new Event("open-ai-chat"))}
@@ -143,6 +193,34 @@ export default function Navbar() {
       {showCoins && <CoinsWindow onClose={() => setShowCoins(false)} onOpenShieldShop={() => setShowShieldShop(true)} />}
       {showShieldShop && <ShieldShop onClose={() => setShowShieldShop(false)} />}
       {showNotifications && <NotificationsModal onClose={() => setShowNotifications(false)} />}
+
+      <style>{`
+        @keyframes google-rainbow-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .google-rainbow-border-container {
+          position: absolute;
+          inset: -1.5px;
+          border-radius: inherit;
+          padding: 1.5px;
+          pointer-events: none;
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          overflow: hidden;
+          z-index: 10;
+        }
+        .google-rainbow-border-spinner {
+          position: absolute;
+          top: -150%;
+          left: -150%;
+          width: 400%;
+          height: 400%;
+          background: conic-gradient(from 0deg, #d4af37, #f59e0b 80%, #ffffff 90%, #d4af37 100%);
+          animation: google-rainbow-spin 2.5s cubic-bezier(0.25, 1, 0.5, 1) 1 forwards;
+        }
+      `}</style>
     </>
   );
 }

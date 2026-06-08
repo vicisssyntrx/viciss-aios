@@ -19,7 +19,7 @@ import AchievementToast, { AchievementType } from "@/components/AchievementToast
 import MobileBoostCards from "@/components/MobileBoostCards";
 import RabbitAssistant from "@/components/RabbitAssistant";
 import AIChatbot from "@/components/AIChatbot";
-import { Home, ClipboardList, Shield, Zap, Sparkles } from "lucide-react";
+import { Home, ClipboardList, Shield, Zap, Sparkles, Monitor } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
@@ -67,7 +67,25 @@ export function useMidnightInvalidation() {
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
-  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account">("dash");
+  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account" | "edits">("dash");
+  const [desktopView, setDesktopView] = useState<"dash" | "edits">("dash");
+
+  useEffect(() => {
+    const handleOpenEdits = () => {
+      setDesktopView("edits");
+      setMobileTab("edits");
+    };
+    const handleGoToDash = () => {
+      setDesktopView("dash");
+      setMobileTab("dash");
+    };
+    window.addEventListener("open-edits-tracker", handleOpenEdits);
+    window.addEventListener("go-to-dash", handleGoToDash);
+    return () => {
+      window.removeEventListener("open-edits-tracker", handleOpenEdits);
+      window.removeEventListener("go-to-dash", handleGoToDash);
+    };
+  }, []);
 
   // Achievement animation queue
   const [achievementQueue, setAchievementQueue] = useState<AchievementType[]>([]);
@@ -219,6 +237,7 @@ export default function Dashboard() {
   const isTasks = mobileTab === "tasks";
   const isChat = mobileTab === "chat";
   const isAccount = mobileTab === "account";
+  const isEdits = mobileTab === "edits";
 
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -266,9 +285,11 @@ export default function Dashboard() {
       <div key={sunriseKey} className="page-sunrise relative z-10 flex flex-col min-h-screen pt-[4.5rem] md:pt-[5.5rem]">
 
         {/* ── Greeting ── */}
-        <div className="hidden md:block">
-          <Greeting />
-        </div>
+        {desktopView === "dash" && (
+          <div className="hidden md:block">
+            <Greeting />
+          </div>
+        )}
         {isDash && (
           <div className="md:hidden">
             <Greeting />
@@ -276,7 +297,7 @@ export default function Dashboard() {
         )}
 
         <div className="flex-1 px-4 sm:px-6 pb-4 md:pb-6 mt-2">
-          <div className="mx-auto w-full max-w-[860px] md:grid md:grid-cols-2 md:gap-4">
+          <div className={`mx-auto w-full md:grid md:grid-cols-2 md:gap-4 ${desktopView === "edits" ? "max-w-[1200px]" : "max-w-[860px]"}`}>
 
             {/* ══════════ MOBILE ══════════ */}
             <div key={mobileTab} className="space-y-4 md:hidden pb-32 animate-in fade-in zoom-in-95 duration-300">
@@ -330,21 +351,46 @@ export default function Dashboard() {
 
               {/* Account tab */}
               {isAccount && <AccountCenter isEmbedded={true} />}
+
+              {/* Edits tab */}
+              {isEdits && (
+                <div className="h-[calc(100vh-160px)] px-2 pt-2 animate-in fade-in zoom-in-95 duration-300">
+                  <iframe src="https://viciss-edits-tracker.vercel.app/" className="w-full h-full border-0 rounded-xl" title="Viciss Edits Tracker" />
+                </div>
+              )}
             </div>
 
             {/* ══════════ DESKTOP ══════════ */}
-            {/* Left column */}
-            <div className="hidden md:block space-y-2">
-              <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
-              <OutcomeCards />
-              <MobileBoostCards />
-            </div>
+            {desktopView === "dash" ? (
+              <>
+                {/* Left column */}
+                <div className="hidden md:block space-y-2">
+                  <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
+                  <OutcomeCards />
+                  <MobileBoostCards />
+                </div>
 
-            {/* Right column */}
-            <div className="hidden md:block space-y-2">
-              <GrowthGraph activeTab="dash" />
-              <JourneyInsights activeTab="dash" />
-            </div>
+                {/* Right column */}
+                <div className="hidden md:block space-y-2">
+                  <GrowthGraph activeTab="dash" />
+                  <JourneyInsights activeTab="dash" />
+                </div>
+              </>
+            ) : (
+              <div className="hidden md:block col-span-2 space-y-3 mt-2 animate-in fade-in zoom-in-95 duration-300">
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => setDesktopView("dash")}
+                    className="glass rounded-xl px-4 py-2 text-sm font-semibold text-foreground hover:bg-secondary/60 transition-all active:scale-95 flex items-center gap-2"
+                  >
+                    <Home className="w-4 h-4 text-primary" /> Back to Dashboard
+                  </button>
+                </div>
+                <div className="h-[calc(100vh-170px)]">
+                  <iframe src="https://viciss-edits-tracker.vercel.app/" className="w-full h-full border-0 rounded-xl shadow-lg" title="Viciss Edits Tracker" />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer — desktop only */}
@@ -394,6 +440,17 @@ export default function Dashboard() {
               <Sparkles className="w-6.5 h-6.5" />
             </div>
             <span className={`tg-tab-label ${isChat ? "tg-label-active" : ""}`}>AI</span>
+          </button>
+
+          {/* Tab 5: Edits */}
+          <button
+            onClick={() => setMobileTab("edits")}
+            className="tg-tab flex-1 select-none py-1.5"
+          >
+            <div className={`tg-tab-icon-wrap ${isEdits ? "tg-tab-active" : ""}`}>
+              <Monitor className="w-6.5 h-6.5" />
+            </div>
+            <span className={`tg-tab-label ${isEdits ? "tg-label-active" : ""}`}>Edits</span>
           </button>
 
           {/* Tab 4: Profile */}

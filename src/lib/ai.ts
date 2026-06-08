@@ -30,7 +30,7 @@ export async function sendMessageToAI(
 
   if (provider === "openrouter") {
     headers["HTTP-Referer"] = window.location.origin;
-    headers["X-Title"] = "Vicissometer Habit Tracker";
+    headers["X-Title"] = "Viciss AIOS Habit Tracker";
   }
 
   const bodyPayload: any = {

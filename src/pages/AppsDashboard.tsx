@@ -425,7 +425,7 @@ export default function AppsDashboard() {
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
-            Type the name of any app, and let Vicissometer automatically find its logo, set up the smart mobile deep-link launcher, and direct fallbacks to the Play Store.
+            Type the name of any app, and let Viciss AIOS automatically find its logo, set up the smart mobile deep-link launcher, and direct fallbacks to the Play Store.
           </p>
         </div>
         <button

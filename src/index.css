@@ -679,3 +679,14 @@
 .glass-strong .text-muted-foreground {
   color: hsl(var(--muted-foreground)) !important;
 }
+
+/* Golden Gradient Text Utility */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #FFE07D 0%, #F59E0B 50%, #FFE07D 100%);
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  text-fill-color: transparent !important;
+  display: inline-block;
+}
+

@@ -25,7 +25,7 @@ export default function PwaInstallManager() {
 
     const onInstalled = () => {
       window.__vicissInstallPromptEvent = undefined;
-      toast.success("Vicissometer installed");
+      toast.success("Viciss AIOS installed");
     };
 
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);

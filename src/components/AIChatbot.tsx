@@ -192,7 +192,7 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
       const completedTasks = todayLog?.completed_habits?.length || 0;
       const systemPrompt: ChatMessage = {
         role: "system",
-        content: `You are Rabbit, a witty, motivating, and highly intelligent AI accountability partner for a productivity app called Vicissometer. 
+        content: `You are Rabbit, a witty, motivating, and highly intelligent AI accountability partner for a productivity app called Viciss AIOS. 
         Context about the user right now: 
         - Current Streak: ${stats?.streak || 0} days
         - Total Coins: ${stats?.coins || 0}

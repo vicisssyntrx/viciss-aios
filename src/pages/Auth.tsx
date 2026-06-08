@@ -50,12 +50,19 @@ export default function Auth() {
   return (
     <div className="relative min-h-screen flex items-center justify-center px-3 py-6 sm:px-4 bg-background">
       <ParticleBackground />
-      <div className="relative z-10 w-full max-w-md">
-        <div className="glass rounded-2xl p-4 sm:p-6 md:p-8">
-          <h1 className="mb-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Vicissometer</h1>
-          <p className="text-muted-foreground text-base mb-8">
-            {isSignUp ? "Create your account" : "Welcome back"}
+      <div className="relative z-10 w-full max-w-md flex flex-col items-center">
+        <div className="text-center mb-10">
+          <h1 className="text-5xl sm:text-[3.5rem] font-bold tracking-tight mb-3 bg-gradient-to-r from-[#B46782] via-[#E25654] to-[#F27830] text-transparent bg-clip-text pb-1">
+            Viciss AIOS
+          </h1>
+          <p className="text-[#103E6B] dark:text-[#7bb0e2] text-xl font-medium">
+            Welcome back to your AI Life OS
           </p>
+        </div>
+        <div className="glass rounded-[2rem] p-6 sm:p-8 md:p-10 w-full bg-white dark:bg-card">
+          <h2 className="mb-8 text-3xl font-bold text-foreground">
+            {isSignUp ? "Sign Up" : "Log In"}
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
