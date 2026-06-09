@@ -335,15 +335,16 @@ export default function Dashboard() {
                 <>
                   <GrowthGraph activeTab={mobileTab} />
                   <JourneyInsights activeTab={mobileTab} />
+                  
+                  {/* Tasks (HabitList) below journey insights */}
+                  <div className="px-2">
+                    <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
+                  </div>
+                  
                   <OutcomeCards />
-                </>
-              )}
-
-              {/* Tasks tab */}
-              {isTasks && (
-                <div className="px-2 space-y-5">
-                  {/* Shield + Power-Up quick-access row */}
-                  <div className="grid grid-cols-2 gap-3 mt-8">
+                  
+                  {/* Shield + Power-Up quick-access row below outcomes */}
+                  <div className="grid grid-cols-2 gap-3 mt-4">
                     <button
                       type="button"
                       onClick={() => setShowShields(true)}
@@ -363,12 +364,7 @@ export default function Dashboard() {
                       <p className="text-2xl font-black text-foreground leading-none">{stats?.power_ups ?? 0}</p>
                     </button>
                   </div>
-
-                  <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
-
-                  <div className="-mx-2 sm:-mx-4">
-                  </div>
-                </div>
+                </>
               )}
 
               {/* Chat tab */}
@@ -396,7 +392,6 @@ export default function Dashboard() {
                 <div className="hidden md:block space-y-2">
                   <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
                   <OutcomeCards />
-                  <MobileBoostCards />
                 </div>
 
                 {/* Right column */}
@@ -449,17 +444,6 @@ export default function Dashboard() {
             <span className={`tg-tab-label ${isDash ? "tg-label-active" : ""}`}>Dash</span>
           </button>
 
-          {/* Tab 2: Tasks */}
-          <button
-            onClick={() => setMobileTab("tasks")}
-            className="tg-tab flex-1 select-none py-1.5"
-          >
-            <div className={`tg-tab-icon-wrap ${isTasks ? "tg-tab-active" : ""}`}>
-              <ClipboardList className="w-6.5 h-6.5" />
-            </div>
-            <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
-          </button>
-
           {/* Tab 3: Rabbit AI Chat */}
           <button
             onClick={() => setMobileTab("chat")}
@@ -500,7 +484,7 @@ export default function Dashboard() {
 
       <RabbitAssistant />
       <AIChatbot isModal={true} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-      {(isDash || isTasks) && <FloatingManageHabitsButton />}
+      {isDash && <FloatingManageHabitsButton />}
     </div>
   );
 }

@@ -4,13 +4,14 @@ import AccountCenter from "./AccountCenter";
 import StreakWindow from "./StreakWindow";
 import CoinsWindow from "./CoinsWindow";
 import ShieldShop from "./ShieldShop";
+import PowerUpOverlay from "./PowerUpOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNotifications } from "@/hooks/useNotifications";
 import NotificationsModal from "./NotificationsModal";
 import { useUserStats } from "@/hooks/useUserStats";
-import { Coins, Flame, Sparkles, Bell, Monitor } from "lucide-react";
+import { Coins, Flame, Sparkles, Bell, Monitor, Shield, Zap } from "lucide-react";
 
 // Premium Golden Trace Animation Component
 function NavbarGoldTrace() {
@@ -196,6 +197,7 @@ export default function Navbar() {
   const [showStreak, setShowStreak] = useState(false);
   const [showCoins, setShowCoins] = useState(false);
   const [showShieldShop, setShowShieldShop] = useState(false);
+  const [showPowerUps, setShowPowerUps] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
   const { unreadCount } = useNotifications();
@@ -286,6 +288,20 @@ export default function Navbar() {
                 >
                   <Flame className="w-4 h-4 text-[#f97316] drop-shadow-[0_0_4px_rgba(249,115,22,0.5)]" /> {displayStreak}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setShowShieldShop(true)}
+                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 transition-colors flex items-center gap-2"
+                >
+                  <Shield className="w-4 h-4 text-primary drop-shadow-[0_0_4px_rgba(var(--primary),0.5)]" /> {stats?.shields ?? 0}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPowerUps(true)}
+                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap hover:bg-secondary/60 transition-colors flex items-center gap-2"
+                >
+                  <Zap className="w-4 h-4 text-primary drop-shadow-[0_0_4px_rgba(var(--primary),0.5)]" /> {stats?.power_ups ?? 0}
+                </button>
               </div>
 
               <div className="flex items-center gap-2">
@@ -335,6 +351,7 @@ export default function Navbar() {
       {showAccount && <AccountCenter onClose={() => setShowAccount(false)} />}
       {showCoins && <CoinsWindow onClose={() => setShowCoins(false)} onOpenShieldShop={() => setShowShieldShop(true)} />}
       {showShieldShop && <ShieldShop onClose={() => setShowShieldShop(false)} />}
+      {showPowerUps && <PowerUpOverlay onClose={() => setShowPowerUps(false)} />}
       {showNotifications && <NotificationsModal onClose={() => setShowNotifications(false)} />}
     </>
   );

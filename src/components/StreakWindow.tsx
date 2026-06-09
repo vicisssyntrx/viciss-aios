@@ -22,8 +22,7 @@ export default function StreakWindow({ onClose }: Props) {
   const recoveredDays  = pastLogs.filter((l) => l.is_recovered).map((l) => parseISO(l.date));
   const shieldedDays   = pastLogs.filter((l) => l.shield_used && !l.is_recovered).map((l) => parseISO(l.date));
   const completedDays  = pastLogs.filter((l) => l.completed_count === l.total_count && l.total_count > 0 && !l.is_recovered && !l.shield_used).map((l) => parseISO(l.date));
-  const partialDays    = pastLogs.filter((l) => l.completed_count > 0 && l.completed_count < l.total_count && !l.is_recovered && !l.shield_used).map((l) => parseISO(l.date));
-  const gapDays        = pastLogs.filter((l) => l.completed_count === 0 && !l.shield_used && !l.is_recovered).map((l) => parseISO(l.date));
+  const gapDays        = pastLogs.filter((l) => l.completed_count < l.total_count && !l.shield_used && !l.is_recovered).map((l) => parseISO(l.date));
 
   // Today's live state for calendar coloring
   const todayLog = denseLogs.find((l) => l.date === today);
@@ -31,9 +30,8 @@ export default function StreakWindow({ onClose }: Props) {
 
   // Determine today's color based on current completion state
   const todayCompleted  = todayLog && todayLog.completed_count === todayLog.total_count && todayLog.total_count > 0 ? [todayDate] : [];
-  const todayPartial    = todayLog && todayLog.completed_count > 0 && todayLog.completed_count < todayLog.total_count ? [todayDate] : [];
-  // If today has no log yet (not saved) — show as outline only (no modifier)
-  const todayOutline    = !todayLog || todayLog.completed_count === 0 ? [todayDate] : [];
+  // If today has no log yet or is not fully completed — show as outline only (no modifier)
+  const todayOutline    = !todayLog || todayLog.completed_count < todayLog.total_count ? [todayDate] : [];
 
   const displayStreak = stats?.streak || 0;
 
@@ -72,29 +70,26 @@ export default function StreakWindow({ onClose }: Props) {
             }}
             modifiers={{
               completed:     [...completedDays, ...todayCompleted],
-              partial:       [...partialDays,   ...todayPartial],
               shielded:      shieldedDays,
               gap:           gapDays,
               recovered:     recoveredDays,
               todayOutline:  todayOutline,
             }}
             modifiersClassNames={{
-              completed:    "bg-red-600 text-white hover:bg-red-600 focus:bg-red-600",
-              partial:      "bg-red-400/70 text-white hover:bg-red-400/70 focus:bg-red-400/70",
-              shielded:     "bg-blue-600 text-white hover:bg-blue-600 focus:bg-blue-600",
-              gap:          "bg-zinc-600 text-white hover:bg-zinc-600 focus:bg-zinc-600",
-              recovered:    "bg-[#fbbf24] text-black hover:bg-[#f59e0b] focus:bg-[#f59e0b]",
+              completed:    "bg-red-600 text-white hover:bg-red-600 focus:bg-red-600 rounded-full",
+              shielded:     "bg-blue-600 text-white hover:bg-blue-600 focus:bg-blue-600 rounded-full",
+              gap:          "bg-zinc-600 text-white hover:bg-zinc-600 focus:bg-zinc-600 rounded-full",
+              recovered:    "bg-[#fbbf24] text-black hover:bg-[#f59e0b] focus:bg-[#f59e0b] rounded-full",
               todayOutline: "ring-2 ring-primary/60 ring-offset-1 ring-offset-background rounded-full",
             }}
           />
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-          <div className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-red-600 shrink-0" /> Completed</div>
-          <div className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-red-400/70 shrink-0" /> Partial</div>
-          <div className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-zinc-600 shrink-0" /> Gap</div>
-          <div className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-blue-600 shrink-0" /> Shielded</div>
-          <div className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-[#fbbf24] shrink-0" /> Recovered</div>
+          <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-red-600 shrink-0" /> Completed</div>
+          <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-zinc-600 shrink-0" /> Gap</div>
+          <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-blue-600 shrink-0" /> Shielded</div>
+          <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-[#fbbf24] shrink-0" /> Recovered</div>
           <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full border-2 border-primary/60 shrink-0" /> Today</div>
         </div>
       </div>
