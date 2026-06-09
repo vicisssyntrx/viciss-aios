@@ -200,6 +200,127 @@ export default function Navbar() {
   const [showPowerUps, setShowPowerUps] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
+  const [showRainbow, setShowRainbow] = useState(true);
+  const [rainbowFade, setRainbowFade] = useState(false);
+
+  useEffect(() => {
+    const fadeTimeout = setTimeout(() => {
+      setRainbowFade(true);
+    }, 3500); // Start fade out after 3.5s
+
+    const removeTimeout = setTimeout(() => {
+      setShowRainbow(false);
+    }, 4500); // Fully unmount after 4.5s
+
+    return () => {
+      clearTimeout(fadeTimeout);
+      clearTimeout(removeTimeout);
+    };
+  }, []);
+
+  const [isFirstLoad, setIsFirstLoad] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !sessionStorage.getItem("viciss_navbar_animated");
+    }
+    return false;
+  });
+
+  const mobileLogoRef = useRef<HTMLImageElement>(null);
+  const desktopLogoRef = useRef<HTMLImageElement>(null);
+  const [mobileLogoStyle, setMobileLogoStyle] = useState<React.CSSProperties>({});
+  const [desktopLogoStyle, setDesktopLogoStyle] = useState<React.CSSProperties>({});
+  const [mobileTextVisible, setMobileTextVisible] = useState(false);
+  const [desktopTextVisible, setDesktopTextVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isFirstLoad) {
+      setMobileLogoStyle({ transform: 'none', position: 'relative', zIndex: 50 });
+      setDesktopLogoStyle({ transform: 'none', position: 'relative', zIndex: 50 });
+      setMobileTextVisible(true);
+      setDesktopTextVisible(true);
+      return;
+    }
+
+    try {
+      sessionStorage.setItem("viciss_navbar_animated", "true");
+    } catch (e) {
+      console.error(e);
+    }
+
+    const isMobile = window.innerWidth < 768;
+    const targetRef = isMobile ? mobileLogoRef : desktopLogoRef;
+    const setStyle = isMobile ? setMobileLogoStyle : setDesktopLogoStyle;
+    const setTextVis = isMobile ? setMobileTextVisible : setDesktopTextVisible;
+    
+    if (isMobile) {
+      setDesktopLogoStyle({ transform: 'none', position: 'relative', zIndex: 50 });
+      setDesktopTextVisible(true);
+    } else {
+      setMobileLogoStyle({ transform: 'none', position: 'relative', zIndex: 50 });
+      setMobileTextVisible(true);
+    }
+
+    const timer = setTimeout(() => {
+      const el = targetRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0) {
+        setStyle({ transform: 'none', position: 'relative', zIndex: 50 });
+        setTextVis(true);
+        return;
+      }
+
+      const logoCenterX = rect.left + rect.width / 2;
+      const logoCenterY = rect.top + rect.height / 2;
+
+      const screenCenterX = window.innerWidth / 2;
+      const screenCenterY = window.innerHeight / 2;
+
+      const deltaX = screenCenterX - logoCenterX;
+      const deltaY = screenCenterY - logoCenterY;
+      const scale = 64 / rect.width;
+
+      setStyle({
+        transform: `translate(${deltaX}px, ${deltaY}px) scale(${scale})`,
+        transition: 'none',
+        position: 'relative',
+        zIndex: 50,
+      });
+
+      const raf1 = requestAnimationFrame(() => {
+        const raf2 = requestAnimationFrame(() => {
+          setStyle({
+            transform: 'translate(0px, 0px) scale(1)',
+            transition: 'transform 850ms cubic-bezier(0.19, 1, 0.22, 1)',
+            position: 'relative',
+            zIndex: 50,
+          });
+          
+          setTimeout(() => {
+            setTextVis(true);
+          }, 300); // Start text fade-in mid-flight
+        });
+      });
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [isFirstLoad]);
+
+  const mobileWritingStyle: React.CSSProperties = isFirstLoad
+    ? { animation: 'write-iciss 1000ms cubic-bezier(0.4, 0, 0.2, 1) 650ms both' }
+    : {};
+  const mobileAiosStyle: React.CSSProperties = isFirstLoad
+    ? { animation: 'blur-fade-in 500ms cubic-bezier(0.25, 1, 0.5, 1) 1650ms both' }
+    : {};
+
+  const desktopWritingStyle: React.CSSProperties = isFirstLoad
+    ? { animation: 'write-iciss 1000ms cubic-bezier(0.4, 0, 0.2, 1) 650ms both' }
+    : {};
+  const desktopAiosStyle: React.CSSProperties = isFirstLoad
+    ? { animation: 'blur-fade-in 500ms cubic-bezier(0.25, 1, 0.5, 1) 1650ms both' }
+    : {};
+
   const { unreadCount } = useNotifications();
 
   const { data: profile } = useQuery({
@@ -230,12 +351,32 @@ export default function Navbar() {
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 px-3 pt-3 pb-1">
         <nav className="relative w-full flex items-center justify-between py-3 px-5 glass !transform-none pointer-events-auto">
           <NavbarGoldTrace />
-          <h1 
-            className="text-lg font-bold tracking-tight text-gold-gradient ml-1 cursor-pointer hover:opacity-80 transition-opacity"
+          <div 
+            className="flex items-center cursor-pointer hover:opacity-80 transition-opacity ml-1"
             onClick={() => window.dispatchEvent(new Event("go-to-dash"))}
           >
-            Viciss AIOS
-          </h1>
+            <img 
+              ref={mobileLogoRef}
+              src="/icon-192.png" 
+              alt="Viciss AIOS Logo" 
+              className="w-[22px] h-[22px] object-contain flex-shrink-0" 
+              style={mobileLogoStyle}
+            />
+            <div className="flex items-baseline -ml-[3px] overflow-hidden select-none">
+              <span 
+                className="text-[21px] font-bold text-gold-gradient font-handwritten whitespace-nowrap"
+                style={mobileWritingStyle}
+              >
+                iciss
+              </span>
+              <span 
+                className="ml-1.5 text-[13px] font-bold uppercase tracking-wider text-gold-gradient whitespace-nowrap"
+                style={mobileAiosStyle}
+              >
+                AIOS
+              </span>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -262,13 +403,33 @@ export default function Navbar() {
             <NavbarGoldTrace />
 
             {/* Left: Brand */}
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <h1 
-                className="text-xl font-bold tracking-tight text-gold-gradient cursor-pointer hover:opacity-80 transition-opacity"
+            <div className="flex items-center flex-shrink-0">
+              <div 
+                className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => window.dispatchEvent(new Event("go-to-dash"))}
               >
-                Viciss AIOS
-              </h1>
+                <img 
+                  ref={desktopLogoRef}
+                  src="/icon-192.png" 
+                  alt="Viciss AIOS Logo" 
+                  className="w-[26px] h-[26px] object-contain flex-shrink-0" 
+                  style={desktopLogoStyle}
+                />
+                <div className="flex items-baseline -ml-[4px] overflow-hidden select-none">
+                  <span 
+                    className="text-[26px] font-bold text-gold-gradient font-handwritten whitespace-nowrap"
+                    style={desktopWritingStyle}
+                  >
+                    iciss
+                  </span>
+                  <span 
+                    className="ml-2 text-sm font-bold uppercase tracking-widest text-gold-gradient whitespace-nowrap"
+                    style={desktopAiosStyle}
+                  >
+                    AIOS
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Right: Stats & Avatar */}
@@ -310,7 +471,7 @@ export default function Navbar() {
                   onClick={() => window.dispatchEvent(new Event("open-edits-tracker"))}
                   className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap flex items-center gap-2 hover:bg-secondary/60 transition-colors"
                 >
-                  <Monitor className="w-4 h-4 text-foreground" /> Edits
+                  <Monitor className="w-4 h-4 text-foreground" /> Studio
                 </button>
 
                 <button
@@ -318,7 +479,7 @@ export default function Navbar() {
                   onClick={() => window.dispatchEvent(new Event("open-ai-chat"))}
                   className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap flex items-center gap-2 hover:bg-secondary/60 transition-colors"
                 >
-                  <Sparkles className="w-4 h-4 text-foreground" /> AI
+                  <Sparkles className="w-4 h-4 text-foreground" /> Rabbit
                 </button>
 
                 <button
@@ -353,6 +514,34 @@ export default function Navbar() {
       {showShieldShop && <ShieldShop onClose={() => setShowShieldShop(false)} />}
       {showPowerUps && <PowerUpOverlay onClose={() => setShowPowerUps(false)} />}
       {showNotifications && <NotificationsModal onClose={() => setShowNotifications(false)} />}
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
+
+        .font-handwritten {
+          font-family: 'Caveat', cursive, sans-serif;
+        }
+
+        @keyframes write-iciss {
+          0% {
+            clip-path: inset(0 100% 0 0);
+          }
+          100% {
+            clip-path: inset(0 0% 0 0);
+          }
+        }
+
+        @keyframes blur-fade-in {
+          0% {
+            filter: blur(8px);
+            opacity: 0;
+          }
+          100% {
+            filter: blur(0px);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </>
   );
 }

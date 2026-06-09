@@ -27,9 +27,9 @@ import { useHabits } from "@/hooks/useHabits";
 import { useUserStats } from "@/hooks/useUserStats";
 import { useTodayLog } from "@/hooks/useDailyLogs";
 import { useSaveProgress } from "@/hooks/useSaveProgress";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 
 export function useMidnightInvalidation() {
   const queryClient = useQueryClient();
@@ -74,6 +74,7 @@ export default function Dashboard() {
   // Theme state and MutationObserver to sync theme with edits tracker iframe
   const [initialTheme] = useState(() => document.documentElement.classList.contains("dark") ? "dark" : "light");
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [iframeLoading, setIframeLoading] = useState(true);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -98,6 +99,10 @@ export default function Dashboard() {
   }, [isDark]);
 
   const iframeSrc = `https://viciss-edits-tracker.vercel.app/?theme=${initialTheme}`;
+
+  useEffect(() => {
+    setIframeLoading(true);
+  }, [mobileTab, desktopView]);
 
   useEffect(() => {
     const handleOpenEdits = () => {
@@ -329,7 +334,13 @@ export default function Dashboard() {
           <div className={`mx-auto w-full md:grid md:grid-cols-2 md:gap-4 ${desktopView === "edits" ? "max-w-[1200px]" : "max-w-[860px]"}`}>
 
             {/* ══════════ MOBILE ══════════ */}
-            <div key={mobileTab} className="space-y-4 md:hidden pb-32 animate-in fade-in zoom-in-95 duration-300">
+            <div 
+              key={mobileTab} 
+              className={cn(
+                "md:hidden animate-in fade-in zoom-in-95 duration-300",
+                (isChat || isEdits) ? "h-[calc(100vh-175px)] pb-4 overflow-hidden" : "space-y-4 pb-32"
+              )}
+            >
               {/* ── Dash tab ── */}
               {isDash && (
                 <>
@@ -369,7 +380,7 @@ export default function Dashboard() {
 
               {/* Chat tab */}
               {isChat && (
-                <div className="h-[calc(100vh-160px)] px-2 pt-2">
+                <div className="h-full px-2">
                   <AIChatbot isModal={false} />
                 </div>
               )}
@@ -379,8 +390,19 @@ export default function Dashboard() {
 
               {/* Edits tab */}
               {isEdits && (
-                <div className="h-[calc(100vh-160px)] px-2 pt-2 animate-in fade-in zoom-in-95 duration-300">
-                  <iframe src={iframeSrc} className="w-full h-full border-0 rounded-xl" title="Viciss Edits Tracker" />
+                <div className="relative h-full px-2">
+                  <iframe 
+                    src={iframeSrc} 
+                    className="w-full h-full border-0 rounded-xl" 
+                    title="Viciss Edits Tracker" 
+                    onLoad={() => setIframeLoading(false)}
+                  />
+                  {iframeLoading && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-md rounded-xl z-20 animate-in fade-in duration-300">
+                      <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                      <p className="mt-4 text-xs font-semibold text-muted-foreground animate-pulse uppercase tracking-wider">Loading Studio Workspace...</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -410,8 +432,19 @@ export default function Dashboard() {
                     <Home className="w-4 h-4 text-primary" /> Back to Dashboard
                   </button>
                 </div>
-                <div className="h-[calc(100vh-170px)]">
-                  <iframe src={iframeSrc} className="w-full h-full border-0 rounded-xl shadow-lg" title="Viciss Edits Tracker" />
+                <div className="relative h-[calc(100vh-170px)]">
+                  <iframe 
+                    src={iframeSrc} 
+                    className="w-full h-full border-0 rounded-xl shadow-lg" 
+                    title="Viciss Edits Tracker" 
+                    onLoad={() => setIframeLoading(false)}
+                  />
+                  {iframeLoading && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-md rounded-xl z-20 animate-in fade-in duration-300">
+                      <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                      <p className="mt-4 text-sm font-semibold text-muted-foreground animate-pulse uppercase tracking-wider">Loading Studio Workspace...</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -452,10 +485,10 @@ export default function Dashboard() {
             <div className={`tg-tab-icon-wrap ${isChat ? "tg-tab-active" : ""}`}>
               <Sparkles className="w-6.5 h-6.5" />
             </div>
-            <span className={`tg-tab-label ${isChat ? "tg-label-active" : ""}`}>AI</span>
+            <span className={`tg-tab-label ${isChat ? "tg-label-active" : ""}`}>Rabbit</span>
           </button>
 
-          {/* Tab 5: Edits */}
+          {/* Tab 5: Studio */}
           <button
             onClick={() => setMobileTab("edits")}
             className="tg-tab flex-1 select-none py-1.5"
@@ -463,7 +496,7 @@ export default function Dashboard() {
             <div className={`tg-tab-icon-wrap ${isEdits ? "tg-tab-active" : ""}`}>
               <Monitor className="w-6.5 h-6.5" />
             </div>
-            <span className={`tg-tab-label ${isEdits ? "tg-label-active" : ""}`}>Edits</span>
+            <span className={`tg-tab-label ${isEdits ? "tg-label-active" : ""}`}>Studio</span>
           </button>
 
           {/* Tab 4: Profile */}

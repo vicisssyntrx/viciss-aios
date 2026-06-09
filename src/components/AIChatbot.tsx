@@ -255,7 +255,7 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
   const innerContent = (
     <div className={cn(
       "w-full flex flex-col relative overflow-hidden bg-background/90 md:bg-background/80 shadow-2xl glass-strong border-border/50",
-      isModal ? "h-[90vh] md:h-[85vh] md:max-w-3xl rounded-t-3xl md:rounded-3xl border-t md:border animate-in slide-in-from-bottom-10 duration-300" : "h-[calc(100vh-140px)] rounded-3xl border animate-in fade-in zoom-in-95 duration-300"
+      isModal ? "h-[90vh] md:h-[85vh] md:max-w-3xl rounded-t-3xl md:rounded-3xl border-t md:border animate-in slide-in-from-bottom-10 duration-300" : "h-full rounded-3xl border animate-in fade-in zoom-in-95 duration-300"
     )}>
         
         {/* Header */}
