@@ -370,7 +370,7 @@ export default function Navbar() {
                 iciss
               </span>
               <span 
-                className="ml-1.5 text-[13px] font-bold uppercase tracking-wider text-gold-gradient whitespace-nowrap"
+                className="ml-1.5 text-[18px] font-bold uppercase tracking-wider text-gold-gradient whitespace-nowrap"
                 style={mobileAiosStyle}
               >
                 AIOS
@@ -423,7 +423,7 @@ export default function Navbar() {
                     iciss
                   </span>
                   <span 
-                    className="ml-2 text-sm font-bold uppercase tracking-widest text-gold-gradient whitespace-nowrap"
+                    className="ml-2 text-[21px] font-bold uppercase tracking-widest text-gold-gradient whitespace-nowrap"
                     style={desktopAiosStyle}
                   >
                     AIOS
