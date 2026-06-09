@@ -15,7 +15,7 @@ function normalizeDate(dateStr: string): string {
 
   // Ambiguous numeric formats like MM/DD/YYYY or DD-MM-YYYY must be rejected first,
   // before passing to Date constructor which silently guesses.
-  if (/^\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}$/.test(dateStr)) {
+  if (new RegExp('^\\d{1,2}[/.-]\\d{1,2}[/.-]\\d{2,4}$').test(dateStr)) {
     throw new Error(`Ambiguous date format: ${dateStr}. Please convert to YYYY-MM-DD in your spreadsheet.`);
   }
 

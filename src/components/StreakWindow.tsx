@@ -19,11 +19,11 @@ export default function StreakWindow({ onClose }: Props) {
   // it should show as a neutral outlined date in the calendar, not colored.
   const pastLogs = denseLogs.filter((l) => l.date !== today);
 
-  const completedDays  = pastLogs.filter((l) => l.completed_count === l.total_count && l.total_count > 0).map((l) => parseISO(l.date));
-  const partialDays    = pastLogs.filter((l) => l.completed_count > 0 && l.completed_count < l.total_count).map((l) => parseISO(l.date));
-  const shieldedDays   = pastLogs.filter((l) => l.shield_used).map((l) => parseISO(l.date));
-  const gapDays        = pastLogs.filter((l) => l.completed_count === 0 && !l.shield_used && !l.is_recovered).map((l) => parseISO(l.date));
   const recoveredDays  = pastLogs.filter((l) => l.is_recovered).map((l) => parseISO(l.date));
+  const shieldedDays   = pastLogs.filter((l) => l.shield_used && !l.is_recovered).map((l) => parseISO(l.date));
+  const completedDays  = pastLogs.filter((l) => l.completed_count === l.total_count && l.total_count > 0 && !l.is_recovered && !l.shield_used).map((l) => parseISO(l.date));
+  const partialDays    = pastLogs.filter((l) => l.completed_count > 0 && l.completed_count < l.total_count && !l.is_recovered && !l.shield_used).map((l) => parseISO(l.date));
+  const gapDays        = pastLogs.filter((l) => l.completed_count === 0 && !l.shield_used && !l.is_recovered).map((l) => parseISO(l.date));
 
   // Today's live state for calendar coloring
   const todayLog = denseLogs.find((l) => l.date === today);

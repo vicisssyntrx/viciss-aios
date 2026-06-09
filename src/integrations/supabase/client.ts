@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://outgjulqkigbxaavcgww.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im91dGdqdWxxa2lnYnhhYXZjZ3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNDc2NTMsImV4cCI6MjA5MTgyMzY1M30.uDDets8BldKuvqodqpe4ppJUf3fiXw4xDtyRzHrCXD0';
 
 // Proxy REST calls through Vercel edge to avoid HTTP/2 failures
 // caused by ISP-level network equipment dropping direct connections

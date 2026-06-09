@@ -35,9 +35,9 @@ export default function PowerUpOverlay({ onClose, onPurchased }: Props) {
   );
 
   // Separate into categories for display
-  const shieldedGaps = gaps.filter((l) => l.shield_used && l.completed_count === 0);
+  const shieldedGaps = gaps.filter((l) => l.shield_used);
   const missedGaps = gaps.filter((l) => !l.shield_used && l.completed_count === 0);
-  const partialGaps = gaps.filter((l) => l.completed_count > 0 && l.completed_count < l.total_count);
+  const partialGaps = gaps.filter((l) => !l.shield_used && l.completed_count > 0);
 
   const recover = async (log: (typeof gaps)[number]) => {
     if (!user || !stats || stats.power_ups < 1) {
@@ -50,7 +50,7 @@ export default function PowerUpOverlay({ onClose, onPurchased }: Props) {
       // Use the server-side RPC for atomic, historically accurate recovery
       const { data, error } = await supabase.rpc("recover_day_with_powerup", {
         p_date: log.date,
-      } as any);
+      } as Record<string, unknown>);
 
       if (error) {
         toast.error("Recovery failed: " + error.message);
@@ -65,7 +65,7 @@ export default function PowerUpOverlay({ onClose, onPurchased }: Props) {
 
       qc.invalidateQueries({ queryKey: ["daily_logs"] });
       qc.invalidateQueries({ queryKey: ["user_stats"] });
-      toast.success(`${log.shield_used ? "Shield day" : "Missed day"} recovered! +1% growth 🔥`);
+      toast.success(`${log.shield_used ? "Shield day" : log.completed_count === 0 ? "Missed day" : "Partial day"} recovered! +1% growth 🔥`);
       onPurchased?.();
     } finally {
       setRecovering(null);

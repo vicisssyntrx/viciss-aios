@@ -49,7 +49,7 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
           
           if (!error && data) {
             if (data.ai_chat_threads) {
-              const parsed = data.ai_chat_threads as any as ChatThread[];
+              const parsed = data.ai_chat_threads as unknown as ChatThread[];
               if (Array.isArray(parsed)) {
                 setThreads(parsed);
                 if (parsed.length > 0 && !activeThreadId) setActiveThreadId(parsed[0].id);
@@ -84,6 +84,7 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
       }
     };
     loadThreads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isOpen]);
 
   // Save to Supabase and local storage whenever threads change
@@ -243,7 +244,7 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
           .catch(err => console.error("Background summarization failed:", err));
       }
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       toast.error(err.message || "Failed to get AI response.");
     } finally {

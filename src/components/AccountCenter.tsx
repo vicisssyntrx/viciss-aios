@@ -316,7 +316,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
       qc.invalidateQueries({ queryKey: ["profile"] });
 
       toast.success("Avatar updated successfully!", { id: "avatar-upload" });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Avatar upload failed:", error);
       toast.error("Failed to upload avatar: " + error.message, { id: "avatar-upload" });
     }

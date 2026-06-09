@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/useAuth";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AccountCenter from "./AccountCenter";
 import StreakWindow from "./StreakWindow";
 import CoinsWindow from "./CoinsWindow";
@@ -12,6 +12,183 @@ import NotificationsModal from "./NotificationsModal";
 import { useUserStats } from "@/hooks/useUserStats";
 import { Coins, Flame, Sparkles, Bell, Monitor } from "lucide-react";
 
+// Premium Golden Trace Animation Component
+function NavbarGoldTrace() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [animationPhase, setAnimationPhase] = useState<"drawing" | "fading" | "done">("drawing");
+
+  useEffect(() => {
+    const parent = containerRef.current?.parentElement;
+    if (!parent) return;
+
+    const updateDimensions = () => {
+      setDimensions({
+        width: parent.clientWidth,
+        height: parent.clientHeight,
+      });
+    };
+
+    updateDimensions();
+
+    const observer = new ResizeObserver(updateDimensions);
+    observer.observe(parent);
+
+    // Animation timeline
+    // 2.2s drawing (steady start, extremely slow crawl at ending), then fade out
+    const fadeTimer = setTimeout(() => {
+      setAnimationPhase("fading");
+    }, 2200);
+
+    const doneTimer = setTimeout(() => {
+      setAnimationPhase("done");
+    }, 3200);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(fadeTimer);
+      clearTimeout(doneTimer);
+    };
+  }, []);
+
+  if (animationPhase === "done") return null;
+
+  const { width: W, height: H } = dimensions;
+  if (!W || !H) return <div ref={containerRef} className="absolute inset-0" />;
+
+  const R = 21.6; // Matches glass border-radius (1.35rem * 16px)
+  const S = 1.0; // Stroke offset (thin stroke)
+  
+  const X_start = W / 2;
+  const Y_top = S / 2;
+  const Y_bottom = H - S / 2;
+  const Y_mid = H / 2;
+  const X_left = S / 2;
+  const X_right = W - S / 2;
+
+  // Tracing paths: emerging from center top/bottom and meeting on right/left center
+  const paths = [
+    // Top-Right: Top-center -> right -> corner turn -> right-center
+    `M ${X_start} ${Y_top} L ${X_right - R} ${Y_top} A ${R} ${R} 0 0 1 ${X_right} ${Y_top + R} L ${X_right} ${Y_mid}`,
+    // Top-Left: Top-center -> left -> corner turn -> left-center
+    `M ${X_start} ${Y_top} L ${X_left + R} ${Y_top} A ${R} ${R} 0 0 0 ${X_left} ${Y_top + R} L ${X_left} ${Y_mid}`,
+    // Bottom-Right: Bottom-center -> right -> corner turn -> right-center
+    `M ${X_start} ${Y_bottom} L ${X_right - R} ${Y_bottom} A ${R} ${R} 0 0 0 ${X_right} ${Y_bottom - R} L ${X_right} ${Y_mid}`,
+    // Bottom-Left: Bottom-center -> left -> corner turn -> left-center
+    `M ${X_start} ${Y_bottom} L ${X_left + R} ${Y_bottom} A ${R} ${R} 0 0 1 ${X_left} ${Y_bottom - R} L ${X_left} ${Y_mid}`,
+  ];
+
+  const L_total = (W / 2) + (H / 2) + R * (Math.PI / 2 - 2);
+
+  return (
+    <div 
+      ref={containerRef}
+      className="absolute inset-0 pointer-events-none z-50 overflow-visible"
+      style={{
+        opacity: animationPhase === "fading" ? 0 : 1,
+        transition: "opacity 1.0s cubic-bezier(0.25, 1, 0.5, 1)",
+      }}
+    >
+      <svg className="w-full h-full overflow-visible">
+        {paths.map((d, index) => (
+          <g key={index}>
+            {/* Layer 1: Very subtle reflection glow backing */}
+            <path
+              d={d}
+              fill="none"
+              stroke="#d97706"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              opacity={0.15}
+              style={{
+                filter: "blur(1px)",
+                strokeDasharray: L_total,
+                strokeDashoffset: L_total,
+                animation: `navbar-gold-draw-${Math.round(L_total)} 2.2s cubic-bezier(0.3, 0.6, 0.0, 1.0) forwards`,
+              }}
+            />
+            {/* Layer 2: Clean, thin, professional golden outline */}
+            <path
+              d={d}
+              fill="none"
+              stroke="#fbbf24"
+              strokeWidth={1.2}
+              strokeLinecap="round"
+              opacity={0.95}
+              style={{
+                strokeDasharray: L_total,
+                strokeDashoffset: L_total,
+                animation: `navbar-gold-draw-${Math.round(L_total)} 2.2s cubic-bezier(0.3, 0.6, 0.0, 1.0) forwards`,
+              }}
+            />
+          </g>
+        ))}
+
+        {/* Left Sparkles: Tiny golden bursts at meeting point (opacity 0 initially, triggers at exactly 2.2s when lines meet) */}
+        <g transform={`translate(${X_left}, ${Y_mid})`}>
+          {/* Central impact friction flash */}
+          <circle r={1} fill="#fffdf0" style={{ opacity: 0, filter: "blur(0.5px)", animation: "sparkle-flash 0.4s ease-out 2.2s both" }} />
+          {/* Flying sparks */}
+          <circle r={1.5} fill="#fbbf24" style={{ opacity: 0, animation: "sparkle-left-1 0.5s cubic-bezier(0.25, 1, 0.50, 1) 2.2s both" }} />
+          <circle r={1.2} fill="#f59e0b" style={{ opacity: 0, animation: "sparkle-left-2 0.5s cubic-bezier(0.25, 1, 0.50, 1) 2.2s both" }} />
+          <circle r={1.0} fill="#fffdf0" style={{ opacity: 0, animation: "sparkle-left-3 0.5s cubic-bezier(0.25, 1, 0.50, 1) 2.2s both" }} />
+        </g>
+
+        {/* Right Sparkles: Tiny golden bursts at meeting point (opacity 0 initially, triggers at exactly 2.2s when lines meet) */}
+        <g transform={`translate(${X_right}, ${Y_mid})`}>
+          {/* Central impact friction flash */}
+          <circle r={1} fill="#fffdf0" style={{ opacity: 0, filter: "blur(0.5px)", animation: "sparkle-flash 0.4s ease-out 2.2s both" }} />
+          {/* Flying sparks */}
+          <circle r={1.5} fill="#fbbf24" style={{ opacity: 0, animation: "sparkle-right-1 0.5s cubic-bezier(0.25, 1, 0.50, 1) 2.2s both" }} />
+          <circle r={1.2} fill="#f59e0b" style={{ opacity: 0, animation: "sparkle-right-2 0.5s cubic-bezier(0.25, 1, 0.50, 1) 2.2s both" }} />
+          <circle r={1.0} fill="#fffdf0" style={{ opacity: 0, animation: "sparkle-right-3 0.5s cubic-bezier(0.25, 1, 0.50, 1) 2.2s both" }} />
+        </g>
+      </svg>
+      <style>{`
+        @keyframes navbar-gold-draw-${Math.round(L_total)} {
+          from { stroke-dashoffset: ${L_total}px; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes sparkle-flash {
+          0% { transform: scale(0.1); opacity: 0; }
+          20% { opacity: 0.9; }
+          100% { transform: scale(3.5); opacity: 0; }
+        }
+        @keyframes sparkle-left-1 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0; }
+          15% { opacity: 0.95; }
+          100% { transform: translate(-14px, -8px) scale(0.1); opacity: 0; }
+        }
+        @keyframes sparkle-left-2 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0; }
+          15% { opacity: 0.95; }
+          100% { transform: translate(-16px, 4px) scale(0.1); opacity: 0; }
+        }
+        @keyframes sparkle-left-3 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0; }
+          15% { opacity: 0.95; }
+          100% { transform: translate(-10px, -2px) scale(0.1); opacity: 0; }
+        }
+        @keyframes sparkle-right-1 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0; }
+          15% { opacity: 0.95; }
+          100% { transform: translate(14px, -8px) scale(0.1); opacity: 0; }
+        }
+        @keyframes sparkle-right-2 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0; }
+          15% { opacity: 0.95; }
+          100% { transform: translate(16px, 4px) scale(0.1); opacity: 0; }
+        }
+        @keyframes sparkle-right-3 {
+          0% { transform: translate(0, 0) scale(1); opacity: 0; }
+          15% { opacity: 0.95; }
+          100% { transform: translate(10px, -2px) scale(0.1); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export default function Navbar() {
   const { user } = useAuth();
   const { data: stats } = useUserStats();
@@ -20,25 +197,7 @@ export default function Navbar() {
   const [showCoins, setShowCoins] = useState(false);
   const [showShieldShop, setShowShieldShop] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  
-  const [showRainbow, setShowRainbow] = useState(true);
-  const [rainbowFade, setRainbowFade] = useState(false);
 
-  useEffect(() => {
-    const fadeTimeout = setTimeout(() => {
-      setRainbowFade(true);
-    }, 3500); // Start fade out after 3.5s
-
-    const removeTimeout = setTimeout(() => {
-      setShowRainbow(false);
-    }, 4500); // Fully unmount after 4.5s
-
-    return () => {
-      clearTimeout(fadeTimeout);
-      clearTimeout(removeTimeout);
-    };
-  }, []);
-  
   const { unreadCount } = useNotifications();
 
   const { data: profile } = useQuery({
@@ -68,15 +227,7 @@ export default function Navbar() {
       {/* ── Mobile: sticky glass navbar — always visible ── */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 px-3 pt-3 pb-1">
         <nav className="relative w-full flex items-center justify-between py-3 px-5 glass !transform-none pointer-events-auto">
-          {showRainbow && (
-            <div 
-              className={`google-rainbow-border-container transition-opacity duration-1000 ${
-                rainbowFade ? "opacity-0" : "opacity-100"
-              }`}
-            >
-              <div className="google-rainbow-border-spinner" />
-            </div>
-          )}
+          <NavbarGoldTrace />
           <h1 
             className="text-lg font-bold tracking-tight text-gold-gradient ml-1 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => window.dispatchEvent(new Event("go-to-dash"))}
@@ -106,15 +257,7 @@ export default function Navbar() {
       <div className="hidden md:flex fixed top-0 left-0 right-0 z-40 justify-center px-3 mt-4 pointer-events-none">
         <div className="relative w-full max-w-[1060px] pointer-events-auto">
           <nav className="relative w-full flex items-center justify-between py-4 px-8 glass !transform-none !shadow-[0_12px_40px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.08),inset_1px_1px_0px_rgba(255,255,255,0.8),inset_-1px_-1px_0px_rgba(0,0,0,0.04)] dark:!shadow-[0_8px_32px_rgba(0,0,0,0.07),inset_1px_1px_0px_rgba(255,255,255,0.05),inset_-1px_-1px_0px_rgba(0,0,0,0.2)] dark:border dark:border-white/10">
-            {showRainbow && (
-              <div 
-                className={`google-rainbow-border-container transition-opacity duration-1000 ${
-                  rainbowFade ? "opacity-0" : "opacity-100"
-                }`}
-              >
-                <div className="google-rainbow-border-spinner" />
-              </div>
-            )}
+            <NavbarGoldTrace />
 
             {/* Left: Brand */}
             <div className="flex items-center gap-1 flex-shrink-0">
@@ -177,11 +320,11 @@ export default function Navbar() {
                   onClick={() => setShowAccount(true)}
                   className="w-10 h-10 rounded-full overflow-hidden hover:opacity-90 transition-opacity flex-shrink-0"
                 >
-                <Avatar className="h-full w-full border border-primary/40 bg-primary/20">
-                  {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" /> : null}
-                  <AvatarFallback className="text-primary font-semibold text-sm">{initial}</AvatarFallback>
-                </Avatar>
-              </button>
+                  <Avatar className="h-full w-full border border-primary/40 bg-primary/20">
+                    {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" /> : null}
+                    <AvatarFallback className="text-primary font-semibold text-sm">{initial}</AvatarFallback>
+                  </Avatar>
+                </button>
               </div>
             </div>
           </nav>
@@ -193,34 +336,6 @@ export default function Navbar() {
       {showCoins && <CoinsWindow onClose={() => setShowCoins(false)} onOpenShieldShop={() => setShowShieldShop(true)} />}
       {showShieldShop && <ShieldShop onClose={() => setShowShieldShop(false)} />}
       {showNotifications && <NotificationsModal onClose={() => setShowNotifications(false)} />}
-
-      <style>{`
-        @keyframes google-rainbow-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .google-rainbow-border-container {
-          position: absolute;
-          inset: -1.5px;
-          border-radius: inherit;
-          padding: 1.5px;
-          pointer-events: none;
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          overflow: hidden;
-          z-index: 10;
-        }
-        .google-rainbow-border-spinner {
-          position: absolute;
-          top: -150%;
-          left: -150%;
-          width: 400%;
-          height: 400%;
-          background: conic-gradient(from 0deg, #d4af37, #f59e0b 80%, #ffffff 90%, #d4af37 100%);
-          animation: google-rainbow-spin 2.5s cubic-bezier(0.25, 1, 0.5, 1) 1 forwards;
-        }
-      `}</style>
     </>
   );
 }

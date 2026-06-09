@@ -29,7 +29,7 @@ export function useTouchSound() {
 
       // Lazily initialise AudioContext on first gesture.
       if (!ctxRef.current) {
-        ctxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        ctxRef.current = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       }
 
       const ctx = ctxRef.current;

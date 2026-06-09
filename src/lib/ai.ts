@@ -33,7 +33,7 @@ export async function sendMessageToAI(
     headers["X-Title"] = "Viciss AIOS Habit Tracker";
   }
 
-  const bodyPayload: any = {
+  const bodyPayload: Record<string, unknown> = {
     model: model.trim(),
     messages,
     max_tokens: 2000,

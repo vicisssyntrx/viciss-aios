@@ -69,7 +69,7 @@ export function useCreateHabit() {
       
       const { data, error } = await supabase
         .from("habits")
-        .insert(newHabit as any)
+        .insert(newHabit as TablesInsert<"habits">)
         .select()
         .single();
       

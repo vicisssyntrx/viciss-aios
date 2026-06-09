@@ -35,7 +35,7 @@ export default function OutcomeCards() {
     }
 
     const completedDays = denseLogs.filter(
-      (l) => (l.completed_count === l.total_count && l.total_count > 0) || (l as any).is_recovered
+      (l) => (l.completed_count === l.total_count && l.total_count > 0) || (l as Record<string, unknown>).is_recovered
     ).length || 0;
     
     return totalProgramDays > 0 ? Math.min(100, Math.round((completedDays / totalProgramDays) * 100)) : 0;

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/useAuth";
@@ -36,7 +37,7 @@ export function useMidnightInvalidation() {
   useEffect(() => {
     const initMissingDays = async () => {
       try {
-        // @ts-ignore
+        // @ts-expect-error - RPC call definition missing in types
         await supabase.rpc('finalize_missed_days');
         queryClient.invalidateQueries({ queryKey: ["user_stats"] });
         queryClient.invalidateQueries({ queryKey: ["daily_logs"] });
@@ -53,7 +54,7 @@ export function useMidnightInvalidation() {
 
     const timer = setTimeout(async () => {
       try {
-        // @ts-ignore
+        // @ts-expect-error - RPC call definition missing in types
         await supabase.rpc('finalize_missed_days');
       } catch (e) {
         console.warn('[midnight] finalize_missed_days failed:', e);
@@ -69,6 +70,34 @@ export default function Dashboard() {
   const { user, loading } = useAuth();
   const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account" | "edits">("dash");
   const [desktopView, setDesktopView] = useState<"dash" | "edits">("dash");
+
+  // Theme state and MutationObserver to sync theme with edits tracker iframe
+  const [initialTheme] = useState(() => document.documentElement.classList.contains("dark") ? "dark" : "light");
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  // Send real-time theme updates to edits tracker iframe via postMessage
+  useEffect(() => {
+    const iframes = document.querySelectorAll("iframe[title='Viciss Edits Tracker']");
+    iframes.forEach((iframe) => {
+      const win = (iframe as HTMLIFrameElement).contentWindow;
+      if (win) {
+        win.postMessage({ type: "viciss-theme-change", theme: isDark ? "dark" : "light" }, "*");
+      }
+    });
+  }, [isDark]);
+
+  const iframeSrc = `https://viciss-edits-tracker.vercel.app/?theme=${initialTheme}`;
 
   useEffect(() => {
     const handleOpenEdits = () => {
@@ -179,7 +208,7 @@ export default function Dashboard() {
 
     prevStreakRef.current = currentStreak;
     prevPowerUpsRef.current = currentPowerUps;
-  }, [stats?.streak, stats?.power_ups]);
+  }, [stats, stats?.streak, stats?.power_ups]);
 
   const toggleHabit = (id: string) => {
     setCompletedIds((prev) => {
@@ -228,17 +257,6 @@ export default function Dashboard() {
     return () => clearTimeout(timer);
   }, [completedIds, hasLocalEdits, habits, todayLog, statsLoading, todayLogLoading, saveProgress]);
 
-  if (loading) return <LoadingScreen message="Restoring your session…" />;
-  if (!user) return <Navigate to="/auth" replace />;
-  if (isInitialLoad) return <LoadingScreen />;
-  if (isResetting) return <LoadingScreen message="Resetting today's progress..." />;
-
-  const isDash = mobileTab === "dash";
-  const isTasks = mobileTab === "tasks";
-  const isChat = mobileTab === "chat";
-  const isAccount = mobileTab === "account";
-  const isEdits = mobileTab === "edits";
-
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
@@ -258,6 +276,17 @@ export default function Dashboard() {
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
+
+  if (loading) return <LoadingScreen message="Restoring your session…" />;
+  if (!user) return <Navigate to="/auth" replace />;
+  if (isInitialLoad) return <LoadingScreen />;
+  if (isResetting) return <LoadingScreen message="Resetting today's progress..." />;
+
+  const isDash = mobileTab === "dash";
+  const isTasks = mobileTab === "tasks";
+  const isChat = mobileTab === "chat";
+  const isAccount = mobileTab === "account";
+  const isEdits = mobileTab === "edits";
 
   return (
     <div className="relative min-h-screen">
@@ -355,7 +384,7 @@ export default function Dashboard() {
               {/* Edits tab */}
               {isEdits && (
                 <div className="h-[calc(100vh-160px)] px-2 pt-2 animate-in fade-in zoom-in-95 duration-300">
-                  <iframe src="https://viciss-edits-tracker.vercel.app/" className="w-full h-full border-0 rounded-xl" title="Viciss Edits Tracker" />
+                  <iframe src={iframeSrc} className="w-full h-full border-0 rounded-xl" title="Viciss Edits Tracker" />
                 </div>
               )}
             </div>
@@ -387,7 +416,7 @@ export default function Dashboard() {
                   </button>
                 </div>
                 <div className="h-[calc(100vh-170px)]">
-                  <iframe src="https://viciss-edits-tracker.vercel.app/" className="w-full h-full border-0 rounded-xl shadow-lg" title="Viciss Edits Tracker" />
+                  <iframe src={iframeSrc} className="w-full h-full border-0 rounded-xl shadow-lg" title="Viciss Edits Tracker" />
                 </div>
               </div>
             )}

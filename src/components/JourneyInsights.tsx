@@ -17,8 +17,8 @@ export default function JourneyInsights() {
   };
 
   const today = todayYmdLocal();
-  const missedDays = denseLogs.filter((l) => l.completed_count === 0 && !l.shield_used && !(l as any).is_recovered && l.date !== today).length || 0;
-  const completedDays = denseLogs.filter((l) => (l.completed_count === l.total_count && l.total_count > 0) || (l as any).is_recovered).length || 0;
+  const missedDays = denseLogs.filter((l) => l.completed_count === 0 && !l.shield_used && !(l as Record<string, unknown>).is_recovered && l.date !== today).length || 0;
+  const completedDays = denseLogs.filter((l) => (l.completed_count === l.total_count && l.total_count > 0) || (l as Record<string, unknown>).is_recovered).length || 0;
   
   // Customizable timeframe calculation
   const totalProgramDays = useMemo(() => {

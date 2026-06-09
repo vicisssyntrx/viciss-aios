@@ -163,7 +163,7 @@ export default function RabbitAssistant() {
 }
 
 // Vector Rabbit (Tracks eyes using Framer Motion)
-function VectorRabbit({ eyeX, eyeY }: { eyeX: any; eyeY: any }) {
+function VectorRabbit({ eyeX, eyeY }: { eyeX: unknown; eyeY: unknown }) {
   return (
     <svg viewBox="0 0 100 100" className="w-full h-full text-foreground fill-current drop-shadow-md">
       {/* Ears */}

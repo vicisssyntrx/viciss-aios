@@ -29,7 +29,7 @@ export default function ShieldShop({ onClose, onPurchased }: Props) {
     
     setBuying(true);
     try {
-      // @ts-ignore - buy_shields is a new RPC not yet in generated types
+      // @ts-expect-error - buy_shields is a new RPC not yet in generated types
       const { data, error } = await supabase.rpc('buy_shields', { 
         p_count: shields, 
         p_cost: cost 
@@ -46,8 +46,8 @@ export default function ShieldShop({ onClose, onPurchased }: Props) {
       toast.success(`Bought ${shields} shield${shields > 1 ? 's' : ''}!`);
       qc.invalidateQueries({ queryKey: ["user_stats"] });
       onPurchased?.();
-    } catch (error: any) {
-      toast.error("Purchase failed: " + error.message);
+    } catch (error) {
+      toast.error("Purchase failed: " + (error instanceof Error ? error.message : String(error)));
     } finally {
       setBuying(false);
     }

@@ -56,9 +56,8 @@ export function getDenseLogs(logs: DailyLog[] | undefined | null, startDateStr?:
             completed_count: 0,
             total_count: 1,
             shield_used: false,
-            streak_after: 0,
-            growth_before: null as any,
-            growth_after: null as any,
+            growth_before: null as unknown as number,
+            growth_after: null as unknown as number,
             locked: true,
             is_recovered: false,
             created_at: new Date().toISOString()
@@ -106,7 +105,7 @@ export function useDailyLogs() {
         .eq("user_id", user!.id)
         .order("date", { ascending: true });
       if (error) throw error;
-      return data.map((row) => normalizeLog({ ...row, is_recovered: (row as any).is_recovered ?? false }));
+      return data.map((row) => normalizeLog({ ...row, is_recovered: (row as Record<string, unknown>).is_recovered ?? false }));
     },
     enabled: !!user,
   });
@@ -125,7 +124,7 @@ export function useTodayLog(enabled = true) {
         .eq("date", today)
         .maybeSingle();
       if (error) throw error;
-      return data ? normalizeLog({ ...data, is_recovered: (data as any).is_recovered ?? false }) : null;
+      return data ? normalizeLog({ ...data, is_recovered: (data as Record<string, unknown>).is_recovered ?? false }) : null;
     },
     enabled: !!user && enabled,
   });
@@ -143,7 +142,7 @@ export function useLogForDate(date: string) {
         .eq("date", date)
         .maybeSingle();
       if (error) throw error;
-      return data ? normalizeLog({ ...data, is_recovered: (data as any).is_recovered ?? false }) : null;
+      return data ? normalizeLog({ ...data, is_recovered: (data as Record<string, unknown>).is_recovered ?? false }) : null;
     },
     enabled: !!user && !!date,
   });

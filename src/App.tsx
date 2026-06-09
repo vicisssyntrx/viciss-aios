@@ -33,7 +33,7 @@ try {
   const cached = localStorage.getItem(CACHE_KEY);
   if (cached) {
     const state = JSON.parse(cached);
-    state.forEach((query: any) => {
+    state.forEach((query: Record<string, unknown> & { state?: { data?: unknown; dataUpdatedAt?: number }; queryKey?: unknown }) => {
       if (query.state && query.state.data !== undefined) {
         queryClient.setQueryData(query.queryKey, query.state.data, {
           updatedAt: query.state.dataUpdatedAt,
@@ -48,8 +48,8 @@ try {
 // 2. Persist query cache to local storage whenever it changes (debounced)
 queryClient.getQueryCache().subscribe((event) => {
   if (event.type === "updated" || event.type === "added" || event.type === "removed") {
-    clearTimeout((window as any)._persisterTimeout);
-    (window as any)._persisterTimeout = setTimeout(() => {
+    clearTimeout((window as typeof window & { _persisterTimeout?: number })._persisterTimeout);
+    (window as typeof window & { _persisterTimeout?: number })._persisterTimeout = window.setTimeout(() => {
       const state = queryClient.getQueryCache().getAll().map(query => ({
         queryKey: query.queryKey,
         state: query.state,

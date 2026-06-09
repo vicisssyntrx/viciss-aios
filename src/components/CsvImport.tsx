@@ -32,7 +32,7 @@ export default function CsvImport({ onClose }: Props) {
     }
   
     // If it's something ambiguous like 03/04/2024, reject it strictly
-    if (/^\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}$/.test(dateStr)) {
+    if (new RegExp('^\\d{1,2}[/.-]\\d{1,2}[/.-]\\d{2,4}$').test(dateStr)) {
       throw new Error(`Ambiguous date format: ${dateStr}. Please convert to YYYY-MM-DD in your spreadsheet.`);
     }
   
@@ -63,7 +63,7 @@ export default function CsvImport({ onClose }: Props) {
           let date = "";
           try {
             date = normalizeDate(dateRaw);
-          } catch (err: any) {
+          } catch (err: Error | unknown) {
             errs.push(`Row ${i + 1}: ${err.message}`);
             continue;
           }
@@ -85,7 +85,7 @@ export default function CsvImport({ onClose }: Props) {
         setPreview(rows);
         setErrors(errs);
       },
-      error: (error: any) => {
+      error: (error: Error) => {
         toast.error("Failed to parse CSV: " + error.message);
       }
     });
@@ -105,14 +105,14 @@ export default function CsvImport({ onClose }: Props) {
       }));
 
       // 2. Call the bulk import RPC
-      // @ts-ignore - Types not generated for this RPC yet
+      // @ts-expect-error - Types not generated for this RPC yet
       const { data, error } = await supabase.rpc('bulk_import_daily_logs', {
-        p_logs: payload as any
+        p_logs: payload as Record<string, unknown>
       });
 
       if (error) throw error;
       
-      const response = data as any;
+      const response = data as { success?: boolean; message?: string } | null;
       if (response && !response.success) {
         throw new Error(response.message || "Unknown server error");
       }
@@ -120,7 +120,7 @@ export default function CsvImport({ onClose }: Props) {
       toast.success("Import complete!");
       qc.invalidateQueries(); // Refresh the whole dashboard
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error("Import failed: " + error.message);
     } finally {
       setImporting(false);
