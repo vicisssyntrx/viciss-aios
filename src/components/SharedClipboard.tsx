@@ -251,8 +251,13 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
                 </div>
                 
                 {item.content_type === 'file' ? (
-                  <div className="text-xs font-semibold text-primary truncate">
-                    {item.file_name || 'Uploaded File'}
+                  <div className="text-xs font-semibold text-primary truncate flex items-center gap-2">
+                    <span>{item.file_name || 'Uploaded File'}</span>
+                    {item.file_size !== undefined && (
+                      <span className="text-[10px] text-muted-foreground bg-primary/10 px-1.5 py-0.5 rounded font-mono">
+                        {(item.file_size / (1024 * 1024)).toFixed(2)} MB
+                      </span>
+                    )}
                   </div>
                 ) : (
                   <div className="text-xs text-foreground/90 whitespace-pre-wrap font-mono break-all relative">
