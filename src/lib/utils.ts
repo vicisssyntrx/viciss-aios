@@ -31,3 +31,17 @@ export function hexToHslString(hex: string): string {
 
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
+
+export function getContrastForegroundHsl(hex: string): string {
+  const hexStr = hex.replace(/^#/, '');
+  const r = parseInt(hexStr.substring(0, 2), 16);
+  const g = parseInt(hexStr.substring(2, 4), 16);
+  const b = parseInt(hexStr.substring(4, 6), 16);
+  
+  // Calculate relative luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  // If the color is bright (luminance > 0.5), use a dark color for text to contrast
+  // Otherwise use white
+  return luminance > 0.5 ? "0 0% 10%" : "0 0% 100%";
+}

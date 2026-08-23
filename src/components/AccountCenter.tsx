@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarPicker } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { cn, hexToHslString } from "@/lib/utils";
+import { cn, hexToHslString, getContrastForegroundHsl } from "@/lib/utils";
 import ShieldShop from "./ShieldShop";
 import PowerUpOverlay from "./PowerUpOverlay";
 
@@ -160,6 +160,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
     localStorage.setItem("vicissometer-primary-color", hexColor);
     document.documentElement.style.setProperty("--primary", hexToHslString(hexColor));
     document.documentElement.style.setProperty("--ring", hexToHslString(hexColor));
+    document.documentElement.style.setProperty("--primary-foreground", getContrastForegroundHsl(hexColor));
     window.dispatchEvent(new Event("vicissometer-primary-changed"));
   };
 
