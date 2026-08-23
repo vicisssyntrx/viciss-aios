@@ -54,7 +54,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
 
   return (
     <div className="space-y-2 flex flex-col h-full relative">
-      <div className="flex items-center justify-between px-1 mb-2 md:mb-0">
+      <div className="flex items-center justify-between px-1 mb-6 md:mb-0">
         <h3 className="pt-10 pb-2 flex items-center gap-3 text-[3.8rem] leading-none font-black text-foreground md:text-sm md:font-normal md:uppercase md:tracking-wider md:text-muted-foreground md:pt-0">
           <ClipboardList className="w-12 h-12 md:hidden text-primary" />
           Tasks
@@ -89,7 +89,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                 viewMode === 'stack' ? "p-3.5 items-center gap-3 w-full text-left" : "flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center active:scale-95",
                 viewMode === 'vertical' ? "w-full h-full min-h-[300px]" : "",
                 viewMode === 'horizontal' ? "w-[85vw] max-w-[320px] h-full" : "",
-                checked ? "border border-primary/30 bg-primary/5" : ""
+                checked ? (viewMode === 'stack' ? "border border-primary/30 bg-primary/5" : "border-2 border-primary bg-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.3)]") : ""
               )}
             >
               {viewMode === 'stack' ? (
@@ -117,22 +117,13 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
               ) : (
                 <>
                   {/* Large Card Layout for Swipers */}
-                  <span className="text-6xl mb-4 drop-shadow-xl">{h.emoji}</span>
-                  <h4 className="font-black text-3xl text-foreground mb-2 px-4 leading-tight">{h.name}</h4>
-                  {h.outcome_name && (
-                    <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-8">
-                      {h.outcome_emoji} {h.outcome_name}
-                    </p>
-                  )}
-                  <div className="mt-auto">
-                    {checked ? (
-                      <div className="bg-primary/20 text-primary font-bold px-6 py-2 rounded-full border border-primary/30 animate-in zoom-in">
-                        COMPLETED
-                      </div>
-                    ) : (
-                      <div className="text-muted-foreground/50 font-semibold px-6 py-2 uppercase tracking-widest text-xs">
-                        Tap to Complete
-                      </div>
+                  <div className="flex flex-col items-center justify-center h-full w-full pointer-events-none">
+                    <span className="text-6xl mb-6 drop-shadow-xl">{h.emoji}</span>
+                    <h4 className="font-black text-3xl text-foreground mb-3 px-4 leading-tight text-center">{h.name}</h4>
+                    {h.outcome_name && (
+                      <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider text-center">
+                        {h.outcome_emoji} {h.outcome_name}
+                      </p>
                     )}
                   </div>
                 </>
