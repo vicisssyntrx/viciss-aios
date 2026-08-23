@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useClipboard, ClipboardItem } from "@/hooks/useClipboard";
-import { ClipboardPaste, Code, FileText, Trash, Copy, Check, Upload, Trash2, RefreshCcw, Download } from "lucide-react";
+import { ClipboardPaste, Code, FileText, Trash, Copy, Check, Upload, Trash2, RefreshCcw, Download, File } from "lucide-react";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -251,8 +251,9 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
                 </div>
                 
                 {item.content_type === 'file' ? (
-                  <div className="text-xs font-semibold text-primary truncate flex items-center gap-2">
-                    <span>{item.file_name || 'Uploaded File'}</span>
+                  <div className="text-xs font-semibold text-primary flex items-center gap-2">
+                    <File className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{item.file_name || 'Uploaded File'}</span>
                     {item.file_size !== undefined && (
                       <span className="text-[10px] text-muted-foreground bg-primary/10 px-1.5 py-0.5 rounded font-mono">
                         {(item.file_size / (1024 * 1024)).toFixed(2)} MB
