@@ -172,17 +172,19 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
       <div className="flex flex-col gap-1 mb-3">
         <div className="flex items-center justify-between">
           <h3 className={cn(
-            "flex items-center gap-2 text-foreground",
-            isMobile ? "pt-2 pb-2 text-[3.8rem] leading-none font-black px-1" : "text-sm font-bold"
+            "flex items-center gap-2 text-foreground whitespace-nowrap",
+            isMobile ? "pt-2 pb-2 text-[3rem] leading-none font-black px-1" : "text-sm font-bold"
           )}>
-            {view === 'active' ? <Share2 className={cn("text-primary", isMobile ? "w-12 h-12" : "w-4 h-4")} /> : <Trash2 className={cn("text-destructive", isMobile ? "w-12 h-12" : "w-4 h-4")} />}
+            {view === 'active' ? <Share2 className={cn("text-primary shrink-0", isMobile ? "w-10 h-10" : "w-4 h-4")} /> : <Trash2 className={cn("text-destructive shrink-0", isMobile ? "w-10 h-10" : "w-4 h-4")} />}
             {view === 'active' ? (isMobile ? "Share It" : "Shared Clipboard") : "Recycle Bin"}
           </h3>
           <button
             onClick={() => setView(view === 'active' ? 'recycled' : 'active')}
-            className="text-xs font-semibold px-2 py-1 bg-secondary/50 hover:bg-secondary/80 rounded-md transition-colors"
+            className="flex items-center gap-2 text-xs font-semibold p-2.5 md:px-3 md:py-1.5 bg-secondary/50 hover:bg-secondary/80 rounded-full md:rounded-md transition-colors shrink-0"
+            title={view === 'active' ? "View Recycle Bin" : "Back to Active"}
           >
-            {view === 'active' ? "View Recycle Bin" : "Back to Active"}
+            {view === 'active' ? <Trash2 className="w-5 h-5 md:w-3.5 md:h-3.5 text-muted-foreground" /> : <RefreshCcw className="w-5 h-5 md:w-3.5 md:h-3.5 text-muted-foreground" />}
+            <span className="hidden md:inline">{view === 'active' ? "View Recycle Bin" : "Back to Active"}</span>
           </button>
         </div>
         <div className="flex items-center justify-between text-[9px] font-mono uppercase tracking-widest text-muted-foreground/60 border-b border-border/20 pb-1">
