@@ -89,7 +89,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
               onPointerUp={(e) => handlePointerUp(e, h.id)}
               className={cn(
                 "glass rounded-2xl flex transition-all duration-300 relative select-none",
-                checked ? "scale-95" : "scale-100",
+                checked ? "scale-95" : "scale-100 active:scale-95",
                 effectiveViewMode === 'stack' ? "p-3.5 items-center gap-3 w-full text-left" : "flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center",
                 effectiveViewMode === 'vertical' ? "w-full h-full min-h-[300px]" : "",
                 effectiveViewMode === 'horizontal' ? "w-[calc(100vw-32px)] h-full min-h-[300px]" : "",
