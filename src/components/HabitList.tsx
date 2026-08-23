@@ -92,7 +92,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                 checked ? "scale-95" : "scale-100",
                 effectiveViewMode === 'stack' ? "p-3.5 items-center gap-3 w-full text-left" : "flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center",
                 effectiveViewMode === 'vertical' ? "w-full h-full min-h-[300px]" : "",
-                effectiveViewMode === 'horizontal' ? "w-[85vw] max-w-[320px] h-full" : "",
+                effectiveViewMode === 'horizontal' ? "w-[calc(100vw-32px)] h-full min-h-[300px]" : "",
                 checked ? (effectiveViewMode === 'stack' ? "!border-primary/50 !bg-primary/10" : "!border-2 !border-primary !bg-primary/40 shadow-[inset_0_0_30px_rgba(var(--primary),0.9),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50") : ""
               )}
             >
