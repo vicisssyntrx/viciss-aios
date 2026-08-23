@@ -54,8 +54,8 @@ export default class AppErrorBoundary extends React.Component<Props, State> {
             An unexpected error occurred. Please try reloading. If this keeps happening, clear the app cache.
           </p>
 
-          {/* Only render technical details in the development environment */}
-          {IS_DEV && this.state.error && (
+          {/* Always render technical details to help debug this persistent error */}
+          {this.state.error && (
             <>
               <pre className="text-xs whitespace-pre-wrap break-words text-muted-foreground bg-black/30 rounded-xl p-3 border border-white/10 mb-2">
                 {this.state.error.message}
