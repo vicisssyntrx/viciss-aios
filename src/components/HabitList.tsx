@@ -1,9 +1,10 @@
 import { useHabits } from "@/hooks/useHabits";
 import { Switch } from "@/components/ui/switch";
-import { ClipboardList, LayoutList, GalleryVertical, GalleryHorizontal } from "lucide-react";
-import { useState, useRef } from "react";
+import { ClipboardList, LayoutList, Layers } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 
 interface Props {
   completedIds: Set<string>;
@@ -14,31 +15,25 @@ interface Props {
 export default function HabitList({ completedIds, onToggle, viewOnly = false }: Props) {
   const { data: habits, isLoading } = useHabits();
   const isMobile = useIsMobile();
-  const [viewMode, setViewMode] = useState<'stack' | 'vertical' | 'horizontal'>(() => {
-    return (localStorage.getItem("tasks-view-mode") as any) || 'stack';
+  const [viewMode, setViewMode] = useState<'stack' | 'deck'>(() => {
+    const saved = localStorage.getItem("tasks-view-mode");
+    return (saved === 'deck' || saved === 'vertical' || saved === 'horizontal') ? 'deck' : 'stack';
   });
-
-  const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    touchStartX.current = e.clientX;
-    touchStartY.current = e.clientY;
-  };
-
-  const handlePointerUp = (e: React.PointerEvent, id: string) => {
-    if (viewOnly) return;
-    const deltaX = Math.abs(e.clientX - touchStartX.current);
-    const deltaY = Math.abs(e.clientY - touchStartY.current);
-    if (deltaX < 10 && deltaY < 10) {
-      onToggle(id);
-    }
-  };
+  
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const cycleViewMode = () => {
-    const next = viewMode === 'stack' ? 'vertical' : viewMode === 'vertical' ? 'horizontal' : 'stack';
+    const next = viewMode === 'stack' ? 'deck' : 'stack';
     setViewMode(next);
     localStorage.setItem("tasks-view-mode", next);
+  };
+
+  const handleDeckDragEnd = (e: any, info: PanInfo) => {
+    // If they swipe left/right/up/down significantly, move to next card
+    if (Math.abs(info.offset.x) > 50 || Math.abs(info.offset.y) > 50) {
+      if (!habits) return;
+      setActiveIndex(prev => Math.min(habits.length - 1, prev + 1));
+    }
   };
 
   if (isLoading) return (
@@ -54,6 +49,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
   );
 
   const effectiveViewMode = isMobile ? viewMode : 'stack';
+  const isDeck = effectiveViewMode === 'deck';
 
   return (
     <div className="space-y-2 flex flex-col h-full relative">
@@ -69,72 +65,104 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
           title="Change View Style"
         >
           {effectiveViewMode === 'stack' && <><LayoutList className="w-4 h-4" /> Stack View</>}
-          {effectiveViewMode === 'vertical' && <><GalleryVertical className="w-4 h-4" /> Vertical Swipe</>}
-          {effectiveViewMode === 'horizontal' && <><GalleryHorizontal className="w-4 h-4" /> Horizontal Swipe</>}
+          {effectiveViewMode === 'deck' && <><Layers className="w-4 h-4" /> 3D Deck</>}
         </button>
       </div>
 
       <div className={cn(
-        "flex-1 min-h-0",
+        "flex-1 min-h-0 relative",
         effectiveViewMode === 'stack' && "space-y-1.5",
-        effectiveViewMode === 'vertical' && "overflow-y-auto snap-y snap-mandatory scroll-smooth space-y-4 pb-32 -mx-4 px-4 h-[60vh]",
-        effectiveViewMode === 'horizontal' && "overflow-x-auto snap-x snap-mandatory scroll-smooth flex gap-4 pb-4 -mx-4 px-4 h-[60vh]"
+        effectiveViewMode === 'deck' && "flex items-center justify-center h-[55vh]"
       )}>
-        {habits.map((h) => {
+        {effectiveViewMode === 'stack' && habits.map((h) => {
           const checked = completedIds.has(h.id);
           return (
             <div
               key={h.id}
-              onPointerDown={handlePointerDown}
-              onPointerUp={(e) => handlePointerUp(e, h.id)}
+              onClick={() => { if(!viewOnly) onToggle(h.id); }}
               className={cn(
                 "rounded-2xl flex transition-all duration-300 ease-out relative select-none transform origin-center transform-gpu",
-                checked ? "scale-[0.93]" : "scale-100 active:scale-[0.93]",
-                effectiveViewMode === 'stack' ? "glass p-3.5 items-center gap-3 w-full text-left" : "bg-card shadow-xl border border-border/50 flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center",
-                effectiveViewMode === 'vertical' ? "w-full aspect-square max-h-[380px] max-w-[380px] mx-auto" : "",
-                effectiveViewMode === 'horizontal' ? "w-[calc(100vw-32px)] aspect-square max-h-[380px] max-w-[380px] mx-auto" : "",
-                checked ? (effectiveViewMode === 'stack' ? "!border-primary/50 !bg-primary/10" : "!border-2 !border-primary !bg-primary shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50") : ""
+                checked ? "scale-[0.98]" : "scale-100 active:scale-[0.98]",
+                "glass p-3.5 items-center gap-3 w-full text-left cursor-pointer",
+                checked ? "!border-primary/50 !bg-primary/10" : ""
               )}
             >
-              {effectiveViewMode === 'stack' ? (
-                <>
-                  <span className="text-2xl">{h.emoji}</span>
-                  <div className="flex-1 min-w-0 pointer-events-none">
-                    <p className="font-medium text-foreground text-base truncate">{h.name}</p>
-                    {h.outcome_name && (
-                      <p className="text-sm text-muted-foreground">{h.outcome_emoji} {h.outcome_name}</p>
-                    )}
-                  </div>
-                  {viewOnly ? (
-                    <span className={`text-lg ${checked ? "opacity-100" : "opacity-30"}`}>
-                      {checked ? "✅" : "○"}
-                    </span>
-                  ) : (
-                    <div className="pointer-events-none">
-                      <Switch
-                        checked={checked}
-                        className="data-[state=checked]:bg-primary scale-100 pointer-events-none"
-                      />
-                    </div>
-                  )}
-                </>
+              <span className="text-2xl">{h.emoji}</span>
+              <div className="flex-1 min-w-0 pointer-events-none">
+                <p className="font-medium text-foreground text-base truncate">{h.name}</p>
+                {h.outcome_name && (
+                  <p className="text-sm text-muted-foreground">{h.outcome_emoji} {h.outcome_name}</p>
+                )}
+              </div>
+              {viewOnly ? (
+                <span className={`text-lg ${checked ? "opacity-100" : "opacity-30"}`}>
+                  {checked ? "✅" : "○"}
+                </span>
               ) : (
-                <>
-                  {/* Large Card Layout for Swipers */}
-                  <div className="flex flex-col items-center justify-center h-full w-full pointer-events-none">
-                    <span className="text-6xl mb-6 drop-shadow-xl">{h.emoji}</span>
-                    <h4 className={cn("font-black text-3xl mb-3 px-4 leading-tight text-center", checked ? "text-primary-foreground" : "text-foreground")}>{h.name}</h4>
-                    {h.outcome_name && (
-                      <p className={cn("text-sm font-semibold uppercase tracking-wider text-center", checked ? "text-primary-foreground/90" : "text-muted-foreground")}>
-                        {h.outcome_emoji} {h.outcome_name}
-                      </p>
-                    )}
-                  </div>
-                </>
+                <div className="pointer-events-none">
+                  <Switch checked={checked} className="data-[state=checked]:bg-primary scale-100" />
+                </div>
               )}
             </div>
           );
         })}
+
+        {isDeck && (
+          <AnimatePresence>
+            {habits.map((h, i) => {
+              const checked = completedIds.has(h.id);
+              const offset = i - activeIndex;
+              
+              // Only render cards that are on top or slightly behind
+              if (offset < 0 || offset > 3) return null;
+
+              return (
+                <motion.div
+                  key={h.id}
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  animate={{ 
+                    opacity: 1 - offset * 0.2, 
+                    y: offset * 25, 
+                    scale: 1 - offset * 0.05,
+                    zIndex: 50 - offset,
+                  }}
+                  exit={{ opacity: 0, x: -200, transition: { duration: 0.2 } }}
+                  drag={offset === 0 && !viewOnly ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.8}
+                  onDragEnd={handleDeckDragEnd}
+                  onTap={(e) => {
+                    if (viewOnly || offset !== 0) return;
+                    onToggle(h.id);
+                  }}
+                  className={cn(
+                    "absolute w-[calc(100vw-32px)] aspect-square max-h-[380px] max-w-[380px] rounded-3xl flex flex-col justify-center items-center text-center p-6 cursor-pointer touch-none",
+                    "bg-card shadow-xl border border-border/50",
+                    checked ? "!border-2 !border-primary !bg-primary shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50 scale-[0.95]" : ""
+                  )}
+                >
+                  <span className="text-6xl mb-6 drop-shadow-xl pointer-events-none">{h.emoji}</span>
+                  <h4 className={cn("font-black text-3xl mb-3 px-4 leading-tight pointer-events-none", checked ? "text-primary-foreground" : "text-foreground")}>{h.name}</h4>
+                  {h.outcome_name && (
+                    <p className={cn("text-sm font-semibold uppercase tracking-wider pointer-events-none", checked ? "text-primary-foreground/90" : "text-muted-foreground")}>
+                      {h.outcome_emoji} {h.outcome_name}
+                    </p>
+                  )}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        )}
+        
+        {isDeck && activeIndex >= habits.length && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground animate-fade-in">
+            <span className="text-4xl mb-4">🎉</span>
+            <p className="font-semibold">All caught up!</p>
+            <button onClick={() => setActiveIndex(0)} className="mt-4 text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+              Start Over
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

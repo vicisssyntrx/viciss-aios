@@ -69,8 +69,14 @@ export function useMidnightInvalidation() {
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
-  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account" | "edits" | "share">("dash");
+  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account" | "edits" | "share">(() => {
+    return (localStorage.getItem("viciss-mobile-tab") as any) || "tasks";
+  });
   const [desktopView, setDesktopView] = useState<"dash" | "edits">("dash");
+
+  useEffect(() => {
+    localStorage.setItem("viciss-mobile-tab", mobileTab);
+  }, [mobileTab]);
 
   // Theme state and MutationObserver to sync theme with edits tracker iframe
   const [initialTheme] = useState(() => document.documentElement.classList.contains("dark") ? "dark" : "light");
