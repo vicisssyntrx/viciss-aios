@@ -456,7 +456,7 @@ export default function Dashboard() {
 
       {/* ── Floating Mobile Tab Bar ─────────────────────────────────────────── */}
       <div className="md:hidden fixed bottom-7 left-1/2 -translate-x-1/2 z-50 w-[85%] max-w-[300px]">
-        <div className="flex items-stretch rounded-full overflow-hidden floating-nav-pill w-full px-1 py-0.5">
+        <div className="flex items-stretch rounded-full overflow-hidden floating-nav-pill w-full px-1 py-0.5 shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-white/10">
           {/* Tab 1: Dash */}
           <button
             onClick={() => setMobileTab("dash")}
