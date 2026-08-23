@@ -387,7 +387,7 @@ export default function Dashboard() {
 
               {/* Share It tab */}
               {isShare && (
-                <div className="h-[calc(100vh-140px)]">
+                <div className="h-[calc(100vh-175px)]">
                   <SharedClipboard isMobile={true} />
                 </div>
               )}

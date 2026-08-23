@@ -264,12 +264,13 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
                   <div className="text-xs text-foreground/90 whitespace-pre-wrap font-mono break-all relative">
                     {(() => {
                       const maxLines = isMobile ? 2 : 4;
-                      const isLong = item.content.length > 200 || item.content.split('\n').length > maxLines;
+                      const contentStr = item.content || '';
+                      const isLong = contentStr.length > 200 || contentStr.split('\n').length > maxLines;
                       const isExpanded = expandedItems.has(item.id);
                       
                       if (isLong && !isExpanded) {
                         // Provide a short preview based on length and lines
-                        const charTruncated = item.content.length > 200 ? item.content.substring(0, 200) : item.content;
+                        const charTruncated = contentStr.length > 200 ? contentStr.substring(0, 200) : contentStr;
                         const lines = charTruncated.split('\n');
                         const preview = lines.length > maxLines ? lines.slice(0, maxLines).join('\n') : charTruncated;
                         
@@ -289,7 +290,7 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
                       
                       return (
                         <>
-                          {item.content}
+                          {contentStr}
                           {isLong && isExpanded && (
                             <button 
                               onClick={() => toggleExpand(item.id)}
