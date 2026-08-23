@@ -468,22 +468,6 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => window.dispatchEvent(new Event("open-edits-tracker"))}
-                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap flex items-center gap-2 hover:bg-secondary/60 transition-colors"
-                >
-                  <Monitor className="w-4 h-4 text-foreground" /> Studio
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new Event("open-ai-chat"))}
-                  className="glass !transform-none rounded-full px-3.5 py-1.5 text-lg font-semibold text-foreground whitespace-nowrap flex items-center gap-2 hover:bg-secondary/60 transition-colors"
-                >
-                  <Sparkles className="w-4 h-4 text-foreground" /> Rabbit
-                </button>
-
-                <button
-                  type="button"
                   onClick={() => setShowNotifications(true)}
                   className="glass relative !transform-none rounded-full w-10 h-10 flex items-center justify-center hover:bg-secondary/60 transition-colors"
                 >

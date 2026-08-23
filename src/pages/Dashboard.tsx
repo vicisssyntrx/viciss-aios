@@ -20,7 +20,8 @@ import AchievementToast, { AchievementType } from "@/components/AchievementToast
 import MobileBoostCards from "@/components/MobileBoostCards";
 import RabbitAssistant from "@/components/RabbitAssistant";
 import AIChatbot from "@/components/AIChatbot";
-import { Home, ClipboardList, Shield, Zap, Sparkles, Monitor } from "lucide-react";
+import SharedClipboard from "@/components/SharedClipboard";
+import { Home, ClipboardList, Shield, Zap, Sparkles, Monitor, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
@@ -68,7 +69,7 @@ export function useMidnightInvalidation() {
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
-  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account" | "edits">("dash");
+  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account" | "edits" | "share">("dash");
   const [desktopView, setDesktopView] = useState<"dash" | "edits">("dash");
 
   // Theme state and MutationObserver to sync theme with edits tracker iframe
@@ -289,6 +290,7 @@ export default function Dashboard() {
 
   const isDash = mobileTab === "dash";
   const isTasks = mobileTab === "tasks";
+  const isShare = mobileTab === "share";
   const isChat = mobileTab === "chat";
   const isAccount = mobileTab === "account";
   const isEdits = mobileTab === "edits";
@@ -347,11 +349,6 @@ export default function Dashboard() {
                   <GrowthGraph activeTab={mobileTab} />
                   <JourneyInsights activeTab={mobileTab} />
                   
-                  {/* Tasks (HabitList) below journey insights */}
-                  <div className="px-2">
-                    <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
-                  </div>
-                  
                   <OutcomeCards />
                   
                   {/* Shield + Power-Up quick-access row below outcomes */}
@@ -378,31 +375,20 @@ export default function Dashboard() {
                 </>
               )}
 
-              {/* Chat tab */}
-              {isChat && (
-                <div className="h-full px-2">
-                  <AIChatbot isModal={false} />
+              {/* Tasks tab */}
+              {isTasks && (
+                <div className="px-2 pb-32">
+                  <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
                 </div>
               )}
 
               {/* Account tab */}
               {isAccount && <AccountCenter isEmbedded={true} />}
 
-              {/* Edits tab */}
-              {isEdits && (
-                <div className="relative h-full px-2">
-                  <iframe 
-                    src={iframeSrc} 
-                    className="w-full h-full border-0 rounded-xl" 
-                    title="Viciss Edits Tracker" 
-                    onLoad={() => setIframeLoading(false)}
-                  />
-                  {iframeLoading && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-md rounded-xl z-20 animate-in fade-in duration-300">
-                      <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                      <p className="mt-4 text-xs font-semibold text-muted-foreground animate-pulse uppercase tracking-wider">Loading Studio Workspace...</p>
-                    </div>
-                  )}
+              {/* Share It tab */}
+              {isShare && (
+                <div className="h-[calc(100vh-140px)]">
+                  <SharedClipboard isMobile={true} />
                 </div>
               )}
             </div>
@@ -420,6 +406,7 @@ export default function Dashboard() {
                 <div className="hidden md:block space-y-2">
                   <GrowthGraph activeTab="dash" />
                   <JourneyInsights activeTab="dash" />
+                  <SharedClipboard isMobile={false} />
                 </div>
               </>
             ) : (
@@ -458,7 +445,7 @@ export default function Dashboard() {
                 Viciss Syntrx
               </a>
             </p>
-            <p className="text-[10px] text-muted-foreground/60 font-mono tracking-widest uppercase">v0.0.2.6_6.8</p>
+            <p className="text-[10px] text-muted-foreground/60 font-mono tracking-widest uppercase">v0.0.2.6.8.23</p>
           </div>
         </div>
       </div>
@@ -477,26 +464,26 @@ export default function Dashboard() {
             <span className={`tg-tab-label ${isDash ? "tg-label-active" : ""}`}>Dash</span>
           </button>
 
-          {/* Tab 3: Rabbit AI Chat */}
+          {/* Tab 2: Tasks */}
           <button
-            onClick={() => setMobileTab("chat")}
+            onClick={() => setMobileTab("tasks")}
             className="tg-tab flex-1 select-none py-1.5"
           >
-            <div className={`tg-tab-icon-wrap ${isChat ? "tg-tab-active" : ""}`}>
-              <Sparkles className="w-6.5 h-6.5" />
+            <div className={`tg-tab-icon-wrap ${isTasks ? "tg-tab-active" : ""}`}>
+              <ClipboardList className="w-6.5 h-6.5" />
             </div>
-            <span className={`tg-tab-label ${isChat ? "tg-label-active" : ""}`}>Rabbit</span>
+            <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
 
-          {/* Tab 5: Studio */}
+          {/* Tab 3: Share It */}
           <button
-            onClick={() => setMobileTab("edits")}
+            onClick={() => setMobileTab("share")}
             className="tg-tab flex-1 select-none py-1.5"
           >
-            <div className={`tg-tab-icon-wrap ${isEdits ? "tg-tab-active" : ""}`}>
-              <Monitor className="w-6.5 h-6.5" />
+            <div className={`tg-tab-icon-wrap ${isShare ? "tg-tab-active" : ""}`}>
+              <Share2 className="w-6.5 h-6.5" />
             </div>
-            <span className={`tg-tab-label ${isEdits ? "tg-label-active" : ""}`}>Studio</span>
+            <span className={`tg-tab-label ${isShare ? "tg-label-active" : ""}`}>Share It</span>
           </button>
 
           {/* Tab 4: Profile */}
