@@ -56,7 +56,7 @@ export default function JourneyInsights() {
   return (
     <div className="space-y-2">
       <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Journey Insights</h3>
-      <div className="glass rounded-2xl p-4 md:p-5 min-h-[96px] flex flex-col justify-center">
+      <div className="glass rounded-2xl p-4 md:p-4 min-h-[96px] flex flex-col justify-center">
         <div className="flex items-center">
           <div className="flex-shrink-0 pr-2 md:pr-4 text-center">
             <p className={`text-xl md:text-3xl font-black ${items[0].colorClass}`}>{items[0].value}</p>

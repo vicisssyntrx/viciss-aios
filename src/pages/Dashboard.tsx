@@ -333,7 +333,7 @@ export default function Dashboard() {
         )}
 
         <div className="flex-1 px-4 sm:px-6 pb-4 md:pb-6 mt-2">
-          <div className={`mx-auto w-full md:grid md:grid-cols-3 md:gap-5 ${desktopView === "edits" ? "max-w-[1200px]" : "max-w-[1100px]"}`}>
+          <div className={`mx-auto w-full md:grid md:grid-cols-[1fr_1.18fr_1fr] md:gap-6 ${desktopView === "edits" ? "max-w-[1250px]" : "max-w-[1180px]"}`}>
 
             {/* ══════════ MOBILE ══════════ */}
             <div 
