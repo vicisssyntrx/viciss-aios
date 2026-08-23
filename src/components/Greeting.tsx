@@ -22,16 +22,16 @@ export default function Greeting() {
   let message = "";
 
   if (hour >= 5 && hour < 12) {
-    greeting = `Good Morning,\n${name} ☀️`;
+    greeting = `Good Morning\n${name} ☀️`;
     message = "Rise and grind. Today's 1% starts now.";
   } else if (hour >= 12 && hour < 17) {
-    greeting = `Good Afternoon,\n${name} 🌤️`;
+    greeting = `Good Afternoon\n${name} 🌤️`;
     message = "Halfway through. Keep the momentum alive.";
   } else if (hour >= 17 && hour < 21) {
-    greeting = `Good Evening,\n${name} 🌙`;
+    greeting = `Good Evening\n${name} 🌙`;
     message = "Reflect and finish strong. Every rep counts.";
   } else {
-    greeting = `Good Night,\n${name} 🌌`;
+    greeting = `Good Night\n${name} 🌌`;
     message = "Rest well. Tomorrow is another 1%.";
   }
 
