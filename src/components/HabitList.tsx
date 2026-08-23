@@ -85,7 +85,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                 "rounded-2xl flex transition-all duration-300 ease-out relative select-none transform origin-center transform-gpu",
                 checked ? "scale-[0.98]" : "scale-100 active:scale-[0.98]",
                 "glass p-3.5 items-center gap-3 w-full text-left cursor-pointer",
-                "shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:shadow-none",
+                "!shadow-[0_10px_30px_rgba(0,0,0,0.15)] dark:!shadow-none",
                 "dark:border dark:!border-white/20",
                 checked ? "!border-primary/50 !bg-primary/10" : ""
               )}
@@ -154,8 +154,8 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                   className={cn(
                     "absolute w-[calc(100vw-64px)] aspect-[3/4] max-h-[420px] max-w-[320px] rounded-3xl flex flex-col justify-center items-center text-center p-6 cursor-pointer touch-none",
                     "bg-card border border-border dark:border-white/20",
-                    offset === 0 ? "shadow-2xl dark:shadow-[0_30px_60px_rgba(0,0,0,0.95),0_0_20px_rgba(255,255,255,0.03)]" : "shadow-md dark:shadow-[0_15px_30px_rgba(0,0,0,0.4)]",
-                    checked ? "!border-2 !border-primary !bg-primary shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50 scale-[0.95]" : ""
+                    offset === 0 ? "!shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:!shadow-[0_30px_60px_rgba(0,0,0,0.95),0_0_20px_rgba(255,255,255,0.03)]" : "!shadow-md dark:!shadow-[0_15px_30px_rgba(0,0,0,0.4)]",
+                    checked ? "!border-2 !border-primary !bg-primary !shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50 scale-[0.95]" : ""
                   )}
                 >
                   <span className="text-6xl mb-6 drop-shadow-xl pointer-events-none">{h.emoji}</span>
