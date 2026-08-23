@@ -86,7 +86,7 @@ export default function Greeting() {
       </div>
 
       <div className="mx-auto w-full max-w-[860px] relative z-10">
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight whitespace-pre-wrap">{typedGreeting}</h2>
+        <h2 className="text-5xl md:text-6xl font-black text-foreground leading-tight whitespace-pre-wrap">{typedGreeting}</h2>
         <p className="text-base md:text-lg text-muted-foreground mt-0.5">{message}</p>
       </div>
     </div>

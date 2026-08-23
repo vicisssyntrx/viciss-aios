@@ -1,5 +1,6 @@
 import { useHabits } from "@/hooks/useHabits";
 import { Switch } from "@/components/ui/switch";
+import { ClipboardList } from "lucide-react";
 
 interface Props {
   completedIds: Set<string>;
@@ -24,7 +25,10 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
 
   return (
     <div className="space-y-2">
-      <h3 className="pt-6 pb-2 text-[3rem] leading-none font-black text-foreground md:text-sm md:font-normal md:uppercase md:tracking-wider md:text-muted-foreground px-1 mb-2 md:mb-0 md:py-0">📋 Tasks</h3>
+      <h3 className="pt-10 pb-2 flex items-center gap-3 text-[3rem] leading-none font-black text-foreground md:text-sm md:font-normal md:uppercase md:tracking-wider md:text-muted-foreground px-1 mb-2 md:mb-0 md:py-0">
+        <ClipboardList className="w-10 h-10 md:hidden text-primary" />
+        Tasks
+      </h3>
       <div className="space-y-1.5">
       {habits.map((h) => {
         const checked = completedIds.has(h.id);
