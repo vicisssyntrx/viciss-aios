@@ -254,9 +254,9 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
                   <div className="text-xs font-semibold text-primary flex items-center gap-2">
                     <File className="w-4 h-4 shrink-0" />
                     <span className="truncate">{item.file_name || 'Uploaded File'}</span>
-                    {item.file_size !== undefined && (
+                    {(item.file_size !== undefined && item.file_size !== null) && (
                       <span className="text-[10px] text-muted-foreground bg-primary/10 px-1.5 py-0.5 rounded font-mono">
-                        {(item.file_size / (1024 * 1024)).toFixed(2)} MB
+                        {(Number(item.file_size) / (1024 * 1024)).toFixed(2)} MB
                       </span>
                     )}
                   </div>

@@ -35,7 +35,7 @@ export function useClipboard() {
         return { active: [], recycled: [], totalSize: 0 };
       }
 
-      const items = data as ClipboardItem[];
+      const items = (data as ClipboardItem[]) || [];
       const active: ClipboardItem[] = [];
       const recycled: ClipboardItem[] = [];
       let totalSize = 0;
