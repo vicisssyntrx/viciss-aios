@@ -57,20 +57,20 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
 
   return (
     <div className="space-y-2 flex flex-col h-full relative">
-      <div className="flex items-center justify-between px-1 mb-6 md:mb-0">
-        <h3 className="pt-10 pb-2 flex items-center gap-3 text-[3.8rem] leading-none font-black text-foreground md:text-sm md:font-normal md:uppercase md:tracking-wider md:text-muted-foreground md:pt-0">
+      <div className="flex flex-col items-start px-1 mb-8 gap-4 md:flex-row md:items-center md:justify-between md:mb-0 md:gap-0">
+        <h3 className="pt-10 md:pt-0 flex items-center gap-3 text-[3.8rem] leading-none font-black text-foreground md:text-sm md:font-normal md:uppercase md:tracking-wider md:text-muted-foreground">
           <ClipboardList className="w-12 h-12 md:hidden text-primary" />
           Tasks
         </h3>
         
         <button 
           onClick={cycleViewMode}
-          className="md:hidden mt-8 p-2.5 bg-secondary/50 hover:bg-secondary rounded-full text-foreground/70 transition-colors"
+          className="md:hidden flex items-center gap-2 px-4 py-2 bg-secondary/50 hover:bg-secondary rounded-full text-foreground/70 transition-colors text-sm font-semibold border border-border/50"
           title="Change View Style"
         >
-          {effectiveViewMode === 'stack' && <LayoutList className="w-5 h-5" />}
-          {effectiveViewMode === 'vertical' && <GalleryVertical className="w-5 h-5" />}
-          {effectiveViewMode === 'horizontal' && <GalleryHorizontal className="w-5 h-5" />}
+          {effectiveViewMode === 'stack' && <><LayoutList className="w-4 h-4" /> Stack View</>}
+          {effectiveViewMode === 'vertical' && <><GalleryVertical className="w-4 h-4" /> Vertical Swipe</>}
+          {effectiveViewMode === 'horizontal' && <><GalleryHorizontal className="w-4 h-4" /> Horizontal Swipe</>}
         </button>
       </div>
 
@@ -123,9 +123,9 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                   {/* Large Card Layout for Swipers */}
                   <div className="flex flex-col items-center justify-center h-full w-full pointer-events-none">
                     <span className="text-6xl mb-6 drop-shadow-xl">{h.emoji}</span>
-                    <h4 className="font-black text-3xl text-foreground mb-3 px-4 leading-tight text-center">{h.name}</h4>
+                    <h4 className={cn("font-black text-3xl mb-3 px-4 leading-tight text-center", checked ? "text-primary-foreground" : "text-foreground")}>{h.name}</h4>
                     {h.outcome_name && (
-                      <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider text-center">
+                      <p className={cn("text-sm font-semibold uppercase tracking-wider text-center", checked ? "text-primary-foreground/90" : "text-muted-foreground")}>
                         {h.outcome_emoji} {h.outcome_name}
                       </p>
                     )}
