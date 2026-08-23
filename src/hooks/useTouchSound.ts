@@ -22,6 +22,7 @@ export function useTouchSound() {
       if (!target) return;
 
       // Filter: only play sound for toggle buttons, switches, inputs, links, or custom clickables
+      if (target.closest(".no-sound")) return;
       const isInteractive = target.closest(
         "button, a, input, select, textarea, [role='button'], .cursor-pointer, [data-state], .clickable, .switch"
       );
