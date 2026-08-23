@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export default function SharedClipboard({ isMobile = false }: { isMobile?: boolean }) {
   const { 
-    activeItems, recycledItems, isLoading, 
+    activeItems, recycledItems, totalSize, maxItems, maxSizeBytes, isLoading, 
     addItem, isAdding, 
     uploadFile, isUploading,
     softDeleteItem, restoreItem, hardDeleteItem 
@@ -16,7 +16,17 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
   const [content, setContent] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [view, setView] = useState<'active' | 'recycled'>('active');
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
   
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -36,8 +46,8 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
       await addItem({ content_type: type, content });
       setContent("");
       toast.success("Added to Shared Clipboard!");
-    } catch (e) {
-      toast.error("Failed to save. Make sure the database is updated.");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save. Make sure the database is updated.");
     }
   };
 
@@ -55,8 +65,8 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
       await uploadFile(file);
       toast.success("File uploaded successfully!", { id: "upload" });
       if (fileInputRef.current) fileInputRef.current.value = '';
-    } catch (e) {
-      toast.error("Failed to upload file. Check storage configuration.", { id: "upload" });
+    } catch (e: any) {
+      toast.error(e.message || "Failed to upload file. Check storage configuration.", { id: "upload" });
     }
   };
 
@@ -129,17 +139,23 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
       isMobile ? "p-2 w-full pt-4" : "glass rounded-2xl p-4 sm:p-5 h-[320px]"
     )}>
       
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-          {view === 'active' ? <ClipboardPaste className="w-4 h-4 text-primary" /> : <Trash2 className="w-4 h-4 text-destructive" />}
-          {view === 'active' ? (isMobile ? "Share It Workspace" : "Shared Clipboard") : "Recycle Bin (24h-30d)"}
-        </h3>
-        <button
-          onClick={() => setView(view === 'active' ? 'recycled' : 'active')}
-          className="text-xs font-semibold px-2 py-1 bg-secondary/50 hover:bg-secondary/80 rounded-md transition-colors"
-        >
-          {view === 'active' ? "View Recycle Bin" : "Back to Active"}
-        </button>
+      <div className="flex flex-col gap-1 mb-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            {view === 'active' ? <ClipboardPaste className="w-4 h-4 text-primary" /> : <Trash2 className="w-4 h-4 text-destructive" />}
+            {view === 'active' ? (isMobile ? "Share It" : "Shared Clipboard") : "Recycle Bin"}
+          </h3>
+          <button
+            onClick={() => setView(view === 'active' ? 'recycled' : 'active')}
+            className="text-xs font-semibold px-2 py-1 bg-secondary/50 hover:bg-secondary/80 rounded-md transition-colors"
+          >
+            {view === 'active' ? "View Recycle Bin" : "Back to Active"}
+          </button>
+        </div>
+        <div className="flex items-center justify-between text-[9px] font-mono uppercase tracking-widest text-muted-foreground/60 border-b border-border/20 pb-1">
+          <span>Items: {activeItems.length}/{maxItems}</span>
+          <span>Storage: {(totalSize / (1024 * 1024)).toFixed(1)}/{(maxSizeBytes / (1024 * 1024)).toFixed(0)} MB</span>
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col gap-3 min-h-0">
@@ -239,8 +255,45 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
                     {item.file_name || 'Uploaded File'}
                   </div>
                 ) : (
-                  <div className="text-xs text-foreground/90 whitespace-pre-wrap font-mono line-clamp-3 break-all">
-                    {item.content}
+                  <div className="text-xs text-foreground/90 whitespace-pre-wrap font-mono break-all relative">
+                    {(() => {
+                      const isLong = item.content.length > 200 || item.content.split('\n').length > 4;
+                      const isExpanded = expandedItems.has(item.id);
+                      
+                      if (isLong && !isExpanded) {
+                        // Provide a short preview based on length and lines
+                        const charTruncated = item.content.length > 200 ? item.content.substring(0, 200) : item.content;
+                        const lines = charTruncated.split('\n');
+                        const preview = lines.length > 4 ? lines.slice(0, 4).join('\n') : charTruncated;
+                        
+                        return (
+                          <>
+                            {preview}
+                            <span className="opacity-60">... </span>
+                            <button 
+                              onClick={() => toggleExpand(item.id)}
+                              className="text-primary font-bold hover:underline text-[11px]"
+                            >
+                              Read more
+                            </button>
+                          </>
+                        );
+                      }
+                      
+                      return (
+                        <>
+                          {item.content}
+                          {isLong && isExpanded && (
+                            <button 
+                              onClick={() => toggleExpand(item.id)}
+                              className="text-primary font-bold hover:underline text-[11px] block mt-1"
+                            >
+                              Show less
+                            </button>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>

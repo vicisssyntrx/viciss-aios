@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/useAuth";
@@ -8,9 +9,13 @@ export type ClipboardItem = {
   content_type: 'text' | 'code' | 'file';
   content: string; // text content, or URL for files
   file_name?: string; // Original name for files
+  file_size?: number; // Size in bytes
   status: 'active' | 'recycled';
   created_at: string;
 };
+
+const MAX_ITEMS = 10;
+const MAX_TOTAL_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB
 
 export function useClipboard() {
   const { user } = useAuth();
@@ -27,12 +32,13 @@ export function useClipboard() {
       
       if (error) {
         console.warn("Failed to fetch clipboard, table might not exist.", error);
-        return { active: [], recycled: [] };
+        return { active: [], recycled: [], totalSize: 0 };
       }
 
       const items = data as ClipboardItem[];
       const active: ClipboardItem[] = [];
       const recycled: ClipboardItem[] = [];
+      let totalSize = 0;
 
       const now = new Date().getTime();
       const ONE_DAY = 24 * 60 * 60 * 1000;
@@ -43,8 +49,11 @@ export function useClipboard() {
         const age = now - itemTime;
 
         if (age > THIRTY_DAYS) {
-          // Permanently deleted dynamically (should be handled by DB chron, but frontend ignores it)
           continue;
+        }
+
+        if (item.file_size) {
+          totalSize += item.file_size;
         }
 
         if (item.status === 'recycled' || age > ONE_DAY) {
@@ -54,16 +63,57 @@ export function useClipboard() {
         }
       }
 
-      return { active, recycled };
+      return { active, recycled, totalSize };
     },
     enabled: !!user,
   });
 
+  // Enable Realtime Sync
+  useEffect(() => {
+    if (!user) return;
+    
+    const channel = supabase
+      .channel('clipboard-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'shared_clipboard',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          // Instantly refresh when another device makes a change
+          queryClient.invalidateQueries({ queryKey: ["shared_clipboard"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
+
+  const checkLimits = (newSize: number = 0) => {
+    const activeCount = query.data?.active.length || 0;
+    const currentTotalSize = query.data?.totalSize || 0;
+
+    if (activeCount >= MAX_ITEMS) {
+      throw new Error(`Clipboard limit reached (${MAX_ITEMS} items max). Please delete some items.`);
+    }
+
+    if (currentTotalSize + newSize > MAX_TOTAL_SIZE_BYTES) {
+      throw new Error("Clipboard storage limit reached (100MB max total). Please delete some files.");
+    }
+  };
+
   const addMutation = useMutation({
     mutationFn: async (item: Pick<ClipboardItem, 'content_type' | 'content' | 'file_name'>) => {
+      checkLimits();
+      
       const { data, error } = await supabase
         .from("shared_clipboard")
-        .insert([{ ...item, user_id: user!.id, status: 'active' }])
+        .insert([{ ...item, user_id: user!.id, status: 'active', file_size: 0 }])
         .select()
         .single();
       
@@ -77,26 +127,28 @@ export function useClipboard() {
 
   const uploadFileMutation = useMutation({
     mutationFn: async (file: File) => {
-      // 100MB limit enforcement on frontend (should also be enforced by bucket policy)
-      if (file.size > 100 * 1024 * 1024) {
-        throw new Error("File exceeds 100MB limit.");
-      }
+      checkLimits(file.size);
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${user!.id}/${fileName}`;
 
+      console.log(`[Storage] Attempting to upload ${fileName} (${file.size} bytes)...`);
+      
       const { error: uploadError } = await supabase.storage
         .from("clipboard_files")
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("[Storage] Upload failed:", uploadError);
+        throw uploadError;
+      }
 
+      console.log(`[Storage] Upload successful! Getting public URL...`);
       const { data: { publicUrl } } = supabase.storage
         .from("clipboard_files")
         .getPublicUrl(filePath);
 
-      // Now add the item
       const { data, error: insertError } = await supabase
         .from("shared_clipboard")
         .insert([{ 
@@ -104,12 +156,16 @@ export function useClipboard() {
           content_type: 'file', 
           content: publicUrl,
           file_name: file.name,
+          file_size: file.size,
           status: 'active' 
         }])
         .select()
         .single();
       
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error("[Database] Failed to insert file record:", insertError);
+        throw insertError;
+      }
       return data;
     },
     onSuccess: () => {
@@ -134,7 +190,12 @@ export function useClipboard() {
 
   const restoreMutation = useMutation({
     mutationFn: async (id: string) => {
-      // We also update created_at so it doesn't instantly auto-recycle again if it was > 24h old
+      // Must check limits again when restoring an item back to active
+      const activeCount = query.data?.active.length || 0;
+      if (activeCount >= MAX_ITEMS) {
+        throw new Error(`Clipboard limit reached (${MAX_ITEMS} items max). Cannot restore.`);
+      }
+
       const { error } = await supabase
         .from("shared_clipboard")
         .update({ status: 'active', created_at: new Date().toISOString() })
@@ -150,7 +211,6 @@ export function useClipboard() {
 
   const hardDeleteMutation = useMutation({
     mutationFn: async (item: ClipboardItem) => {
-      // If it's a file, try to delete from storage first
       if (item.content_type === 'file' && item.content.includes('/clipboard_files/')) {
         try {
           const urlParts = item.content.split('/clipboard_files/');
@@ -179,6 +239,9 @@ export function useClipboard() {
   return {
     activeItems: query.data?.active || [],
     recycledItems: query.data?.recycled || [],
+    totalSize: query.data?.totalSize || 0,
+    maxItems: MAX_ITEMS,
+    maxSizeBytes: MAX_TOTAL_SIZE_BYTES,
     isLoading: query.isLoading,
     addItem: addMutation.mutateAsync,
     isAdding: addMutation.isPending,
