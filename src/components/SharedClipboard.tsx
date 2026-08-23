@@ -173,9 +173,9 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
         <div className="flex items-center justify-between">
           <h3 className={cn(
             "flex items-center gap-2 text-foreground",
-            isMobile ? "pt-2 pb-2 text-[3rem] leading-none font-black px-1" : "text-sm font-bold"
+            isMobile ? "pt-2 pb-2 text-[3.8rem] leading-none font-black px-1" : "text-sm font-bold"
           )}>
-            {view === 'active' ? <Share2 className={cn("text-primary", isMobile ? "w-10 h-10" : "w-4 h-4")} /> : <Trash2 className={cn("text-destructive", isMobile ? "w-10 h-10" : "w-4 h-4")} />}
+            {view === 'active' ? <Share2 className={cn("text-primary", isMobile ? "w-12 h-12" : "w-4 h-4")} /> : <Trash2 className={cn("text-destructive", isMobile ? "w-12 h-12" : "w-4 h-4")} />}
             {view === 'active' ? (isMobile ? "Share It" : "Shared Clipboard") : "Recycle Bin"}
           </h3>
           <button
@@ -201,20 +201,21 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
               className="w-full bg-secondary/40 border border-border/40 rounded-xl p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none h-[80px] pb-10"
             />
             
-            <input 
-              type="file" 
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="absolute bottom-2 left-2 p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+            <label
+              className={cn(
+                "absolute bottom-2 left-2 p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer",
+                isUploading && "opacity-50 pointer-events-none"
+              )}
               title="Upload File (Max 100MB)"
             >
+              <input 
+                type="file" 
+                onChange={handleFileChange}
+                className="hidden"
+                disabled={isUploading}
+              />
               <Upload className={cn("w-4 h-4", isUploading && "animate-pulse text-primary")} />
-            </button>
+            </label>
 
             <Button 
               size="sm" 

@@ -100,24 +100,50 @@ export default function RabbitAssistant() {
     return () => window.removeEventListener('resize', updateConstraints);
   }, []);
 
-  // Eye tracking for vector mode (lifelike animation)
+  // Float animation for breathing effect
+  useEffect(() => {
+    if (!enabled) return;
+    const float = animate(y, [0, -10, 0], {
+      duration: 3,
+      repeat: Infinity,
+      ease: "easeInOut"
+    });
+    return () => float.stop();
+  }, [enabled, y]);
+
+  // Eye tracking for vector mode (looks towards center based on docked edge)
   const eyeX = useMotionValue(0);
   const eyeY = useMotionValue(0);
 
   useEffect(() => {
     if (!enabled) return;
     const interval = setInterval(() => {
-      // 30% chance to look center, 70% chance to dart around randomly
-      const lookForward = Math.random() < 0.3;
-      const targetX = lookForward ? 0 : (Math.random() - 0.5) * 8;
-      const targetY = lookForward ? 0 : (Math.random() - 0.5) * 8;
+      // Check which edge it's currently on (0 is right, large negative is left)
+      const currentX = x.get();
+      const isOnLeftEdge = currentX < -(window.innerWidth / 2);
       
-      animate(eyeX, targetX, { type: "spring", stiffness: 400, damping: 25 });
-      animate(eyeY, targetY, { type: "spring", stiffness: 400, damping: 25 });
-    }, 2000 + Math.random() * 2500);
+      // 70% chance to look at center, 30% chance to dart randomly
+      const lookAtCenter = Math.random() < 0.7;
+      
+      let targetX = 0;
+      let targetY = 0;
+
+      if (lookAtCenter) {
+        // Look towards center of screen (left if docked right, right if docked left)
+        targetX = isOnLeftEdge ? 6 : -6;
+        targetY = -2; // Look slightly up towards center
+      } else {
+        // Random darting
+        targetX = (Math.random() - 0.5) * 8;
+        targetY = (Math.random() - 0.5) * 8;
+      }
+      
+      animate(eyeX, targetX, { type: "spring", stiffness: 300, damping: 20 });
+      animate(eyeY, targetY, { type: "spring", stiffness: 300, damping: 20 });
+    }, 2000 + Math.random() * 2000);
 
     return () => clearInterval(interval);
-  }, [enabled, eyeX, eyeY]);
+  }, [enabled, eyeX, eyeY, x]);
 
   if (!enabled) return null;
 
@@ -127,9 +153,22 @@ export default function RabbitAssistant() {
       dragMomentum={false}
       dragElastic={0.1}
       dragConstraints={constraints}
-      onDragStart={() => (isDragging.current = true)}
-      onDragEnd={() => {
+      onDragStart={() => {
+        isDragging.current = true;
+      }}
+      onDragEnd={(e, info) => {
         setTimeout(() => (isDragging.current = false), 150);
+        // Snap to edges
+        const currentX = x.get() + info.offset.x;
+        const threshold = -(window.innerWidth / 2);
+        
+        if (currentX < threshold) {
+          // Snap to left edge
+          animate(x, -window.innerWidth + 100, { type: "spring", stiffness: 300, damping: 25 });
+        } else {
+          // Snap to right edge (origin 0)
+          animate(x, 0, { type: "spring", stiffness: 300, damping: 25 });
+        }
       }}
       onTap={() => {
         if (!isDragging.current) {
