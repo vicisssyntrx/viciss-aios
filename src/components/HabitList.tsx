@@ -151,7 +151,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                     onToggle(h.id);
                   }}
                   className={cn(
-                    "absolute w-[calc(100vw-32px)] aspect-square max-h-[380px] max-w-[380px] rounded-3xl flex flex-col justify-center items-center text-center p-6 cursor-pointer touch-none",
+                    "absolute w-[calc(100vw-64px)] aspect-[3/4] max-h-[420px] max-w-[320px] rounded-3xl flex flex-col justify-center items-center text-center p-6 cursor-pointer touch-none",
                     "bg-card shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] border border-border/50",
                     "dark:border-t-white/40 dark:border-l-white/20 dark:border-b-white/5 dark:border-r-white/10",
                     checked ? "!border-2 !border-primary !bg-primary shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50 scale-[0.95]" : ""
