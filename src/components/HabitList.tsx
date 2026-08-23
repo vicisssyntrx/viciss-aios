@@ -86,7 +86,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                 checked ? "scale-[0.98]" : "scale-100 active:scale-[0.98]",
                 "glass p-3.5 items-center gap-3 w-full text-left cursor-pointer",
                 "shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:shadow-none",
-                "dark:border dark:border-white/20",
+                "dark:border dark:!border-white/20",
                 checked ? "!border-primary/50 !bg-primary/10" : ""
               )}
             >
@@ -152,8 +152,8 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                   }}
                   className={cn(
                     "absolute w-[calc(100vw-64px)] aspect-[3/4] max-h-[420px] max-w-[320px] rounded-3xl flex flex-col justify-center items-center text-center p-6 cursor-pointer touch-none",
-                    "bg-card shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-none border border-border/50",
-                    "dark:border-white/20",
+                    "bg-card border border-border dark:border-white/20",
+                    offset === 0 ? "shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)]" : "shadow-md dark:shadow-none",
                     checked ? "!border-2 !border-primary !bg-primary shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50 scale-[0.95]" : ""
                   )}
                 >
