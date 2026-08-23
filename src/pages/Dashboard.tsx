@@ -340,7 +340,7 @@ export default function Dashboard() {
               key={mobileTab} 
               className={cn(
                 "md:hidden animate-in fade-in zoom-in-95 duration-300",
-                (isChat || isEdits) ? "h-[calc(100vh-175px)] pb-4 overflow-hidden" : "space-y-4 pb-32"
+                (isChat || isEdits || isShare) ? "h-[calc(100vh-175px)] pb-4 overflow-hidden" : "space-y-4 pb-32"
               )}
             >
               {/* ── Dash tab ── */}
