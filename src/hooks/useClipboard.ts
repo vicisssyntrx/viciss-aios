@@ -73,7 +73,7 @@ export function useClipboard() {
     if (!user) return;
     
     const channel = supabase
-      .channel('clipboard-changes')
+      .channel(`clipboard-changes-${Math.random()}`)
       .on(
         'postgres_changes',
         {
