@@ -24,7 +24,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
 
   return (
     <div className="space-y-2">
-      <h3 className="py-6 text-[3rem] leading-none font-black text-foreground md:text-sm md:font-normal md:uppercase md:tracking-wider md:text-muted-foreground px-1 mb-4 md:mb-0 md:py-0">Tasks</h3>
+      <h3 className="pt-6 pb-2 text-[3rem] leading-none font-black text-foreground md:text-sm md:font-normal md:uppercase md:tracking-wider md:text-muted-foreground px-1 mb-2 md:mb-0 md:py-0">📋 Tasks</h3>
       <div className="space-y-1.5">
       {habits.map((h) => {
         const checked = completedIds.has(h.id);

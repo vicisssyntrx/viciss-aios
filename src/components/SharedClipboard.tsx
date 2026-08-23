@@ -171,8 +171,11 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
       
       <div className="flex flex-col gap-1 mb-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-            {view === 'active' ? <ClipboardPaste className="w-4 h-4 text-primary" /> : <Trash2 className="w-4 h-4 text-destructive" />}
+          <h3 className={cn(
+            "flex items-center gap-2 text-foreground",
+            isMobile ? "pt-2 pb-2 text-[3rem] leading-none font-black px-1" : "text-sm font-bold"
+          )}>
+            {view === 'active' ? <ClipboardPaste className={cn("text-primary", isMobile ? "w-10 h-10" : "w-4 h-4")} /> : <Trash2 className={cn("text-destructive", isMobile ? "w-10 h-10" : "w-4 h-4")} />}
             {view === 'active' ? (isMobile ? "Share It" : "Shared Clipboard") : "Recycle Bin"}
           </h3>
           <button
