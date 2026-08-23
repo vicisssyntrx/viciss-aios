@@ -148,7 +148,7 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
   return (
     <div className="space-y-2">
       <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
-        <LineChartIcon className="w-4 h-4" /> Growth
+        <TrendingUp className="w-4 h-4" /> Growth
         {isFetching && <Loader2 className="w-3.5 h-3.5 animate-spin text-primary/70" />}
       </h3>
       <div className="flip-card-container h-[264px] md:h-[276px]">
