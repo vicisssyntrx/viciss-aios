@@ -333,7 +333,7 @@ export default function Dashboard() {
         )}
 
         <div className="flex-1 px-4 sm:px-6 pb-4 md:pb-6 mt-2">
-          <div className={`mx-auto w-full md:grid md:grid-cols-2 md:gap-4 ${desktopView === "edits" ? "max-w-[1200px]" : "max-w-[860px]"}`}>
+          <div className={`mx-auto w-full md:grid md:grid-cols-3 md:gap-5 ${desktopView === "edits" ? "max-w-[1200px]" : "max-w-[1100px]"}`}>
 
             {/* ══════════ MOBILE ══════════ */}
             <div 
@@ -402,15 +402,19 @@ export default function Dashboard() {
                   <OutcomeCards />
                 </div>
 
-                {/* Right column */}
+                {/* Middle column */}
                 <div className="hidden md:block space-y-2">
                   <GrowthGraph activeTab="dash" />
                   <JourneyInsights activeTab="dash" />
+                </div>
+
+                {/* Right column */}
+                <div className="hidden md:block space-y-2">
                   <SharedClipboard isMobile={false} />
                 </div>
               </>
             ) : (
-              <div className="hidden md:block col-span-2 space-y-3 mt-2 animate-in fade-in zoom-in-95 duration-300">
+              <div className="hidden md:block md:col-span-3 space-y-3 mt-2 animate-in fade-in zoom-in-95 duration-300">
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() => setDesktopView("dash")}
