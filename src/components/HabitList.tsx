@@ -88,12 +88,12 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
               onPointerDown={handlePointerDown}
               onPointerUp={(e) => handlePointerUp(e, h.id)}
               className={cn(
-                "glass rounded-2xl flex transition-all duration-300 relative select-none",
+                "rounded-2xl flex transition-all duration-300 relative select-none",
                 checked ? "scale-95" : "scale-100 active:scale-95",
-                effectiveViewMode === 'stack' ? "p-3.5 items-center gap-3 w-full text-left" : "flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center",
+                effectiveViewMode === 'stack' ? "glass p-3.5 items-center gap-3 w-full text-left" : "bg-card shadow-xl border border-border/50 flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center",
                 effectiveViewMode === 'vertical' ? "w-full h-full min-h-[300px]" : "",
                 effectiveViewMode === 'horizontal' ? "w-[calc(100vw-32px)] h-full min-h-[300px]" : "",
-                checked ? (effectiveViewMode === 'stack' ? "!border-primary/50 !bg-primary/10" : "!border-2 !border-primary !bg-primary/40 shadow-[inset_0_0_30px_rgba(var(--primary),0.9),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50") : ""
+                checked ? (effectiveViewMode === 'stack' ? "!border-primary/50 !bg-primary/10" : "!border-2 !border-primary !bg-primary shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50") : ""
               )}
             >
               {effectiveViewMode === 'stack' ? (
