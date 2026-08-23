@@ -89,7 +89,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                 viewMode === 'stack' ? "p-3.5 items-center gap-3 w-full text-left" : "flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center active:scale-95",
                 viewMode === 'vertical' ? "w-full h-full min-h-[300px]" : "",
                 viewMode === 'horizontal' ? "w-[85vw] max-w-[320px] h-full" : "",
-                checked ? (viewMode === 'stack' ? "!border-primary/50 !bg-primary/10" : "!border-2 !border-primary !bg-primary/20 shadow-[0_0_20px_rgba(var(--primary),0.4)]") : ""
+                checked ? (viewMode === 'stack' ? "!border-primary/50 !bg-primary/10" : "!border-2 !border-primary !bg-primary/40 shadow-[0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50 relative overflow-hidden after:content-[''] after:absolute after:inset-0 after:rounded-2xl after:shadow-[inset_0_0_20px_rgba(var(--primary),0.8)]") : ""
               )}
             >
               {viewMode === 'stack' ? (
