@@ -77,8 +77,8 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
       <div className={cn(
         "flex-1 min-h-0",
         effectiveViewMode === 'stack' && "space-y-1.5",
-        effectiveViewMode === 'vertical' && "overflow-y-auto snap-y snap-mandatory scroll-smooth space-y-4 pb-32 -mx-4 px-4 h-[60vh]",
-        effectiveViewMode === 'horizontal' && "overflow-x-auto snap-x snap-mandatory scroll-smooth flex gap-4 pb-4 -mx-4 px-4 h-[60vh]"
+        effectiveViewMode === 'vertical' && "overflow-y-auto snap-y snap-mandatory scroll-smooth space-y-4 pb-32 -mx-4 px-4 h-[45vh]",
+        effectiveViewMode === 'horizontal' && "overflow-x-auto snap-x snap-mandatory scroll-smooth flex gap-4 pb-4 -mx-4 px-4 h-[45vh]"
       )}>
         {habits.map((h) => {
           const checked = completedIds.has(h.id);
@@ -88,11 +88,11 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
               onPointerDown={handlePointerDown}
               onPointerUp={(e) => handlePointerUp(e, h.id)}
               className={cn(
-                "rounded-2xl flex transition-all duration-300 relative select-none",
-                checked ? "scale-95" : "scale-100 active:scale-95",
+                "rounded-2xl flex transition-all duration-300 ease-out relative select-none transform origin-center transform-gpu",
+                checked ? "scale-[0.93]" : "scale-100 active:scale-[0.93]",
                 effectiveViewMode === 'stack' ? "glass p-3.5 items-center gap-3 w-full text-left" : "bg-card shadow-xl border border-border/50 flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center",
-                effectiveViewMode === 'vertical' ? "w-full h-full min-h-[300px]" : "",
-                effectiveViewMode === 'horizontal' ? "w-[calc(100vw-32px)] h-full min-h-[300px]" : "",
+                effectiveViewMode === 'vertical' ? "w-full h-full min-h-[220px]" : "",
+                effectiveViewMode === 'horizontal' ? "w-[calc(100vw-32px)] h-full min-h-[220px]" : "",
                 checked ? (effectiveViewMode === 'stack' ? "!border-primary/50 !bg-primary/10" : "!border-2 !border-primary !bg-primary shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50") : ""
               )}
             >
