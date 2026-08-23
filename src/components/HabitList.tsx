@@ -3,6 +3,7 @@ import { Switch } from "@/components/ui/switch";
 import { ClipboardList, LayoutList, GalleryVertical, GalleryHorizontal } from "lucide-react";
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Props {
   completedIds: Set<string>;
@@ -12,6 +13,7 @@ interface Props {
 
 export default function HabitList({ completedIds, onToggle, viewOnly = false }: Props) {
   const { data: habits, isLoading } = useHabits();
+  const isMobile = useIsMobile();
   const [viewMode, setViewMode] = useState<'stack' | 'vertical' | 'horizontal'>(() => {
     return (localStorage.getItem("tasks-view-mode") as any) || 'stack';
   });
@@ -28,7 +30,6 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
     if (viewOnly) return;
     const deltaX = Math.abs(e.clientX - touchStartX.current);
     const deltaY = Math.abs(e.clientY - touchStartY.current);
-    // If pointer moved less than 10px, treat as a tap
     if (deltaX < 10 && deltaY < 10) {
       onToggle(id);
     }
@@ -52,6 +53,8 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
     </div>
   );
 
+  const effectiveViewMode = isMobile ? viewMode : 'stack';
+
   return (
     <div className="space-y-2 flex flex-col h-full relative">
       <div className="flex items-center justify-between px-1 mb-6 md:mb-0">
@@ -65,17 +68,17 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
           className="md:hidden mt-8 p-2.5 bg-secondary/50 hover:bg-secondary rounded-full text-foreground/70 transition-colors"
           title="Change View Style"
         >
-          {viewMode === 'stack' && <LayoutList className="w-5 h-5" />}
-          {viewMode === 'vertical' && <GalleryVertical className="w-5 h-5" />}
-          {viewMode === 'horizontal' && <GalleryHorizontal className="w-5 h-5" />}
+          {effectiveViewMode === 'stack' && <LayoutList className="w-5 h-5" />}
+          {effectiveViewMode === 'vertical' && <GalleryVertical className="w-5 h-5" />}
+          {effectiveViewMode === 'horizontal' && <GalleryHorizontal className="w-5 h-5" />}
         </button>
       </div>
 
       <div className={cn(
         "flex-1 min-h-0",
-        viewMode === 'stack' && "space-y-1.5",
-        viewMode === 'vertical' && "overflow-y-auto snap-y snap-mandatory scroll-smooth space-y-4 pb-32 -mx-4 px-4 h-[60vh]",
-        viewMode === 'horizontal' && "overflow-x-auto snap-x snap-mandatory scroll-smooth flex gap-4 pb-4 -mx-4 px-4 h-[300px]"
+        effectiveViewMode === 'stack' && "space-y-1.5",
+        effectiveViewMode === 'vertical' && "overflow-y-auto snap-y snap-mandatory scroll-smooth space-y-4 pb-32 -mx-4 px-4 h-[60vh]",
+        effectiveViewMode === 'horizontal' && "overflow-x-auto snap-x snap-mandatory scroll-smooth flex gap-4 pb-4 -mx-4 px-4 h-[60vh]"
       )}>
         {habits.map((h) => {
           const checked = completedIds.has(h.id);
@@ -85,14 +88,15 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
               onPointerDown={handlePointerDown}
               onPointerUp={(e) => handlePointerUp(e, h.id)}
               className={cn(
-                "glass rounded-2xl flex transition-all relative select-none",
-                viewMode === 'stack' ? "p-3.5 items-center gap-3 w-full text-left" : "flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center active:scale-95",
-                viewMode === 'vertical' ? "w-full h-full min-h-[300px]" : "",
-                viewMode === 'horizontal' ? "w-[85vw] max-w-[320px] h-full" : "",
-                checked ? (viewMode === 'stack' ? "!border-primary/50 !bg-primary/10" : "!border-2 !border-primary !bg-primary/40 shadow-[0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50 relative overflow-hidden after:content-[''] after:absolute after:inset-0 after:rounded-2xl after:shadow-[inset_0_0_20px_rgba(var(--primary),0.8)]") : ""
+                "glass rounded-2xl flex transition-all duration-300 relative select-none",
+                checked ? "scale-95" : "scale-100",
+                effectiveViewMode === 'stack' ? "p-3.5 items-center gap-3 w-full text-left" : "flex-col justify-center items-center text-center p-6 flex-shrink-0 snap-center",
+                effectiveViewMode === 'vertical' ? "w-full h-full min-h-[300px]" : "",
+                effectiveViewMode === 'horizontal' ? "w-[85vw] max-w-[320px] h-full" : "",
+                checked ? (effectiveViewMode === 'stack' ? "!border-primary/50 !bg-primary/10" : "!border-2 !border-primary !bg-primary/40 shadow-[inset_0_0_30px_rgba(var(--primary),0.9),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50") : ""
               )}
             >
-              {viewMode === 'stack' ? (
+              {effectiveViewMode === 'stack' ? (
                 <>
                   <span className="text-2xl">{h.emoji}</span>
                   <div className="flex-1 min-w-0 pointer-events-none">
