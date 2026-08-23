@@ -1,7 +1,7 @@
 import { useHabits } from "@/hooks/useHabits";
 import { Switch } from "@/components/ui/switch";
 import { ClipboardList, LayoutList, Layers } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
@@ -21,6 +21,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
   });
   
   const [activeIndex, setActiveIndex] = useState(0);
+  const isDragging = useRef(false);
 
   const cycleViewMode = () => {
     const next = viewMode === 'stack' ? 'deck' : 'stack';
@@ -84,6 +85,8 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                 "rounded-2xl flex transition-all duration-300 ease-out relative select-none transform origin-center transform-gpu",
                 checked ? "scale-[0.98]" : "scale-100 active:scale-[0.98]",
                 "glass p-3.5 items-center gap-3 w-full text-left cursor-pointer",
+                "shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]",
+                "dark:border dark:border-t-white/40 dark:border-l-white/20 dark:border-b-white/5 dark:border-r-white/10",
                 checked ? "!border-primary/50 !bg-primary/10" : ""
               )}
             >
@@ -130,17 +133,27 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                     zIndex: 50 - offset,
                   }}
                   exit={{ opacity: 0, x: -200, transition: { duration: 0.2 } }}
-                  drag={offset === 0 && !viewOnly ? "x" : false}
-                  dragConstraints={{ left: 0, right: 0 }}
+                  drag={offset === 0 && !viewOnly ? true : false}
+                  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                   dragElastic={0.8}
-                  onDragEnd={handleDeckDragEnd}
+                  onDragStart={() => {
+                    isDragging.current = true;
+                  }}
+                  onDragEnd={(e, info) => {
+                    setTimeout(() => {
+                      isDragging.current = false;
+                    }, 50);
+                    handleDeckDragEnd(e, info);
+                  }}
                   onTap={(e) => {
+                    if (isDragging.current) return;
                     if (viewOnly || offset !== 0) return;
                     onToggle(h.id);
                   }}
                   className={cn(
                     "absolute w-[calc(100vw-32px)] aspect-square max-h-[380px] max-w-[380px] rounded-3xl flex flex-col justify-center items-center text-center p-6 cursor-pointer touch-none",
-                    "bg-card shadow-xl border border-border/50",
+                    "bg-card shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] border border-border/50",
+                    "dark:border-t-white/40 dark:border-l-white/20 dark:border-b-white/5 dark:border-r-white/10",
                     checked ? "!border-2 !border-primary !bg-primary shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_0_40px_rgba(var(--primary),0.8)] ring-4 ring-primary/50 scale-[0.95]" : ""
                   )}
                 >
