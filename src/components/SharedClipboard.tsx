@@ -35,6 +35,38 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleDownload = async (url: string, filename: string) => {
+    try {
+      toast.loading("Downloading...", { id: "download" });
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Network response was not ok");
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+      toast.success("Download started", { id: "download" });
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast.error("Download failed, opening in new tab", { id: "download" });
+      window.open(url, '_blank');
+    }
+  };
+
+  const formatSize = (bytes?: number | null) => {
+    if (bytes === undefined || bytes === null || Number.isNaN(Number(bytes))) return null;
+    const size = Number(bytes);
+    if (size === 0) return '0 B';
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
   const handleAdd = async () => {
     if (!content.trim()) return;
     try {
@@ -77,15 +109,13 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
       return (
         <div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
           {item.content_type === 'file' ? (
-            <a 
-              href={item.content} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <button 
+              onClick={() => handleDownload(item.content, item.file_name || 'download')} 
               className="p-1.5 hover:bg-primary/20 rounded-md text-foreground transition-colors"
               title="Download File"
             >
               <Download className="w-3.5 h-3.5 text-primary" />
-            </a>
+            </button>
           ) : (
             <button 
               onClick={() => handleCopy(item.content, item.id)}
@@ -236,8 +266,15 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
                     {item.content_type === 'file' && <Upload className="w-3 h-3 text-green-400" />}
                     {item.content_type === 'file' ? 'FILE' : item.content_type}
                     
+                    {/* Size indicator */}
+                    <span className="ml-1 font-mono text-[8px] opacity-70 bg-secondary px-1 py-0.5 rounded text-foreground/80 lowercase">
+                      {item.content_type === 'file'
+                        ? (formatSize(item.file_size) || 'unknown size')
+                        : `${(item.content || '').length} chars`}
+                    </span>
+                    
                     {/* Age indicator */}
-                    <span className="ml-2 font-mono text-[8px] opacity-50">
+                    <span className="ml-1 font-mono text-[8px] opacity-50">
                       {(() => {
                         const ageHrs = (new Date().getTime() - new Date(item.created_at).getTime()) / (1000 * 60 * 60);
                         if (ageHrs < 1) return '< 1h';
@@ -254,11 +291,6 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
                   <div className="text-xs font-semibold text-primary flex items-center gap-2">
                     <File className="w-4 h-4 shrink-0" />
                     <span className="truncate">{item.file_name || 'Uploaded File'}</span>
-                    {(item.file_size !== undefined && item.file_size !== null) && (
-                      <span className="text-[10px] text-muted-foreground bg-primary/10 px-1.5 py-0.5 rounded font-mono">
-                        {(Number(item.file_size) / (1024 * 1024)).toFixed(2)} MB
-                      </span>
-                    )}
                   </div>
                 ) : (
                   <div className="text-xs text-foreground/90 whitespace-pre-wrap font-mono break-all relative">
