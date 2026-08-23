@@ -32,7 +32,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
     // If they swipe left/right/up/down significantly, move to next card
     if (Math.abs(info.offset.x) > 50 || Math.abs(info.offset.y) > 50) {
       if (!habits) return;
-      setActiveIndex(prev => Math.min(habits.length - 1, prev + 1));
+      setActiveIndex(prev => prev + 1);
     }
   };
 
@@ -72,7 +72,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
       <div className={cn(
         "flex-1 min-h-0 relative",
         effectiveViewMode === 'stack' && "space-y-1.5",
-        effectiveViewMode === 'deck' && "flex items-center justify-center h-[55vh]"
+        effectiveViewMode === 'deck' && "flex flex-col items-center justify-center min-h-[50vh] mt-4"
       )}>
         {effectiveViewMode === 'stack' && habits.map((h) => {
           const checked = completedIds.has(h.id);
@@ -111,10 +111,13 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
           <AnimatePresence>
             {habits.map((h, i) => {
               const checked = completedIds.has(h.id);
-              const offset = i - activeIndex;
               
-              // Only render cards that are on top or slightly behind
-              if (offset < 0 || offset > 3) return null;
+              // Calculate infinite continuous offset
+              let offset = (i - (activeIndex % habits.length));
+              if (offset < 0) offset += habits.length;
+              
+              // Only render cards that are on top or slightly behind (limit to 4 cards for performance/visuals)
+              if (offset > 3) return null;
 
               return (
                 <motion.div
@@ -154,15 +157,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
           </AnimatePresence>
         )}
         
-        {isDeck && activeIndex >= habits.length && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground animate-fade-in">
-            <span className="text-4xl mb-4">🎉</span>
-            <p className="font-semibold">All caught up!</p>
-            <button onClick={() => setActiveIndex(0)} className="mt-4 text-xs font-bold uppercase tracking-widest text-primary hover:underline">
-              Start Over
-            </button>
-          </div>
-        )}
+        {/* No longer need the "All caught up" state since it loops infinitely */}
       </div>
     </div>
   );

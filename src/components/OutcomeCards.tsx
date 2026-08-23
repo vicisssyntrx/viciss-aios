@@ -3,6 +3,7 @@ import { useDailyLogs, getDenseLogs } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 import { useMemo } from "react";
 import { parseISO, differenceInCalendarDays, addYears, subDays } from "date-fns";
+import { Target } from "lucide-react";
 
 export default function OutcomeCards() {
   const { data: habits } = useHabits();
@@ -45,7 +46,9 @@ export default function OutcomeCards() {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Outcomes</h3>
+      <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
+        <Target className="w-4 h-4" /> Outcomes
+      </h3>
       <div className="grid grid-cols-2 gap-2">
         {Array.from(outcomes.entries()).map(([name, o]) => {
           return (

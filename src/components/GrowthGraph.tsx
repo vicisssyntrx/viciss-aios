@@ -3,7 +3,7 @@ import { useUserStats } from "@/hooks/useUserStats";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useMemo, useState, useEffect } from "react";
 import ThoughtOfDay from "./ThoughtOfDay";
-import { Loader2 } from "lucide-react";
+import { Loader2, TrendingUp } from "lucide-react";
 import {
   format,
   parseISO,
@@ -133,7 +133,7 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
     return (
       <div className="space-y-2">
         <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
-          Growth
+          <TrendingUp className="w-4 h-4" /> Growth
           {isFetching && <Loader2 className="w-3.5 h-3.5 animate-spin text-primary/70" />}
         </h3>
         <div className="glass rounded-2xl p-4">
@@ -148,7 +148,7 @@ export default function GrowthGraph({ activeTab }: GrowthGraphProps) {
   return (
     <div className="space-y-2">
       <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
-        Growth
+        <LineChartIcon className="w-4 h-4" /> Growth
         {isFetching && <Loader2 className="w-3.5 h-3.5 animate-spin text-primary/70" />}
       </h3>
       <div className="flip-card-container h-[264px] md:h-[276px]">

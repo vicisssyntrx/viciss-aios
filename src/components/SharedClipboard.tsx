@@ -164,20 +164,26 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
   };
 
   return (
-    <div className={cn(
-      "flex flex-col h-full",
-      isMobile ? "p-2 w-full pt-4" : "glass rounded-2xl p-4 sm:p-5 h-[320px]"
-    )}>
-      
-      <div className="flex flex-col gap-1 mb-3">
-        <div className="flex items-center justify-between">
-          <h3 className={cn(
-            "flex items-center gap-2 text-foreground whitespace-nowrap",
-            isMobile ? "pt-2 pb-2 text-[3rem] leading-none font-black px-1" : "text-sm font-bold"
-          )}>
-            {view === 'active' ? <Share2 className={cn("text-primary shrink-0", isMobile ? "w-10 h-10" : "w-4 h-4")} /> : <Trash2 className={cn("text-destructive shrink-0", isMobile ? "w-10 h-10" : "w-4 h-4")} />}
-            {view === 'active' ? (isMobile ? "Share It" : "Shared Clipboard") : "Recycle Bin"}
-          </h3>
+    <div className={cn(!isMobile && "space-y-2 h-full")}>
+      {!isMobile && (
+        <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
+          {view === 'active' ? <Share2 className="w-4 h-4" /> : <Trash2 className="w-4 h-4 text-destructive" />}
+          {view === 'active' ? "Share It" : "Recycle Bin"}
+        </h3>
+      )}
+      <div className={cn(
+        "flex flex-col h-full",
+        isMobile ? "p-2 w-full pt-4" : "glass rounded-2xl p-4 sm:p-5 h-[292px]"
+      )}>
+        
+        <div className="flex flex-col gap-1 mb-3">
+          <div className={cn("flex items-center", isMobile ? "justify-between" : "justify-end")}>
+            {isMobile && (
+              <h3 className="pt-2 pb-2 text-[3rem] leading-none font-black px-1 flex items-center gap-2 text-foreground whitespace-nowrap">
+                {view === 'active' ? <Share2 className="text-primary shrink-0 w-10 h-10" /> : <Trash2 className="text-destructive shrink-0 w-10 h-10" />}
+                {view === 'active' ? "Share It" : "Recycle Bin"}
+              </h3>
+            )}
           <button
             onClick={() => setView(view === 'active' ? 'recycled' : 'active')}
             className="flex items-center gap-2 text-xs font-semibold p-2.5 md:px-3 md:py-1.5 bg-secondary/50 hover:bg-secondary/80 rounded-full md:rounded-md transition-colors shrink-0"
@@ -347,6 +353,7 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useDailyLogs, getDenseLogs, computeDeterministicGrowth } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
+import { Map } from "lucide-react";
 import { todayYmdLocal } from "@/lib/date";
 import { useMemo } from "react";
 import { parseISO, differenceInCalendarDays } from "date-fns";
@@ -55,7 +56,9 @@ export default function JourneyInsights() {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1">Journey Insights</h3>
+      <h3 className="text-sm uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
+        <Map className="w-4 h-4" /> Journey Insights
+      </h3>
       <div className="glass rounded-2xl p-4 md:p-4 min-h-[96px] flex flex-col justify-center">
         <div className="flex items-center">
           <div className="flex-shrink-0 pr-2 md:pr-4 text-center">
