@@ -47,10 +47,22 @@ export function useNotifications() {
 
   const sendNotification = useCallback(async (title: string, body: string) => {
     if (permission === "granted") {
-      new Notification(title, {
-        body,
-        icon: "/rabbit-avatar.svg", 
-      });
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then((registration) => {
+          registration.showNotification(title, {
+            body,
+            icon: "/rabbit-avatar.svg",
+          });
+        }).catch((err) => {
+          console.error("SW notification failed, falling back", err);
+          new Notification(title, { body, icon: "/rabbit-avatar.svg" });
+        });
+      } else {
+        new Notification(title, {
+          body,
+          icon: "/rabbit-avatar.svg", 
+        });
+      }
     }
 
     const newLog: NotificationLog = {

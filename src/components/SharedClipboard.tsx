@@ -179,8 +179,8 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
         <div className="flex flex-col gap-1 mb-3">
           <div className={cn("flex items-center", isMobile ? "justify-between" : "justify-end")}>
             {isMobile && (
-              <h3 className="pt-2 pb-2 text-[3rem] leading-none font-black px-1 flex items-center gap-2 text-foreground whitespace-nowrap">
-                {view === 'active' ? <Share2 className="text-primary shrink-0 w-10 h-10" /> : <Trash2 className="text-destructive shrink-0 w-10 h-10" />}
+              <h3 className="-mt-4 flex items-center gap-3 text-[3.8rem] leading-none font-black px-1 text-foreground whitespace-nowrap">
+                {view === 'active' ? <Share2 className="text-primary shrink-0 w-12 h-12" /> : <Trash2 className="text-destructive shrink-0 w-12 h-12" />}
                 {view === 'active' ? "Share It" : "Recycle Bin"}
               </h3>
             )}
@@ -211,13 +211,14 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
             
             <label
               className={cn(
-                "absolute bottom-2 left-2 p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer",
+                "absolute bottom-2 left-2 z-10 p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer",
                 isUploading && "opacity-50 pointer-events-none"
               )}
               title="Upload File (Max 100MB)"
             >
               <input 
                 type="file" 
+                ref={fileInputRef}
                 onChange={handleFileChange}
                 className="hidden"
                 disabled={isUploading}

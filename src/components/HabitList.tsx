@@ -55,7 +55,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
   return (
     <div className="space-y-2 flex flex-col h-full relative">
       <div className="flex flex-col items-start px-1 mb-8 gap-4 md:flex-row md:items-center md:justify-between md:mb-0 md:gap-0">
-        <h3 className="pt-10 md:pt-0 flex items-center gap-3 text-[3.8rem] leading-none font-black text-foreground md:text-sm md:font-normal md:uppercase md:tracking-wider md:text-muted-foreground">
+        <h3 className="-mt-4 md:mt-0 flex items-center gap-3 text-[3.8rem] leading-none font-black text-foreground md:text-sm md:font-normal md:uppercase md:tracking-wider md:text-muted-foreground">
           <ClipboardList className="w-12 h-12 md:hidden text-primary" />
           Tasks
         </h3>

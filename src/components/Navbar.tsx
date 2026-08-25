@@ -392,6 +392,16 @@ export default function Navbar() {
             >
               <Flame className="w-3.5 h-3.5 text-[#f97316] drop-shadow-[0_0_4px_rgba(249,115,22,0.5)]" /> {displayStreak}
             </button>
+            <button
+              type="button"
+              onClick={() => setShowNotifications(true)}
+              className="glass relative !transform-none rounded-full w-8 h-8 flex items-center justify-center hover:bg-secondary/60 transition-colors"
+            >
+              <Bell className="w-4 h-4 text-foreground" />
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-destructive rounded-full border-2 border-background" />
+              )}
+            </button>
           </div>
         </nav>
       </div>
