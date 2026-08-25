@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useClipboard, ClipboardItem } from "@/hooks/useClipboard";
-import { ClipboardPaste, Code, FileText, Trash, Copy, Check, Upload, Trash2, RefreshCcw, Download, File, Share2 } from "lucide-react";
+import { ClipboardPaste, Code, FileText, Trash, Copy, Check, Upload, Trash2, RefreshCcw, Download, File, Share2, ArrowLeft } from "lucide-react";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -190,7 +190,7 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
             className="flex items-center gap-2 text-xs font-semibold p-2.5 md:px-3 md:py-1.5 bg-secondary/50 hover:bg-secondary/80 rounded-full md:rounded-md transition-colors shrink-0"
             title={view === 'active' ? "View Recycle Bin" : "Back to Active"}
           >
-            {view === 'active' ? <Trash2 className="w-5 h-5 md:w-3.5 md:h-3.5 text-muted-foreground" /> : <RefreshCcw className="w-5 h-5 md:w-3.5 md:h-3.5 text-muted-foreground" />}
+            {view === 'active' ? <Trash2 className="w-5 h-5 md:w-3.5 md:h-3.5 text-muted-foreground" /> : <ArrowLeft className="w-5 h-5 md:w-3.5 md:h-3.5 text-muted-foreground" />}
             <span className="hidden md:inline">{view === 'active' ? "View Recycle Bin" : "Back to Active"}</span>
           </button>
         </div>
@@ -210,26 +210,22 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
               className="w-full bg-secondary/40 border border-border/40 rounded-xl p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none h-[80px] pb-10"
             />
             
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                fileInputRef.current?.click();
-              }}
+            <label
               className={cn(
-                "absolute bottom-2 left-2 z-10 p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer",
+                "absolute bottom-2 left-2 z-10 p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer flex items-center justify-center",
                 isUploading && "opacity-50 pointer-events-none"
               )}
               title="Upload File (Max 100MB)"
             >
               <Upload className={cn("w-4 h-4", isUploading && "animate-pulse text-primary")} />
-            </button>
-            <input 
-              type="file" 
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-              disabled={isUploading}
-            />
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="sr-only"
+                disabled={isUploading}
+              />
+            </label>
 
             <Button 
               size="sm" 
