@@ -130,7 +130,8 @@ export function useClipboard() {
 
       const fileNameStr = file.name || "upload";
       const fileExt = fileNameStr.includes('.') ? fileNameStr.split('.').pop() : 'bin';
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const uniqueId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2);
+      const fileName = `${uniqueId}.${fileExt}`;
       const filePath = `${user!.id}/${fileName}`;
 
       console.log(`[Storage] Attempting to upload ${fileName} (${file.size} bytes)...`);

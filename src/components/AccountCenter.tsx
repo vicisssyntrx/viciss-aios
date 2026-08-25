@@ -284,7 +284,8 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
 
       const fileExt = file.name.split('.').pop();
       // Path: {user_id}/{random_uuid}.{ext}
-      const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
+      const uniqueId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2);
+      const filePath = `${user.id}/${uniqueId}.${fileExt}`;
 
       // 1. Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage

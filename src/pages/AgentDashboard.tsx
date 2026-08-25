@@ -141,14 +141,14 @@ export default function AgentDashboard() {
   const handleCreateAgent = () => {
     const nextNum = agents.length + 1;
     const newAgent: Agent = {
-      id: `agent-${crypto.randomUUID()}`,
+      id: `agent-${(typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)}`,
       name: `Agent ${nextNum}`,
       status: "idle",
       phase: "Idle",
       currentAction: "Ready and waiting for new habits or instructions...",
       progress: 100,
       tasks: [
-        { id: `t-${crypto.randomUUID()}`, description: "Awaiting instructions...", status: "pending" }
+        { id: `t-${(typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).substring(2)}`, description: "Awaiting instructions...", status: "pending" }
       ],
       logs: [
         `[${new Date().toLocaleTimeString()}] 📡 Agent ${nextNum} initialized successfully.`
