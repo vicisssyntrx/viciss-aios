@@ -207,8 +207,30 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Paste text, code, or links here..."
-              className="w-full bg-secondary/40 border border-border/40 rounded-xl p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none h-[80px] pb-10"
+              className={cn(
+                "w-full bg-secondary/40 border border-border/40 rounded-xl p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none h-[80px] pb-10 transition-opacity",
+                isUploading && "opacity-50 pointer-events-none"
+              )}
+              disabled={isUploading}
             />
+            
+            {/* Uploading Progress Bar */}
+            {isUploading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-[2px] rounded-xl z-20">
+                <div className="w-3/4 max-w-[200px] bg-secondary rounded-full h-2 overflow-hidden mb-2">
+                  <div className="h-full bg-primary rounded-full animate-[progress_1.5s_ease-in-out_infinite] w-1/2 relative left-[-50%]" 
+                       style={{ animation: 'progress 1.5s ease-in-out infinite' }} />
+                </div>
+                <span className="text-xs font-semibold text-primary animate-pulse">Uploading file...</span>
+                <style>{`
+                  @keyframes progress {
+                    0% { left: -50%; }
+                    50% { left: 100%; }
+                    100% { left: -50%; }
+                  }
+                `}</style>
+              </div>
+            )}
             
             <label
               className={cn(

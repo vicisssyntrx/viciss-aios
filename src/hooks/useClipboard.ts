@@ -137,7 +137,10 @@ export function useClipboard() {
       
       const { error: uploadError } = await supabase.storage
         .from("clipboard_files")
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          contentType: file.type || 'application/octet-stream',
+          upsert: false
+        });
 
       if (uploadError) {
         console.error("[Storage] Upload failed:", uploadError);
