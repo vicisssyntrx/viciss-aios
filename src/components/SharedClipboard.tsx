@@ -96,9 +96,10 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
       toast.loading("Uploading file...", { id: "upload" });
       await uploadFile(file);
       toast.success("File uploaded successfully!", { id: "upload" });
-      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (e: any) {
       toast.error(e.message || "Failed to upload file. Check storage configuration.", { id: "upload" });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -179,8 +180,8 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
         <div className="flex flex-col gap-1 mb-3">
           <div className={cn("flex items-center", isMobile ? "justify-between" : "justify-end")}>
             {isMobile && (
-              <h3 className="-mt-4 flex items-center gap-3 text-[3.8rem] leading-none font-black px-1 text-foreground whitespace-nowrap">
-                {view === 'active' ? <Share2 className="text-primary shrink-0 w-12 h-12" /> : <Trash2 className="text-destructive shrink-0 w-12 h-12" />}
+              <h3 className={cn("mt-2 flex items-center gap-2 md:gap-3 leading-none font-black px-1 text-foreground whitespace-nowrap", view === 'active' ? "text-[3.8rem]" : "text-[2.2rem]")}>
+                {view === 'active' ? <Share2 className="text-primary shrink-0 w-12 h-12" /> : <Trash2 className="text-destructive shrink-0 w-8 h-8" />}
                 {view === 'active' ? "Share It" : "Recycle Bin"}
               </h3>
             )}
@@ -209,22 +210,26 @@ export default function SharedClipboard({ isMobile = false }: { isMobile?: boole
               className="w-full bg-secondary/40 border border-border/40 rounded-xl p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none h-[80px] pb-10"
             />
             
-            <label
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }}
               className={cn(
                 "absolute bottom-2 left-2 z-10 p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors cursor-pointer",
                 isUploading && "opacity-50 pointer-events-none"
               )}
               title="Upload File (Max 100MB)"
             >
-              <input 
-                type="file" 
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="hidden"
-                disabled={isUploading}
-              />
               <Upload className={cn("w-4 h-4", isUploading && "animate-pulse text-primary")} />
-            </label>
+            </button>
+            <input 
+              type="file" 
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              disabled={isUploading}
+            />
 
             <Button 
               size="sm" 

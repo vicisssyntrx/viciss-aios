@@ -52,14 +52,13 @@ export function useClipboard() {
           continue;
         }
 
-        if (item.file_size) {
-          totalSize += item.file_size;
-        }
-
         if (item.status === 'recycled' || age > ONE_DAY) {
           recycled.push(item);
         } else {
           active.push(item);
+          if (item.file_size) {
+            totalSize += item.file_size;
+          }
         }
       }
 
@@ -129,7 +128,8 @@ export function useClipboard() {
     mutationFn: async (file: File) => {
       checkLimits(file.size);
 
-      const fileExt = file.name.split('.').pop();
+      const fileNameStr = file.name || "upload";
+      const fileExt = fileNameStr.includes('.') ? fileNameStr.split('.').pop() : 'bin';
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${user!.id}/${fileName}`;
 
