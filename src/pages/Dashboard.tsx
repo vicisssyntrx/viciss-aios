@@ -20,8 +20,8 @@ import AchievementToast, { AchievementType } from "@/components/AchievementToast
 import MobileBoostCards from "@/components/MobileBoostCards";
 import RabbitAssistant from "@/components/RabbitAssistant";
 import AIChatbot from "@/components/AIChatbot";
-import SharedClipboard from "@/components/SharedClipboard";
-import { Home, ClipboardList, Shield, Zap, Sparkles, Monitor, Share2 } from "lucide-react";
+import ToolsHub from "@/components/tools/ToolsHub";
+import { Home, ClipboardList, Shield, Zap, Sparkles, Monitor, Wrench } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
@@ -69,7 +69,7 @@ export function useMidnightInvalidation() {
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
-  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account" | "edits" | "share">(() => {
+  const [mobileTab, setMobileTab] = useState<"dash" | "tasks" | "chat" | "account" | "edits" | "tools">(() => {
     return (localStorage.getItem("viciss-mobile-tab") as any) || "tasks";
   });
   const [desktopView, setDesktopView] = useState<"dash" | "edits">("dash");
@@ -296,7 +296,7 @@ export default function Dashboard() {
 
   const isDash = mobileTab === "dash";
   const isTasks = mobileTab === "tasks";
-  const isShare = mobileTab === "share";
+  const isTools = mobileTab === "tools";
   const isChat = mobileTab === "chat";
   const isAccount = mobileTab === "account";
   const isEdits = mobileTab === "edits";
@@ -346,7 +346,7 @@ export default function Dashboard() {
               key={mobileTab} 
               className={cn(
                 "md:hidden animate-in fade-in zoom-in-95 duration-300",
-                (isChat || isEdits || isShare) ? "h-[calc(100vh-175px)] pb-4 overflow-hidden" : "space-y-4 pb-32"
+                (isChat || isEdits || isTools) ? "h-[calc(100vh-175px)] pb-4 overflow-hidden" : "space-y-4 pb-32"
               )}
             >
               {/* ── Dash tab ── */}
@@ -391,10 +391,10 @@ export default function Dashboard() {
               {/* Account tab */}
               {isAccount && <AccountCenter isEmbedded={true} />}
 
-              {/* Share It tab */}
-              {isShare && (
-                <div className="h-[calc(100vh-175px)]">
-                  <SharedClipboard isMobile={true} />
+              {/* Tools tab */}
+              {isTools && (
+                <div className="h-[calc(100vh-175px)] overflow-y-auto no-scrollbar">
+                  <ToolsHub isMobile={true} />
                 </div>
               )}
             </div>
@@ -416,7 +416,7 @@ export default function Dashboard() {
 
                 {/* Right column */}
                 <div className="hidden md:block space-y-2">
-                  <SharedClipboard isMobile={false} />
+                  <ToolsHub isMobile={false} />
                 </div>
               </>
             ) : (
@@ -485,15 +485,15 @@ export default function Dashboard() {
             <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
 
-          {/* Tab 3: Share It */}
+          {/* Tab 3: Tools */}
           <button
-            onClick={() => setMobileTab("share")}
+            onClick={() => setMobileTab("tools")}
             className="tg-tab flex-1 select-none py-1.5"
           >
-            <div className={`tg-tab-icon-wrap ${isShare ? "tg-tab-active" : ""}`}>
-              <Share2 className="w-6.5 h-6.5" />
+            <div className={`tg-tab-icon-wrap ${isTools ? "tg-tab-active" : ""}`}>
+              <Wrench className="w-6.5 h-6.5" />
             </div>
-            <span className={`tg-tab-label ${isShare ? "tg-label-active" : ""}`}>Share It</span>
+            <span className={`tg-tab-label ${isTools ? "tg-label-active" : ""}`}>Tools</span>
           </button>
 
           {/* Tab 4: Profile */}
@@ -514,7 +514,7 @@ export default function Dashboard() {
 
       <RabbitAssistant />
       <AIChatbot isModal={true} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-      {isDash && <FloatingManageHabitsButton />}
+      {(isDash || isTasks) && <FloatingManageHabitsButton />}
     </div>
   );
 }

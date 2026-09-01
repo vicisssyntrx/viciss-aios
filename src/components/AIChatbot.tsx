@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { sendMessageToAI, summarizeMemory, ChatMessage, AIProvider } from "@/lib/ai";
-import { Send, Plus, MessageSquare, Menu, X, Wand2 } from "lucide-react";
+import { Send, Plus, MessageSquare, Menu, X, Wand2, Clock } from "lucide-react";
 import { useTodayLog } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
+import { useHabits, useCreateHabit, useDeleteHabit } from "@/hooks/useHabits";
+import { useUpdateHabit } from "@/hooks/useUpdateHabit";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { useAuth } from "@/contexts/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ChatThread {
   id: string;
@@ -17,8 +20,51 @@ interface ChatThread {
   updatedAt: number;
 }
 
+interface ScheduledReminder {
+  id: string;
+  fireAt: number;
+  title: string;
+  body: string;
+}
+
+/** Parse a delay string like "30m", "2h", "1d" → milliseconds */
+function parseDelay(delay: string): number {
+  const match = delay.trim().match(/^(\d+(?:\.\d+)?)(m|h|d|s)$/i);
+  if (!match) return 0;
+  const value = parseFloat(match[1]);
+  const unit = match[2].toLowerCase();
+  switch (unit) {
+    case "s": return value * 1000;
+    case "m": return value * 60 * 1000;
+    case "h": return value * 60 * 60 * 1000;
+    case "d": return value * 24 * 60 * 60 * 1000;
+    default: return 0;
+  }
+}
+
+function humanizeDelay(ms: number): string {
+  if (ms < 60000) return `${Math.round(ms / 1000)}s`;
+  if (ms < 3600000) return `${Math.round(ms / 60000)}m`;
+  if (ms < 86400000) return `${Math.round(ms / 3600000)}h`;
+  return `${Math.round(ms / 86400000)}d`;
+}
+
+function saveReminders(reminders: ScheduledReminder[]) {
+  localStorage.setItem("rabbit-scheduled-reminders", JSON.stringify(reminders));
+}
+
+function loadReminders(): ScheduledReminder[] {
+  try {
+    const saved = localStorage.getItem("rabbit-scheduled-reminders");
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function AIChatbot({ onClose, isModal = false, isOpen = true }: { onClose?: () => void, isModal?: boolean, isOpen?: boolean }) {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const { sendNotification } = useNotifications();
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
@@ -26,12 +72,135 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
   const [isLoading, setIsLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [aiMemory, setAiMemory] = useState<string>("");
+  const [scheduledReminders, setScheduledReminders] = useState<ScheduledReminder[]>([]);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const schedulerRefs = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   // Context data for the AI
   const { data: todayLog } = useTodayLog();
   const { data: stats } = useUserStats();
+  const { data: habits } = useHabits();
+
+  // Habit mutation hooks
+  const createHabit = useCreateHabit();
+  const deleteHabit = useDeleteHabit();
+  const updateHabit = useUpdateHabit();
+
+  // ── Restore scheduled reminders on mount ──────────────────────────────────
+  useEffect(() => {
+    const stored = loadReminders();
+    const now = Date.now();
+    const stillPending = stored.filter(r => r.fireAt > now);
+    
+    // Purge expired ones
+    if (stillPending.length !== stored.length) {
+      saveReminders(stillPending);
+    }
+    setScheduledReminders(stillPending);
+
+    // Re-arm timers for pending reminders
+    stillPending.forEach(reminder => {
+      const delay = reminder.fireAt - now;
+      const timer = setTimeout(() => {
+        sendNotification(reminder.title, reminder.body);
+        setScheduledReminders(prev => {
+          const next = prev.filter(r => r.id !== reminder.id);
+          saveReminders(next);
+          return next;
+        });
+        schedulerRefs.current.delete(reminder.id);
+      }, delay);
+      schedulerRefs.current.set(reminder.id, timer);
+    });
+
+    return () => {
+      schedulerRefs.current.forEach(t => clearTimeout(t));
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Schedule a new reminder ────────────────────────────────────────────────
+  const scheduleReminder = (delayMs: number, title: string, body: string) => {
+    const id = `reminder-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+    const fireAt = Date.now() + delayMs;
+    const reminder: ScheduledReminder = { id, fireAt, title, body };
+
+    setScheduledReminders(prev => {
+      const next = [...prev, reminder];
+      saveReminders(next);
+      return next;
+    });
+
+    const timer = setTimeout(() => {
+      sendNotification(title, body);
+      setScheduledReminders(prev => {
+        const next = prev.filter(r => r.id !== id);
+        saveReminders(next);
+        return next;
+      });
+      schedulerRefs.current.delete(id);
+    }, delayMs);
+    schedulerRefs.current.set(id, timer);
+  };
+
+  // ── Process action tags from Rabbit's reply ────────────────────────────────
+  const processActions = async (rawReply: string): Promise<{ cleaned: string; actionFeedback: string }> => {
+    const actionRegex = /<action\s+([^/]*)\s*\/>/gi;
+    let actionFeedback = "";
+    let match;
+
+    while ((match = actionRegex.exec(rawReply)) !== null) {
+      const attrsStr = match[1];
+      const attrs: Record<string, string> = {};
+      const attrRegex = /(\w+)="([^"]*)"/g;
+      let attrMatch;
+      while ((attrMatch = attrRegex.exec(attrsStr)) !== null) {
+        attrs[attrMatch[1]] = attrMatch[2];
+      }
+
+      const type = attrs.type;
+
+      try {
+        if (type === "create_habit") {
+          await createHabit.mutateAsync({
+            name: attrs.name || "New Habit",
+            emoji: attrs.emoji || "✅",
+            outcome_name: attrs.outcome || undefined,
+            outcome_emoji: attrs.outcome_emoji || undefined,
+          });
+          qc.invalidateQueries({ queryKey: ["habits"] });
+          actionFeedback += `\n✅ Created habit: **${attrs.emoji || "✅"} ${attrs.name}**`;
+        } else if (type === "delete_habit") {
+          const habitToDelete = habits?.find(h => h.id === attrs.id || h.name.toLowerCase() === (attrs.name || "").toLowerCase());
+          if (habitToDelete) {
+            await deleteHabit.mutateAsync(habitToDelete.id);
+            qc.invalidateQueries({ queryKey: ["habits"] });
+            actionFeedback += `\n🗑️ Deleted habit: **${habitToDelete.emoji} ${habitToDelete.name}**`;
+          }
+        } else if (type === "update_habit") {
+          const habitToUpdate = habits?.find(h => h.id === attrs.id || h.name.toLowerCase() === (attrs.name?.toLowerCase() || "NOMATCH"));
+          if (habitToUpdate) {
+            await updateHabit.mutateAsync({
+              id: habitToUpdate.id,
+              name: attrs.new_name || habitToUpdate.name,
+              emoji: attrs.emoji || habitToUpdate.emoji,
+              outcome_name: attrs.outcome || habitToUpdate.outcome_name,
+              outcome_emoji: attrs.outcome_emoji || habitToUpdate.outcome_emoji,
+            });
+            qc.invalidateQueries({ queryKey: ["habits"] });
+            actionFeedback += `\n✏️ Updated habit: **${attrs.emoji || habitToUpdate.emoji} ${attrs.new_name || habitToUpdate.name}**`;
+          }
+        }
+      } catch (err: unknown) {
+        console.error("Action execution failed:", err);
+        actionFeedback += `\n⚠️ Action failed: ${(err as { message?: string })?.message || "Unknown error"}`;
+      }
+    }
+
+    const cleaned = rawReply.replace(actionRegex, "").trim();
+    return { cleaned, actionFeedback };
+  };
 
   // Load from Supabase or fallback to local storage
   useEffect(() => {
@@ -178,7 +347,6 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
     } else {
       setThreads(prev => prev.map(t => {
         if (t.id === currentThreadId) {
-          // Auto-generate title for new threads based on first message
           const title = t.messages.length === 0 ? userMessage.slice(0, 30) + (userMessage.length > 30 ? "..." : "") : t.title;
           return { ...t, title, updatedAt: Date.now(), messages: [...t.messages, newMessageObj] };
         }
@@ -189,18 +357,35 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
     setIsLoading(true);
 
     try {
-      // Build context for System Prompt
+      // Build habit list context
+      const habitList = habits?.map(h => `  - ID: ${h.id} | ${h.emoji} ${h.name}${h.outcome_name ? ` → ${h.outcome_emoji} ${h.outcome_name}` : ""}`).join("\n") || "  (none yet)";
       const completedTasks = todayLog?.completed_habits?.length || 0;
+
       const systemPrompt: ChatMessage = {
         role: "system",
         content: `You are Rabbit, a witty, motivating, and highly intelligent AI accountability partner for a productivity app called Viciss AIOS. 
-        Context about the user right now: 
-        - Current Streak: ${stats?.streak || 0} days
-        - Total Coins: ${stats?.coins || 0}
-        - Tasks completed today: ${completedTasks}
-        ${aiMemory ? `\nLong-term Memories about the User:\n${aiMemory}\n` : ""}
-        Keep your responses concise, helpful, and formatted beautifully in markdown. Act like a friend who wants them to succeed.
-        IMPORTANT: If the user asks you to remind them about something, or if you feel like sending them a push notification, output the exact text of the notification inside a <notify> tag. Example: <notify>Don't forget to drink water!</notify>. You can also include normal conversational text alongside the tag.`
+        
+Context about the user right now: 
+- Current Streak: ${stats?.streak || 0} days
+- Total Coins: ${stats?.coins || 0}
+- Tasks completed today: ${completedTasks}
+- User's current habits/tasks:
+${habitList}
+${aiMemory ? `\nLong-term Memories about the User:\n${aiMemory}\n` : ""}
+
+Keep your responses concise, helpful, and formatted beautifully in markdown. Act like a friend who wants them to succeed.
+
+ACTIONS YOU CAN TAKE:
+1. NOTIFICATIONS: To send an instant push notification, output: <notify>notification text here</notify>
+2. SCHEDULED REMINDERS: To schedule a future reminder, output: <schedule delay="30m" title="Reminder Title">Reminder body text</schedule>
+   Valid delay formats: 30s, 5m, 2h, 1d (seconds/minutes/hours/days)
+3. HABIT MANAGEMENT: To manage habits, output self-closing XML action tags:
+   - Create: <action type="create_habit" name="Habit Name" emoji="💧" outcome="Outcome Name" outcome_emoji="🌊" />
+   - Update: <action type="update_habit" id="habit-uuid-here" new_name="New Name" emoji="🔥" outcome="Updated Outcome" outcome_emoji="⚡" />
+   - Delete: <action type="delete_habit" id="habit-uuid-here" />
+   
+   When updating or deleting, use the exact ID from the habit list above. You can include normal conversational text alongside these tags.
+   IMPORTANT: Only use action tags when the user explicitly asks to create, change, or delete a habit/task/outcome.`
       };
 
       // Get history of the active thread (including the one we just added)
@@ -209,19 +394,46 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
       
       const apiMessages = [systemPrompt, ...messageHistory, newMessageObj];
 
-      const reply = await sendMessageToAI(apiMessages, provider, apiKey, modelId);
+      const rawReply = await sendMessageToAI(apiMessages, provider, apiKey, modelId);
       
-      let finalContent = reply;
-      const notifyMatch = reply.match(/<notify>(.*?)<\/notify>/s);
-      
+      let finalContent = rawReply;
+      let extraFeedback = "";
+
+      // ── Process <notify> tags ──
+      const notifyMatch = rawReply.match(/<notify>(.*?)<\/notify>/s);
       if (notifyMatch && notifyMatch[1]) {
         const notificationText = notifyMatch[1].trim();
         sendNotification("Rabbit says...", notificationText);
-        // Remove the notify tag from the displayed message
-        finalContent = reply.replace(/<notify>.*?<\/notify>/s, "").trim();
-        if (!finalContent) {
-          finalContent = "Notification sent! 🥕";
+        finalContent = finalContent.replace(/<notify>.*?<\/notify>/s, "").trim();
+      }
+
+      // ── Process <schedule> tags ──
+      const scheduleRegex = /<schedule\s+delay="([^"]+)"(?:\s+title="([^"]*)")?>(.*?)<\/schedule>/gs;
+      let schedMatch;
+      while ((schedMatch = scheduleRegex.exec(finalContent)) !== null) {
+        const delay = schedMatch[1];
+        const schedTitle = schedMatch[2] || "Rabbit Reminder 🥕";
+        const body = schedMatch[3].trim();
+        const delayMs = parseDelay(delay);
+        if (delayMs > 0) {
+          scheduleReminder(delayMs, schedTitle, body);
+          extraFeedback += `\n⏰ Reminder scheduled in **${humanizeDelay(delayMs)}**: "${body}"`;
         }
+      }
+      finalContent = finalContent.replace(scheduleRegex, "").trim();
+
+      // ── Process <action> tags ──
+      const { cleaned, actionFeedback } = await processActions(finalContent);
+      finalContent = cleaned;
+      extraFeedback += actionFeedback;
+
+      // Add any feedback lines
+      if (extraFeedback) {
+        finalContent = (finalContent ? finalContent + "\n\n---\n" : "") + extraFeedback.trim();
+      }
+
+      if (!finalContent) {
+        finalContent = "Done! 🥕";
       }
 
       const assistantMsg: ChatMessage = { role: "assistant", content: finalContent };
@@ -246,7 +458,7 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
 
     } catch (err: unknown) {
       console.error(err);
-      toast.error(err.message || "Failed to get AI response.");
+      toast.error((err as { message?: string })?.message || "Failed to get AI response.");
     } finally {
       setIsLoading(false);
     }
@@ -277,6 +489,13 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {/* Scheduled reminders indicator */}
+            {scheduledReminders.length > 0 && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 rounded-full text-primary text-[10px] font-semibold">
+                <Clock className="w-3 h-3" />
+                {scheduledReminders.length} scheduled
+              </div>
+            )}
             <button 
               onClick={createNewThread}
               className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center gap-1 text-xs font-semibold"
@@ -336,6 +555,9 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
               <div className="h-full flex flex-col items-center justify-center text-center opacity-50 space-y-4">
                 <Wand2 className="w-12 h-12 text-primary animate-pulse" />
                 <p className="text-sm font-medium">How can I help you today?</p>
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-[240px]">
+                  I can create habits, schedule reminders, send notifications, and track your progress — just ask!
+                </p>
               </div>
             ) : (
               activeThread?.messages.map((msg, idx) => (
@@ -384,7 +606,7 @@ export default function AIChatbot({ onClose, isModal = false, isOpen = true }: {
                     handleSend();
                   }
                 }}
-                placeholder="Ask Rabbit anything..."
+                placeholder="Ask Rabbit anything... (create habits, set reminders, track progress)"
                 className="flex-1 max-h-32 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none resize-none py-3"
                 rows={1}
                 style={{ minHeight: "44px" }}
