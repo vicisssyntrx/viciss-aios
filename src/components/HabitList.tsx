@@ -73,7 +73,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
       <div className={cn(
         "flex-1 min-h-0 relative",
         effectiveViewMode === 'stack' && "space-y-1.5",
-        effectiveViewMode === 'deck' && "flex flex-col items-center justify-center min-h-[50vh] mt-4 overflow-x-hidden w-full max-w-full px-4 py-8"
+        effectiveViewMode === 'deck' && "flex flex-col items-center justify-center min-h-[50vh] mt-4"
       )}>
         {effectiveViewMode === 'stack' && habits.map((h) => {
           const checked = completedIds.has(h.id);
@@ -135,8 +135,8 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
                   exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                   drag={offset === 0 && !viewOnly ? true : false}
-                  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                  dragElastic={0.7}
+                  dragConstraints={{ left: -250, right: 60, top: -250, bottom: 250 }}
+                  dragElastic={{ left: 0.5, right: 0.1, top: 0.5, bottom: 0.5 }}
                   onDragStart={() => {
                     isDragging.current = true;
                   }}
