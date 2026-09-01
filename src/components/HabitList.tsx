@@ -73,7 +73,7 @@ export default function HabitList({ completedIds, onToggle, viewOnly = false }: 
       <div className={cn(
         "flex-1 min-h-0 relative",
         effectiveViewMode === 'stack' && "space-y-1.5",
-        effectiveViewMode === 'deck' && "flex flex-col items-center justify-center min-h-[50vh] mt-4"
+        effectiveViewMode === 'deck' && "flex flex-col items-center justify-center min-h-[50vh] mt-4 overflow-x-hidden w-full max-w-full px-4 py-8"
       )}>
         {effectiveViewMode === 'stack' && habits.map((h) => {
           const checked = completedIds.has(h.id);
