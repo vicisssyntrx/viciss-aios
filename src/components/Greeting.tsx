@@ -22,16 +22,16 @@ export default function Greeting() {
   let message = "";
 
   if (hour >= 5 && hour < 12) {
-    greeting = `Good Morning\n${name} ☀️`;
+    greeting = `Good Morning,\n${name} ☀️`;
     message = "Rise and grind. Today's 1% starts now.";
   } else if (hour >= 12 && hour < 17) {
-    greeting = `Good Afternoon\n${name} 🌤️`;
+    greeting = `Good Afternoon,\n${name} 🌤️`;
     message = "Halfway through. Keep the momentum alive.";
   } else if (hour >= 17 && hour < 21) {
-    greeting = `Good Evening\n${name} 🌙`;
+    greeting = `Good Evening,\n${name} 🌙`;
     message = "Reflect and finish strong. Every rep counts.";
   } else {
-    greeting = `Good Night\n${name} 🌌`;
+    greeting = `Good Night,\n${name} 🌌`;
     message = "Rest well. Tomorrow is another 1%.";
   }
 
@@ -61,7 +61,7 @@ export default function Greeting() {
   }, [fullGreeting]);
 
   return (
-    <div className="relative px-5 sm:px-6 pt-6 pb-4 rounded-b-3xl">
+    <div className="relative px-5 sm:px-6 pt-5 pb-3 rounded-b-3xl">
       {/* Dynamic Background Effects */}
       <div className="absolute inset-0 pointer-events-none -z-10">
         {hour >= 5 && hour < 12 && (
@@ -86,8 +86,8 @@ export default function Greeting() {
       </div>
 
       <div className="mx-auto w-full max-w-[860px] relative z-10">
-        <h2 className="text-5xl md:text-6xl font-black text-foreground leading-tight whitespace-pre-wrap">{typedGreeting}</h2>
-        <p className="text-base md:text-lg text-muted-foreground mt-0.5">{message}</p>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground tracking-tight leading-tight whitespace-pre-wrap">{typedGreeting}</h2>
+        <p className="text-sm md:text-base text-muted-foreground mt-0.5">{message}</p>
       </div>
     </div>
   );
