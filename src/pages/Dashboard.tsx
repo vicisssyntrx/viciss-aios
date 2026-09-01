@@ -21,7 +21,7 @@ import MobileBoostCards from "@/components/MobileBoostCards";
 import RabbitAssistant from "@/components/RabbitAssistant";
 import AIChatbot from "@/components/AIChatbot";
 import ToolsHub from "@/components/tools/ToolsHub";
-import { Home, ClipboardList, Shield, Zap, Sparkles, Monitor, Wrench } from "lucide-react";
+import { Home, ClipboardList, Shield, Zap, Sparkles, Monitor, LayoutGrid } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLiquidPhysics } from "@/hooks/useLiquidPhysics";
 import { useHabits } from "@/hooks/useHabits";
@@ -345,7 +345,7 @@ export default function Dashboard() {
             <div 
               key={mobileTab} 
               className={cn(
-                "md:hidden animate-in fade-in zoom-in-95 duration-300",
+                "md:hidden animate-in fade-in slide-in-from-bottom-6 duration-300 ease-out overflow-x-hidden w-full max-w-full",
                 (isChat || isEdits || isTools) ? "h-[calc(100vh-175px)] pb-4 overflow-hidden" : "space-y-4 pb-32"
               )}
             >
@@ -491,7 +491,7 @@ export default function Dashboard() {
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isTools ? "tg-tab-active" : ""}`}>
-              <Wrench className="w-6.5 h-6.5" />
+              <LayoutGrid className="w-6.5 h-6.5" />
             </div>
             <span className={`tg-tab-label ${isTools ? "tg-label-active" : ""}`}>Tools</span>
           </button>
@@ -514,7 +514,7 @@ export default function Dashboard() {
 
       <RabbitAssistant />
       <AIChatbot isModal={true} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-      {(isDash || isTasks) && <FloatingManageHabitsButton />}
+      {isTasks && <FloatingManageHabitsButton />}
     </div>
   );
 }

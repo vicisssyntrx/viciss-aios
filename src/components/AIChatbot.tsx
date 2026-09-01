@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { sendMessageToAI, summarizeMemory, ChatMessage, AIProvider } from "@/lib/ai";
-import { Send, Plus, MessageSquare, Menu, X, Wand2, Clock } from "lucide-react";
+import { Send, Plus, MessageSquare, Menu, X, Wand2, Clock, Bot, Sparkles } from "lucide-react";
 import { useTodayLog } from "@/hooks/useDailyLogs";
 import { useUserStats } from "@/hooks/useUserStats";
 import { useHabits, useCreateHabit, useDeleteHabit } from "@/hooks/useHabits";
@@ -481,8 +481,9 @@ ACTIONS YOU CAN TAKE:
             </button>
             <div className="flex flex-col">
               <span className="font-bold text-foreground flex items-center gap-1.5">
-                <img src="/rabbit-avatar.svg" alt="Rabbit" className="w-5 h-5 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
-                <Wand2 className="w-4 h-4 text-primary hidden" />
+                <div className="w-5 h-5 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                  <Bot className="w-3.5 h-3.5" />
+                </div>
                 Rabbit AI
               </span>
               <span className="text-[10px] text-muted-foreground">Powered by {localStorage.getItem("ai-provider") === "google" ? "Google AI Studio" : "OpenRouter"}</span>

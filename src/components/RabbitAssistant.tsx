@@ -3,16 +3,32 @@ import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { useTodayLog } from "@/hooks/useDailyLogs"; 
 import { useNotifications } from "@/hooks/useNotifications";
 import { sendMessageToAI, AIProvider } from "@/lib/ai";
+import { Bot, Sparkles } from "lucide-react";
 
 export default function RabbitAssistant() {
   const [enabled, setEnabled] = useState(() => (localStorage.getItem("rabbit-mode") || localStorage.getItem("rabit-mode") || "on") !== "off");
   const { data: todayLog } = useTodayLog();
   const [chatMessage, setChatMessage] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Track tasks completion to trigger chats
   const completedCount = todayLog?.completed_habits?.length || 0;
   const prevCompletedCount = useRef(completedCount);
   const isDragging = useRef(false);
+
+  // Monitor DOM for open modals / sheets / dialogs to move AI assistant to top
+  useEffect(() => {
+    const checkModal = () => {
+      const modal = document.querySelector(
+        ".fixed.inset-0:not(.pointer-events-none), [role='dialog'], .popup-close"
+      );
+      setIsModalOpen(!!modal);
+    };
+
+    const interval = setInterval(checkModal, 350);
+    checkModal();
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -28,7 +44,7 @@ export default function RabbitAssistant() {
 
   useEffect(() => {
     if (completedCount > prevCompletedCount.current) {
-      setChatMessage("Great job! Keep it up! 🥕");
+      setChatMessage("Great job! Keep it up! ⚡");
       setTimeout(() => setChatMessage(null), 4000);
     }
     prevCompletedCount.current = completedCount;
@@ -60,11 +76,11 @@ export default function RabbitAssistant() {
         const reply = await sendMessageToAI([
           { 
             role: "system", 
-            content: `You are Rabbit, a witty AI accountability partner. The user has ${pendingTasks} pending tasks today. Write a SINGLE very short, punchy, and motivational push notification (under 15 words) to remind them.` 
+            content: `You are Viciss AI Assistant. The user has ${pendingTasks} pending tasks today. Write a SINGLE very short, punchy, and motivational push notification (under 15 words) to remind them.` 
           }
         ], provider, apiKey, modelId);
         
-        await sendNotification("Rabbit Reminder 🥕", reply);
+        await sendNotification("AI Assistant Reminder ⚡", reply);
         localStorage.setItem("rabbit-last-notified", Date.now().toString());
         setChatMessage(reply);
         setTimeout(() => setChatMessage(null), 5000);
@@ -103,7 +119,7 @@ export default function RabbitAssistant() {
   // Float animation for breathing effect
   useEffect(() => {
     if (!enabled) return;
-    const float = animate(y, [0, -10, 0], {
+    const float = animate(y, [0, -8, 0], {
       duration: 3,
       repeat: Infinity,
       ease: "easeInOut"
@@ -118,22 +134,18 @@ export default function RabbitAssistant() {
   useEffect(() => {
     if (!enabled) return;
     const interval = setInterval(() => {
-      // Check which edge it's currently on (0 is right, large negative is left)
       const currentX = x.get();
       const isOnLeftEdge = currentX < -(window.innerWidth / 2);
       
-      // 70% chance to look at center, 30% chance to dart randomly
       const lookAtCenter = Math.random() < 0.7;
       
       let targetX = 0;
       let targetY = 0;
 
       if (lookAtCenter) {
-        // Look towards center of screen (left if docked right, right if docked left)
         targetX = isOnLeftEdge ? 6 : -6;
-        targetY = -2; // Look slightly up towards center
+        targetY = -2;
       } else {
-        // Random darting
         targetX = (Math.random() - 0.5) * 8;
         targetY = (Math.random() - 0.5) * 8;
       }
@@ -163,10 +175,8 @@ export default function RabbitAssistant() {
         const threshold = -(window.innerWidth / 2);
         
         if (currentX < threshold) {
-          // Snap to left edge
           animate(x, -window.innerWidth + 100, { type: "spring", stiffness: 300, damping: 25 });
         } else {
-          // Snap to right edge (origin 0)
           animate(x, 0, { type: "spring", stiffness: 300, damping: 25 });
         }
       }}
@@ -175,7 +185,11 @@ export default function RabbitAssistant() {
           window.dispatchEvent(new Event("open-ai-chat"));
         }
       }}
-      className="fixed z-[9999] cursor-grab active:cursor-grabbing touch-none bottom-[178px] md:bottom-[132px] right-3 md:right-[calc(max(2rem,calc(50%-38rem))-12px)]"
+      className={`fixed z-[9999] cursor-grab active:cursor-grabbing touch-none transition-all duration-500 ease-out ${
+        isModalOpen 
+          ? "top-16 right-3 md:top-20 md:right-[calc(max(2rem,calc(50%-38rem))-12px)]" 
+          : "bottom-[178px] md:bottom-[132px] right-3 md:right-[calc(max(2rem,calc(50%-38rem))-12px)]"
+      }`}
       style={{ x, y }}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
@@ -193,34 +207,56 @@ export default function RabbitAssistant() {
         </motion.div>
       )}
 
-      {/* Render Vector Mode */}
-      <div className="w-20 h-20 relative drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)]">
-        <VectorRabbit eyeX={eyeX} eyeY={eyeY} />
+      {/* Render Vector AI Bot Mode */}
+      <div className="w-16 h-16 md:w-20 md:h-20 relative drop-shadow-[0_10px_25px_rgba(var(--primary),0.35)] group">
+        <VectorAIBot eyeX={eyeX} eyeY={eyeY} />
       </div>
     </motion.div>
   );
 }
 
-// Vector Rabbit (Tracks eyes using Framer Motion)
-function VectorRabbit({ eyeX, eyeY }: { eyeX: unknown; eyeY: unknown }) {
+// Vector AI Bot (Modern glowing AI orb/bot with eye tracking)
+function VectorAIBot({ eyeX, eyeY }: { eyeX: unknown; eyeY: unknown }) {
   return (
-    <svg viewBox="0 0 100 100" className="w-full h-full text-foreground fill-current drop-shadow-md">
-      {/* Ears */}
-      <path d="M 35 45 C 20 10, 30 -10, 40 20 Z" />
-      <path d="M 65 45 C 80 10, 70 -10, 60 20 Z" />
-      {/* Head */}
-      <circle cx="50" cy="65" r="28" className="fill-card stroke-foreground stroke-[4px]" />
-      
-      {/* Eyes Container */}
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <defs>
+        <radialGradient id="aiGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="visorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#0f172a" />
+          <stop offset="100%" stopColor="#1e293b" />
+        </linearGradient>
+      </defs>
+
+      {/* Outer Pulse Halo */}
+      <circle cx="50" cy="50" r="46" fill="url(#aiGlow)" className="animate-pulse" />
+
+      {/* Antenna Spark */}
+      <circle cx="50" cy="14" r="4" fill="currentColor" className="text-primary animate-ping opacity-75" />
+      <circle cx="50" cy="14" r="3" fill="currentColor" className="text-primary" />
+      <line x1="50" y1="18" x2="50" y2="28" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-primary" />
+
+      {/* Main Bot Body / Sphere */}
+      <circle cx="50" cy="56" r="30" className="fill-card stroke-primary stroke-[3px] shadow-2xl" />
+
+      {/* Visor Screen */}
+      <rect x="28" y="44" width="44" height="24" rx="12" fill="url(#visorGrad)" className="stroke-primary/40 stroke-[2px]" />
+
+      {/* Eye Tracking Group */}
       <motion.g style={{ x: eyeX, y: eyeY }}>
-        {/* Left Eye */}
-        <circle cx="40" cy="58" r="4" />
-        {/* Right Eye */}
-        <circle cx="60" cy="58" r="4" />
+        {/* Left Glowing Cyan Eye */}
+        <circle cx="41" cy="56" r="4" fill="currentColor" className="text-primary" />
+        <circle cx="42" cy="55" r="1.5" fill="#ffffff" />
+        
+        {/* Right Glowing Cyan Eye */}
+        <circle cx="59" cy="56" r="4" fill="currentColor" className="text-primary" />
+        <circle cx="60" cy="55" r="1.5" fill="#ffffff" />
       </motion.g>
-      
-      {/* Nose */}
-      <path d="M 48 68 L 52 68 L 50 72 Z" />
+
+      {/* Futuristic Mouth / Wave Line */}
+      <path d="M 44 63 Q 50 66 56 63" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary/70" />
     </svg>
   );
 }

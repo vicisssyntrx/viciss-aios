@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useAuth } from "@/contexts/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { X, LogOut, RotateCcw, Bell, User, Calendar, Download, Moon, Compass, Waves, Sparkles, Sun, Monitor, Wand2, Rabbit, Palette, Settings } from "lucide-react";
+import { X, LogOut, RotateCcw, Bell, User, Calendar, Download, Moon, Compass, Waves, Sparkles, Sun, Monitor, Wand2, Bot, Palette, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -811,7 +811,7 @@ export default function AccountCenter({ onClose, isEmbedded = false }: Props) {
   );
 
   const tabs: { id: SettingsTab; label: string; icon: React.ReactNode }[] = [
-    { id: "rabbit", label: "Rabbit", icon: <Rabbit className="w-4 h-4" /> },
+    { id: "rabbit", label: "Rabbit", icon: <Bot className="w-4 h-4" /> },
     { id: "theme", label: "Theme", icon: <Palette className="w-4 h-4" /> },
     { id: "settings", label: "Settings", icon: <Settings className="w-4 h-4" /> },
   ];
