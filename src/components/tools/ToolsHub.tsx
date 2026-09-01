@@ -180,7 +180,7 @@ export default function ToolsHub({ isMobile = false }: { isMobile?: boolean }) {
   const closeTool = () => setOpenTool(null);
 
   return (
-    <div className={cn(isMobile ? "p-2 pt-4 w-full" : "space-y-4 h-full")}>
+    <div className={cn(isMobile ? "p-2 pt-4 pb-32 w-full" : "space-y-4 h-full")}>
       {/* Page Title */}
       {isMobile && (
         <h3 className="mt-2 flex items-center gap-3 leading-none font-black px-1 text-foreground text-[3.8rem]">

@@ -400,7 +400,7 @@ export default function Dashboard() {
 
               {/* Tools tab */}
               {isTools && (
-                <div className="h-[calc(100vh-175px)] overflow-y-auto no-scrollbar">
+                <div className="h-[calc(100vh-175px)] overflow-y-auto no-scrollbar pb-32">
                   <ToolsHub isMobile={true} />
                 </div>
               )}
