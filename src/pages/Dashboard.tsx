@@ -345,7 +345,7 @@ export default function Dashboard() {
             <div 
               key={mobileTab} 
               className={cn(
-                "md:hidden animate-in fade-in slide-in-from-bottom-6 duration-300 ease-out overflow-x-hidden w-full max-w-full",
+                "md:hidden animate-in fade-in slide-in-from-bottom-6 duration-300 ease-out w-full max-w-full",
                 (isChat || isEdits || isTools) ? "h-[calc(100vh-175px)] pb-4 overflow-hidden" : "space-y-4 pb-32"
               )}
             >
@@ -385,6 +385,13 @@ export default function Dashboard() {
               {isTasks && (
                 <div className="px-2 pb-32">
                   <HabitList completedIds={completedIds} onToggle={toggleHabit} viewOnly={false} />
+                </div>
+              )}
+
+              {/* Rabbit AI Chat tab */}
+              {isChat && (
+                <div className="h-[calc(100vh-175px)] overflow-hidden">
+                  <AIChatbot isModal={false} />
                 </div>
               )}
 
@@ -460,8 +467,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Floating Mobile Tab Bar ─────────────────────────────────────────── */}
-      <div className="md:hidden fixed bottom-7 left-1/2 -translate-x-1/2 z-50 w-[85%] max-w-[300px]">
+      {/* ── Floating Mobile Tab Bar (5 Tabs with Center Rabbit AI) ─────────────────────────── */}
+      <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[370px]">
         <div className="flex items-stretch rounded-full overflow-hidden floating-nav-pill w-full px-1 py-0.5 shadow-[0_12px_40px_rgba(0,0,0,0.8),0_4px_12px_rgba(0,0,0,0.6)] border border-white/10">
           {/* Tab 1: Dash */}
           <button
@@ -469,7 +476,7 @@ export default function Dashboard() {
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isDash ? "tg-tab-active" : ""}`}>
-              <Home className="w-6.5 h-6.5" />
+              <Home className="w-5.5 h-5.5" />
             </div>
             <span className={`tg-tab-label ${isDash ? "tg-label-active" : ""}`}>Dash</span>
           </button>
@@ -480,31 +487,42 @@ export default function Dashboard() {
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isTasks ? "tg-tab-active" : ""}`}>
-              <ClipboardList className="w-6.5 h-6.5" />
+              <ClipboardList className="w-5.5 h-5.5" />
             </div>
             <span className={`tg-tab-label ${isTasks ? "tg-label-active" : ""}`}>Tasks</span>
           </button>
 
-          {/* Tab 3: Tools */}
+          {/* Tab 3: Rabbit AI (Centre) */}
+          <button
+            onClick={() => setMobileTab("chat")}
+            className="tg-tab flex-1 select-none py-1.5"
+          >
+            <div className={`tg-tab-icon-wrap ${isChat ? "tg-tab-active" : ""}`}>
+              <Sparkles className="w-5.5 h-5.5 text-primary drop-shadow-[0_0_6px_rgba(var(--primary),0.6)]" />
+            </div>
+            <span className={`tg-tab-label ${isChat ? "tg-label-active" : ""}`}>Rabbit AI</span>
+          </button>
+
+          {/* Tab 4: Tools */}
           <button
             onClick={() => setMobileTab("tools")}
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isTools ? "tg-tab-active" : ""}`}>
-              <LayoutGrid className="w-6.5 h-6.5" />
+              <LayoutGrid className="w-5.5 h-5.5" />
             </div>
             <span className={`tg-tab-label ${isTools ? "tg-label-active" : ""}`}>Tools</span>
           </button>
 
-          {/* Tab 4: Profile */}
+          {/* Tab 5: Profile */}
           <button
             onClick={() => setMobileTab("account")}
             className="tg-tab flex-1 select-none py-1.5"
           >
             <div className={`tg-tab-icon-wrap ${isAccount ? "tg-tab-active" : ""}`}>
-              <Avatar className="h-[28px] w-[28px] border border-primary/40 shrink-0">
+              <Avatar className="h-[24px] w-[24px] border border-primary/40 shrink-0">
                 {avatarUrl ? <AvatarImage src={avatarUrl} alt="Profile" className="object-cover rounded-full h-full w-full" /> : null}
-                <AvatarFallback className="text-primary font-bold text-[10px] bg-primary/20 flex items-center justify-center rounded-full w-full h-full">{initial}</AvatarFallback>
+                <AvatarFallback className="text-primary font-bold text-[9px] bg-primary/20 flex items-center justify-center rounded-full w-full h-full">{initial}</AvatarFallback>
               </Avatar>
             </div>
             <span className={`tg-tab-label ${isAccount ? "tg-label-active" : ""}`}>Profile</span>
@@ -512,7 +530,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <RabbitAssistant />
       <AIChatbot isModal={true} isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       {isTasks && <FloatingManageHabitsButton />}
     </div>
