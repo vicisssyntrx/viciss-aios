@@ -351,7 +351,7 @@ export default function Dashboard() {
             >
               {/* ── Dash tab ── */}
               {isDash && (
-                <>
+                <div className="px-3 space-y-4">
                   <GrowthGraph activeTab={mobileTab} />
                   <JourneyInsights activeTab={mobileTab} />
                   
@@ -378,7 +378,7 @@ export default function Dashboard() {
                       <p className="text-2xl font-black text-foreground leading-none">{stats?.power_ups ?? 0}</p>
                     </button>
                   </div>
-                </>
+                </div>
               )}
 
               {/* Tasks tab */}
